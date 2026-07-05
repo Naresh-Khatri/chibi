@@ -4,8 +4,10 @@ import {
   DEFAULT_MATERIAL_ID,
   ENVIRONMENT_PRESETS,
   GEOMETRY_DEFS,
+  type ChibiMaterial,
   type LightNode,
   type MeshNode,
+  type ModelNode,
   type Vec3,
 } from "@/runtime/schema";
 import { useDoc } from "../store/document";
@@ -27,8 +29,10 @@ import {
   setEnvironment,
   setGridVisible,
   setLightProp,
+  setMaterialMap,
   setMaterialProp,
 } from "../store/materialCommands";
+import { importAssetFile } from "../store/assets";
 import { disposeMaterial } from "../viewport/materials";
 import {
   Checkbox,
@@ -164,7 +168,7 @@ function NodeInspector({ nodeId }: { nodeId: string }) {
             onChange={(v) => setNodeVisible(nodeId, v)}
           />
         </div>
-        {node.type === "mesh" && (
+        {(node.type === "mesh" || node.type === "model") && (
           <div className="flex gap-4 pl-18">
             <Checkbox
               label="Cast shadow"
@@ -200,7 +204,26 @@ function NodeInspector({ nodeId }: { nodeId: string }) {
       {node.type === "mesh" && <GeometrySection node={node} />}
       {node.type === "mesh" && <MaterialSection node={node} />}
       {node.type === "light" && <LightSection node={node} />}
+      {node.type === "model" && <ModelSection node={node} />}
     </>
+  );
+}
+
+function ModelSection({ node }: { node: ModelNode }) {
+  const asset = useDoc((s) => s.doc?.assets[node.assetId]);
+  return (
+    <Section title="Model">
+      <LabeledRow label="Asset">
+        <span className="truncate text-xs text-ink">
+          {asset
+            ? `${asset.name} · ${(asset.size / 1_000_000).toFixed(1)} MB`
+            : "missing asset"}
+        </span>
+      </LabeledRow>
+      <div className="text-[11px] text-ink-dim/70">
+        Embedded materials render as-is; internal hierarchy is read-only.
+      </div>
+    </Section>
   );
 }
 
@@ -384,14 +407,72 @@ function MaterialSection({ node }: { node: MeshNode }) {
           onChange={(v) => setMaterialProp(material.id, { flatShading: v })}
         />
       </div>
-      {(["Albedo", "Normal", "Roughness"] as const).map((slot) => (
-        <LabeledRow key={slot} label={slot}>
-          <div className="flex h-6 flex-1 items-center rounded border border-dashed border-edge px-1.5 text-[11px] text-ink-dim/60">
-            texture — arrives in M3
-          </div>
-        </LabeledRow>
+      {TEXTURE_SLOTS.map(({ slot, label }) => (
+        <TextureSlotRow
+          key={slot}
+          material={material}
+          slot={slot}
+          label={label}
+        />
       ))}
     </Section>
+  );
+}
+
+const TEXTURE_SLOTS = [
+  { slot: "map", label: "Albedo" },
+  { slot: "normalMap", label: "Normal" },
+  { slot: "roughnessMap", label: "Roughness" },
+] as const;
+
+const IMAGE_TYPES = /^image\/(png|jpeg|webp)$/;
+
+function TextureSlotRow({
+  material,
+  slot,
+  label,
+}: {
+  material: ChibiMaterial;
+  slot: keyof ChibiMaterial["maps"];
+  label: string;
+}) {
+  const assets = useDoc((s) => s.doc?.assets);
+  const textures = assets
+    ? Object.values(assets).filter((a) => a.kind === "texture")
+    : [];
+  const currentId = material.maps[slot];
+  const current = currentId && assets ? assets[currentId] : undefined;
+
+  const items: MenuItem[] = [
+    { label: "None", onSelect: () => setMaterialMap(material.id, slot, null) },
+    ...textures.map((t) => ({
+      label: t.id === currentId ? `✓ ${t.name}` : t.name,
+      onSelect: () => setMaterialMap(material.id, slot, t.id),
+    })),
+  ];
+
+  return (
+    <LabeledRow label={label}>
+      <div
+        className="min-w-0 flex-1 rounded border border-dashed border-edge"
+        title="Pick a texture or drop an image here"
+        onDragOver={(e) => {
+          if (e.dataTransfer.types.includes("Files")) e.preventDefault();
+        }}
+        onDrop={async (e) => {
+          e.preventDefault();
+          const file = e.dataTransfer.files[0];
+          if (!file || !IMAGE_TYPES.test(file.type)) return;
+          const asset = await importAssetFile(file, "texture");
+          setMaterialMap(material.id, slot, asset.id);
+        }}
+      >
+        <Dropdown
+          button={<span className="truncate">{current?.name ?? "None"} ▾</span>}
+          items={items}
+        />
+      </div>
+    </LabeledRow>
   );
 }
 

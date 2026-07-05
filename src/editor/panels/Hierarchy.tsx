@@ -1,13 +1,16 @@
 "use client";
 
 import {
+  Fragment,
   useEffect,
   useMemo,
   useRef,
   useState,
   type DragEvent as ReactDragEvent,
 } from "react";
+import type { Object3D } from "three";
 import type { ChibiNode } from "@/runtime/schema";
+import { getSceneObject, useRegistry } from "../viewport/objectRegistry";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
 import {
@@ -23,7 +26,40 @@ const TYPE_ICONS: Record<ChibiNode["type"], string> = {
   mesh: "◼",
   group: "▣",
   light: "✳",
+  model: "◆",
 };
+
+// Read-only view of a GLB's internal object tree (informational only).
+function ModelInternals({ nodeId, depth }: { nodeId: string; depth: number }) {
+  useRegistry((s) => s.version);
+  const object = getSceneObject(nodeId);
+  const rows: { key: string; name: string; depth: number }[] = [];
+  if (object) {
+    const walk = (o: Object3D, d: number) => {
+      for (const child of o.children) {
+        if (rows.length >= 100) return;
+        const named = child.name.length > 0;
+        if (named) rows.push({ key: child.uuid, name: child.name, depth: d });
+        walk(child, named ? d + 1 : d);
+      }
+    };
+    walk(object, depth);
+  }
+  return (
+    <>
+      {rows.map((row) => (
+        <div
+          key={row.key}
+          className="flex h-6 items-center gap-1 pr-2 text-[11px] italic text-ink-dim/70"
+          style={{ paddingLeft: 8 + row.depth * 14 + 16 }}
+        >
+          <span className="text-[9px]">·</span>
+          <span className="truncate">{row.name}</span>
+        </div>
+      ))}
+    </>
+  );
+}
 
 type Row = { id: string; depth: number };
 
@@ -116,10 +152,10 @@ export function Hierarchy() {
           const node = doc.nodes[id];
           const isSelected = id === selectedId;
           const isDrop = dropTarget?.id === id;
-          const hasChildren = node.children.length > 0;
+          const hasChildren = node.children.length > 0 || node.type === "model";
           return (
+            <Fragment key={id}>
             <div
-              key={id}
               ref={(el) => {
                 if (el) rowRefs.current.set(id, el);
                 else rowRefs.current.delete(id);
@@ -233,6 +269,10 @@ export function Hierarchy() {
                 {node.visible ? "◉" : "○"}
               </button>
             </div>
+            {node.type === "model" && !collapsed.has(id) && (
+              <ModelInternals nodeId={id} depth={depth + 1} />
+            )}
+            </Fragment>
           );
         })}
         <div

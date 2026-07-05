@@ -83,6 +83,17 @@ export function deleteMaterial(materialId: string) {
   });
 }
 
+export function setMaterialMap(
+  materialId: string,
+  slot: keyof ChibiMaterial["maps"],
+  assetId: string | null,
+) {
+  dispatch("Edit material texture", (d) => {
+    const material = d.materials[materialId];
+    if (material) material.maps[slot] = assetId;
+  });
+}
+
 export function setLightProp(
   nodeId: string,
   updates: Partial<LightNode["light"]>,

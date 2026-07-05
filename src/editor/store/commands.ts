@@ -3,6 +3,7 @@ import {
   GEOMETRY_DEFS,
   defaultGeometryParams,
   newId,
+  type ChibiAsset,
   type ChibiDocument,
   type ChibiNode,
   type GeometryKind,
@@ -10,6 +11,7 @@ import {
   type LightKind,
   type LightNode,
   type MeshNode,
+  type ModelNode,
   type Transform,
   type Vec3,
 } from "@/runtime/schema";
@@ -160,6 +162,27 @@ export function addGroupNode() {
   useUI.getState().select(id);
 }
 
+export function addModelNode(asset: ChibiAsset) {
+  const id = newId("nd");
+  const baseName = asset.name.replace(/\.(glb|gltf)$/i, "");
+  dispatch(`Add ${baseName}`, (d) => {
+    const node: ModelNode = {
+      id,
+      name: uniqueName(d, baseName),
+      type: "model",
+      assetId: asset.id,
+      transform: identityTransform(),
+      visible: true,
+      castShadow: true,
+      receiveShadow: true,
+      children: [],
+    };
+    d.nodes[id] = node;
+    d.root.push(id);
+  });
+  useUI.getState().select(id);
+}
+
 export function removeNode(nodeId: string) {
   const doc = useDoc.getState().doc;
   if (!doc || !doc.nodes[nodeId]) return;
@@ -196,7 +219,7 @@ export function setNodeShadow(
 ) {
   dispatch("Toggle shadow", (d) => {
     const node = d.nodes[nodeId];
-    if (node?.type === "mesh") node[key] = value;
+    if (node?.type === "mesh" || node?.type === "model") node[key] = value;
   });
 }
 

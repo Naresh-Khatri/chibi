@@ -15,6 +15,7 @@ import { useUI } from "../store/ui";
 import { SceneNodes } from "./NodeRenderer";
 import { Gizmo } from "./Gizmo";
 import { SelectionBox } from "./SelectionBox";
+import { handleDroppedFiles } from "./dropImport";
 import { setOrbitControls, type OrbitLike } from "./objectRegistry";
 
 const CLICK_SLOP_PX = 6;
@@ -66,12 +67,35 @@ export function Viewport() {
     );
   });
   const pointerDownAt = useRef<{ x: number; y: number } | null>(null);
+  const dragDepth = useRef(0);
+  const [dropping, setDropping] = useState(false);
 
   return (
     <div
-      className="h-full min-h-0 min-w-0"
+      className={`relative h-full min-h-0 min-w-0 ${
+        dropping ? "ring-2 ring-inset ring-accent" : ""
+      }`}
       onPointerDown={(e) => {
         pointerDownAt.current = { x: e.clientX, y: e.clientY };
+      }}
+      onDragEnter={(e) => {
+        if (!e.dataTransfer.types.includes("Files")) return;
+        e.preventDefault();
+        dragDepth.current += 1;
+        setDropping(true);
+      }}
+      onDragOver={(e) => {
+        if (e.dataTransfer.types.includes("Files")) e.preventDefault();
+      }}
+      onDragLeave={() => {
+        dragDepth.current = Math.max(0, dragDepth.current - 1);
+        if (dragDepth.current === 0) setDropping(false);
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        dragDepth.current = 0;
+        setDropping(false);
+        handleDroppedFiles(e.dataTransfer.files);
       }}
     >
       <Canvas

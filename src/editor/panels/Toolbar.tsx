@@ -1,9 +1,13 @@
 "use client";
 
+import { useRef } from "react";
+import { useRouter } from "next/navigation";
 import { GEOMETRY_DEFS, GEOMETRY_KINDS } from "@/runtime/schema";
 import { useDoc } from "../store/document";
 import { useUI, type Tool } from "../store/ui";
 import { addGroupNode, addLightNode, addMeshNode } from "../store/commands";
+import { exportCurrentDocument, importDocumentFromFile } from "../store/files";
+import { saveImportedDocument } from "../store/persistence";
 import { Dropdown, type MenuItem } from "./controls";
 
 const TOOLS: { tool: Tool; label: string; hint: string }[] = [
@@ -14,6 +18,8 @@ const TOOLS: { tool: Tool; label: string; hint: string }[] = [
 ];
 
 export function Toolbar() {
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const tool = useUI((s) => s.tool);
   const setTool = useUI((s) => s.setTool);
   const snap = useUI((s) => s.snap);
@@ -23,6 +29,13 @@ export function Toolbar() {
   const canRedo = useDoc((s) => s.redoStack.length > 0);
   const undo = useDoc((s) => s.undo);
   const redo = useDoc((s) => s.redo);
+
+  const fileItems: MenuItem[] = [
+    { label: "Export .chibi.zip", onSelect: () => exportCurrentDocument("zip") },
+    { label: "Export .chibi.json", onSelect: () => exportCurrentDocument("json") },
+    { divider: true },
+    { label: "Open file…", onSelect: () => fileInputRef.current?.click() },
+  ];
 
   const addItems: MenuItem[] = [
     ...GEOMETRY_KINDS.map((kind) => ({
@@ -109,12 +122,28 @@ export function Toolbar() {
       >
         ▶ Preview
       </button>
-      <Dropdown
-        button={<>Export ▾</>}
-        items={[]}
-        disabled
-        title="Export arrives in M3"
-        align="right"
+      <Dropdown button={<>File ▾</>} items={fileItems} align="right" />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json,.zip"
+        className="hidden"
+        onChange={async (e) => {
+          const file = e.currentTarget.files?.[0];
+          e.currentTarget.value = "";
+          if (!file) return;
+          try {
+            const doc = await importDocumentFromFile(file);
+            const docId = await saveImportedDocument(doc);
+            router.push(`/editor/${docId}`);
+          } catch (err) {
+            useUI
+              .getState()
+              .showToast(
+                err instanceof Error ? err.message : "Import failed",
+              );
+          }
+        }}
       />
     </div>
   );

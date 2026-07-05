@@ -75,10 +75,20 @@ export const lightNodeSchema = z.object({
 });
 export type LightNode = z.infer<typeof lightNodeSchema>;
 
+export const modelNodeSchema = z.object({
+  ...nodeBase,
+  type: z.literal("model"),
+  assetId: z.string(),
+  castShadow: z.boolean(),
+  receiveShadow: z.boolean(),
+});
+export type ModelNode = z.infer<typeof modelNodeSchema>;
+
 export const nodeSchema = z.discriminatedUnion("type", [
   meshNodeSchema,
   groupNodeSchema,
   lightNodeSchema,
+  modelNodeSchema,
 ]);
 export type ChibiNode = z.infer<typeof nodeSchema>;
 

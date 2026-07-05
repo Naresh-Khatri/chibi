@@ -1,6 +1,15 @@
 "use client";
 
-import { memo, useCallback, useRef } from "react";
+import {
+  Component,
+  Suspense,
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import type { Group, Mesh, Object3D } from "three";
 import {
   DirectionalLightHelper,
@@ -11,18 +20,21 @@ import {
   type SpotLight,
 } from "three";
 import type { ThreeEvent } from "@react-three/fiber";
-import { Text3D, useHelper } from "@react-three/drei";
+import { Clone, Text3D, useGLTF, useHelper } from "@react-three/drei";
 import {
   numParam,
   strParam,
   DEFAULT_MATERIAL_ID,
+  type ChibiAsset,
   type GeometryParams,
   type GroupNode,
   type LightNode,
   type MeshNode,
+  type ModelNode,
 } from "@/runtime/schema";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
+import { assetUrl } from "../store/assets";
 import { useRegistry } from "./objectRegistry";
 import { getSharedMaterial } from "./materials";
 
@@ -51,6 +63,8 @@ export const NodeView = memo(function NodeView({ id }: { id: string }) {
       return <GroupView node={node} />;
     case "light":
       return <LightView node={node} />;
+    case "model":
+      return <ModelView node={node} />;
   }
 });
 
@@ -190,6 +204,109 @@ function GeometryElement({
     default:
       return null;
   }
+}
+
+class ModelBoundary extends Component<
+  { name: string; children: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch() {
+    useUI.getState().showToast(`Failed to load model "${this.props.name}"`);
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
+
+function ModelView({ node }: { node: ModelNode }) {
+  const asset = useDoc((s) => s.doc?.assets[node.assetId]);
+  const ref = useNodeRef<Group>(node.id);
+  const onPointerDown = useSelect(node.id);
+  const { position, rotation, scale } = node.transform;
+  return (
+    <group
+      ref={ref}
+      position={position}
+      rotation={rotation}
+      scale={scale}
+      visible={node.visible}
+      onPointerDown={onPointerDown}
+    >
+      {asset && (
+        <ModelBoundary name={asset.name}>
+          <Suspense fallback={null}>
+            <GlbContent
+              asset={asset}
+              castShadow={node.castShadow}
+              receiveShadow={node.receiveShadow}
+            />
+          </Suspense>
+        </ModelBoundary>
+      )}
+      {node.children.map((cid) => (
+        <NodeView key={cid} id={cid} />
+      ))}
+    </group>
+  );
+}
+
+function GlbContent({
+  asset,
+  castShadow,
+  receiveShadow,
+}: {
+  asset: ChibiAsset;
+  castShadow: boolean;
+  receiveShadow: boolean;
+}) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    assetUrl(asset)
+      .then((u) => active && setUrl(u))
+      .catch(() =>
+        useUI.getState().showToast(`Asset data missing for "${asset.name}"`),
+      );
+    return () => {
+      active = false;
+    };
+  }, [asset]);
+  if (!url) return null;
+  return (
+    <GlbScene url={url} castShadow={castShadow} receiveShadow={receiveShadow} />
+  );
+}
+
+function GlbScene({
+  url,
+  castShadow,
+  receiveShadow,
+}: {
+  url: string;
+  castShadow: boolean;
+  receiveShadow: boolean;
+}) {
+  const gltf = useGLTF(url);
+  const group = useRef<Group>(null);
+  useEffect(() => {
+    group.current?.traverse((obj) => {
+      if ((obj as Mesh).isMesh) {
+        obj.castShadow = castShadow;
+        obj.receiveShadow = receiveShadow;
+      }
+    });
+    // let the hierarchy panel re-read this model's internal tree
+    useRegistry.setState((s) => ({ version: s.version + 1 }));
+  }, [gltf, castShadow, receiveShadow]);
+  return (
+    <group ref={group}>
+      <Clone object={gltf.scene} />
+    </group>
+  );
 }
 
 function GroupView({ node }: { node: GroupNode }) {
