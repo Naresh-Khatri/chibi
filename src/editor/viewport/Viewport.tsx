@@ -13,6 +13,7 @@ import type { Material, Mesh } from "three";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
 import { SceneNodes } from "./NodeRenderer";
+import { AnimationPlayback } from "./AnimationPlayback";
 import { Gizmo } from "./Gizmo";
 import { SelectionBox } from "./SelectionBox";
 import { handleDroppedFiles } from "./dropImport";
@@ -134,6 +135,7 @@ export function Viewport() {
         <Suspense fallback={null}>
           <SceneNodes />
         </Suspense>
+        <AnimationPlayback />
         <SelectionBox />
         <Gizmo />
         {grid && (

@@ -70,6 +70,11 @@ function syncMaps(mat: MeshStandardMaterial, def: ChibiMaterial) {
   }
 }
 
+/** Cached three material for a document material id (for animation playback). */
+export function getCachedMaterial(id: string): MeshStandardMaterial | null {
+  return cache.get(id) ?? null;
+}
+
 export function disposeMaterial(id: string) {
   cache.get(id)?.dispose();
   cache.delete(id);

@@ -41,6 +41,16 @@ export function useShortcuts() {
       if (meta || e.altKey) return;
 
       switch (key) {
+        case " ":
+          // play/pause when the timeline is open (prevent scroll + button focus clicks)
+          if (ui.timelineOpen && ui.activeClipId) {
+            e.preventDefault();
+            ui.togglePlay();
+          }
+          break;
+        case "t":
+          if (e.shiftKey) ui.toggleTimeline();
+          break;
         case "v":
           ui.setTool("select");
           break;
