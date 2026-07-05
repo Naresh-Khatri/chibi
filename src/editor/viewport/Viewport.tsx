@@ -16,7 +16,7 @@ import { SceneNodes } from "./NodeRenderer";
 import { Gizmo } from "./Gizmo";
 import { SelectionBox } from "./SelectionBox";
 import { handleDroppedFiles } from "./dropImport";
-import { setOrbitControls, type OrbitLike } from "./objectRegistry";
+import { isGizmoActive, setOrbitControls, type OrbitLike } from "./objectRegistry";
 
 const CLICK_SLOP_PX = 6;
 
@@ -108,6 +108,7 @@ export function Viewport() {
           far: 500,
         }}
         onPointerMissed={(e) => {
+          if (isGizmoActive()) return;
           const down = pointerDownAt.current;
           if (
             down &&

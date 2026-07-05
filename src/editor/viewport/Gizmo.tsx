@@ -5,7 +5,11 @@ import { TransformControls } from "@react-three/drei";
 import type { Vec3 } from "@/runtime/schema";
 import { setTransform } from "../store/commands";
 import { useUI } from "../store/ui";
-import { useSceneObject } from "./objectRegistry";
+import {
+  setGizmoControls,
+  useSceneObject,
+  type GizmoControlsLike,
+} from "./objectRegistry";
 
 function useCtrlHeld() {
   const [held, setHeld] = useState(false);
@@ -36,6 +40,10 @@ export function Gizmo() {
   return (
     <TransformControls
       object={object}
+      ref={(controls) => {
+        setGizmoControls(controls as unknown as GizmoControlsLike | null);
+        return () => setGizmoControls(null);
+      }}
       mode={tool === "move" ? "translate" : tool}
       translationSnap={snapping ? 0.5 : null}
       rotationSnap={snapping ? Math.PI / 12 : null}

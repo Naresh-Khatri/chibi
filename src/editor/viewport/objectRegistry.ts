@@ -32,6 +32,22 @@ export function getSceneObject(id: string): Object3D | null {
   return objects.get(id) ?? null;
 }
 
+export type GizmoControlsLike = {
+  axis: string | null;
+  dragging: boolean;
+};
+
+let gizmoControls: GizmoControlsLike | null = null;
+
+export function setGizmoControls(controls: GizmoControlsLike | null) {
+  gizmoControls = controls;
+}
+
+/** True while the pointer hovers or drags a transform-gizmo handle. */
+export function isGizmoActive(): boolean {
+  return Boolean(gizmoControls && (gizmoControls.axis !== null || gizmoControls.dragging));
+}
+
 export type OrbitLike = {
   target: Vector3;
   object: PerspectiveCamera;

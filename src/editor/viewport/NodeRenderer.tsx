@@ -35,7 +35,7 @@ import {
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
 import { assetUrl } from "../store/assets";
-import { useRegistry } from "./objectRegistry";
+import { isGizmoActive, useRegistry } from "./objectRegistry";
 import { getSharedMaterial } from "./materials";
 
 const SELECTION_COLOR = "#4d8dff";
@@ -88,6 +88,8 @@ function useNodeRef<T extends Object3D>(id: string) {
 function useSelect(id: string) {
   return useCallback(
     (e: ThreeEvent<PointerEvent>) => {
+      // Gizmo handles are outside the R3F raycast; don't select through them.
+      if (isGizmoActive()) return;
       e.stopPropagation();
       useUI.getState().select(id);
     },
