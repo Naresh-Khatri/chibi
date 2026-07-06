@@ -21,6 +21,11 @@ import { isGizmoActive, setOrbitControls, type OrbitLike } from "./objectRegistr
 
 const CLICK_SLOP_PX = 6;
 
+// Keep the axes gizmo clear of the floating inspector panel
+// (right-3 inset = 12px + w-64 = 256px) when it is open.
+const GIZMO_MARGIN = 64;
+const INSPECTOR_WIDTH = 12 + 256;
+
 // Preset HDRIs are fetched from a CDN at runtime; if that fails (offline),
 // drop the environment instead of crashing the canvas.
 class EnvironmentBoundary extends Component<
@@ -67,6 +72,7 @@ export function Viewport() {
       cam ?? { position: [4, 3, 6] as const, target: [0, 0.5, 0] as const, fov: 45 }
     );
   });
+  const inspectorOpen = useUI((s) => s.inspectorOpen);
   const pointerDownAt = useRef<{ x: number; y: number } | null>(null);
   const dragDepth = useRef(0);
   const [dropping, setDropping] = useState(false);
@@ -161,7 +167,13 @@ export function Viewport() {
             return () => setOrbitControls(null);
           }}
         />
-        <GizmoHelper alignment="bottom-right" margin={[64, 64]}>
+        <GizmoHelper
+          alignment="bottom-right"
+          margin={[
+            inspectorOpen ? GIZMO_MARGIN + INSPECTOR_WIDTH : GIZMO_MARGIN,
+            GIZMO_MARGIN,
+          ]}
+        >
           <GizmoViewport
             axisColors={["#e56", "#8c4", "#48f"]}
             labelColor="#ddd"
