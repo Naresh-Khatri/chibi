@@ -8,11 +8,18 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
-import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
-import { Clone, Environment, Text3D, useGLTF } from "@react-three/drei";
+import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
+import {
+  Clone,
+  Environment,
+  OrbitControls,
+  Text3D,
+  useGLTF,
+} from "@react-three/drei";
 import {
   DoubleSide,
   MeshStandardMaterial,
@@ -40,27 +47,50 @@ import {
   InteractionRuntime,
   interactiveNodeIds,
   parseTargetKey,
+  type RuntimeEvent,
 } from "../engine";
+import type { ResolveAssetUrl } from "../assets";
 import { FONT_URL, GeometryElement } from "./Geometry";
 
-export type ResolveAssetUrl = (asset: ChibiAsset) => Promise<string>;
+export type { ResolveAssetUrl } from "../assets";
 
 export type SceneHostProps = {
   doc: ChibiDocument;
   /** asset record -> URL. editor: IndexedDB; runtime: zip / host callback */
   resolveAsset?: ResolveAssetUrl;
+  /** pointer triggers active (default true) */
+  interactive?: boolean;
+  /** user orbit around the scene camera (default false) */
+  orbit?: boolean;
+  /** fire `start` triggers on mount (default true) */
+  autoStart?: boolean;
+  /** engine events + "ready" surface here */
+  onEvent?: (event: RuntimeEvent) => void;
+  /** the live engine instance — <ChibiScene> binds its api ref to it */
+  onRuntime?: (runtime: InteractionRuntime | null) => void;
 };
 
 /**
  * chrome-less interactive render from the doc's scene camera; engine values
  * (transitions, clips) applied imperatively each frame. core of the runtime
  * <ChibiScene> — M6 wraps it, the editor's Preview mounts it directly.
+ * frameloop is demand-driven: the engine wakes it, useFrame re-invalidates
+ * while motion is in flight, so an idle scene renders zero frames.
  */
-export function SceneHost({ doc, resolveAsset }: SceneHostProps) {
+export function SceneHost({
+  doc,
+  resolveAsset,
+  interactive = true,
+  orbit = false,
+  autoStart = true,
+  onEvent,
+  onRuntime,
+}: SceneHostProps) {
   return (
     <Canvas
       shadows={doc.environment.shadows}
       dpr={[1, 2]}
+      frameloop="demand"
       camera={{
         position: doc.camera.position,
         fov: doc.camera.fov,
@@ -91,8 +121,16 @@ export function SceneHost({ doc, resolveAsset }: SceneHostProps) {
           </Suspense>
         </PresetBoundary>
       )}
+      {orbit && <OrbitControls target={doc.camera.target} makeDefault />}
       <Suspense fallback={null}>
-        <InteractiveScene doc={doc} resolveAsset={resolveAsset} />
+        <InteractiveScene
+          doc={doc}
+          resolveAsset={resolveAsset}
+          interactive={interactive}
+          autoStart={autoStart}
+          onEvent={onEvent}
+          onRuntime={onRuntime}
+        />
       </Suspense>
     </Canvas>
   );
@@ -119,6 +157,8 @@ type SceneCtx = {
   materials: Map<string, MeshStandardMaterial>;
   interactive: { click: Set<string>; hover: Set<string> };
   resolveAsset?: ResolveAssetUrl;
+  /** re-render request for out-of-band loads (textures) under frameloop="demand" */
+  invalidate: () => void;
 };
 
 const Ctx = createContext<SceneCtx | null>(null);
@@ -129,32 +169,62 @@ function useSceneCtx(): SceneCtx {
   return ctx;
 }
 
-function InteractiveScene({ doc, resolveAsset }: SceneHostProps) {
-  const ctx = useMemo<SceneCtx>(
-    () => ({
+function InteractiveScene({
+  doc,
+  resolveAsset,
+  interactive = true,
+  autoStart = true,
+  onEvent,
+  onRuntime,
+}: SceneHostProps) {
+  const invalidate = useThree((s) => s.invalidate);
+  // latest-callback ref so a new onEvent identity doesn't remount the engine
+  const onEventRef = useRef(onEvent);
+  useEffect(() => {
+    onEventRef.current = onEvent;
+  }, [onEvent]);
+
+  const ctx = useMemo<SceneCtx>(() => {
+    // engine hooks wired at construction — the memoized value is never
+    // mutated afterwards (react-hooks/immutability)
+    const runtime = new InteractionRuntime(doc);
+    runtime.onWake = () => invalidate();
+    runtime.onEvent = (e) => onEventRef.current?.(e);
+    return {
       doc,
-      runtime: new InteractionRuntime(doc),
+      runtime,
       registry: new Map(),
       materials: new Map(),
-      interactive: interactiveNodeIds(doc),
+      interactive: interactive
+        ? interactiveNodeIds(doc)
+        : { click: new Set<string>(), hover: new Set<string>() },
       resolveAsset,
-    }),
-    [doc, resolveAsset],
-  );
+      invalidate: () => invalidate(),
+    };
+  }, [doc, resolveAsset, interactive, invalidate]);
 
   useEffect(() => {
-    ctx.runtime.start();
+    onRuntime?.(ctx.runtime);
+    if (autoStart) ctx.runtime.start();
+    onEventRef.current?.({ type: "ready" });
+    ctx.invalidate();
     const materials = ctx.materials;
     return () => {
+      onRuntime?.(null);
       for (const mat of materials.values()) mat.dispose();
       materials.clear();
     };
+    // autoStart/onRuntime are mount-time concerns; ctx is the real dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctx]);
 
   useFrame((_, delta) => {
-    for (const [key, value] of ctx.runtime.advance(delta)) {
+    // demand frames after an idle stretch arrive with a huge delta — clamp
+    // so a transition doesn't jump straight to its end
+    for (const [key, value] of ctx.runtime.advance(Math.min(delta, 0.1))) {
       applyValue(ctx, key, value);
     }
+    if (ctx.runtime.isActive()) ctx.invalidate();
   });
 
   return (
@@ -244,6 +314,7 @@ function loadMaps(ctx: SceneCtx, def: ChibiMaterial, mat: MeshStandardMaterial) 
         texture.colorSpace = srgb ? SRGBColorSpace : NoColorSpace;
         mat[slot] = texture;
         mat.needsUpdate = true;
+        ctx.invalidate();
       })
       .catch((err) =>
         console.warn(`chibi: texture "${asset.name}" failed to load`, err),
