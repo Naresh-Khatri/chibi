@@ -13,6 +13,9 @@ export function newId(prefix: string): string {
 
 export const DEFAULT_MATERIAL_ID = "mt_default";
 
+/** always-present state; its overrides stay empty — base values ARE the document */
+export const BASE_STATE_ID = "base";
+
 export function createMaterial(id: string, name: string): ChibiMaterial {
   return {
     id,
@@ -62,7 +65,9 @@ export function createDocument(name = "Untitled"): ChibiDocument {
     },
     assets: {},
     animations: {},
-    states: { base: { id: "base", name: "Base", overrides: {} } },
+    states: {
+      [BASE_STATE_ID]: { id: BASE_STATE_ID, name: "Base", overrides: {} },
+    },
     interactions: [],
     environment: { background: "#0b0b0f", preset: "city", fog: null, shadows: true },
     camera: { position: [4, 3, 6], target: [0, 0.5, 0], fov: 45 },

@@ -24,14 +24,18 @@ import { Clone, Text3D, useGLTF, useHelper } from "@react-three/drei";
 import {
   numParam,
   strParam,
+  BASE_STATE_ID,
   DEFAULT_MATERIAL_ID,
   type ChibiAsset,
-  type GeometryParams,
+  type ChibiNode,
   type GroupNode,
   type LightNode,
   type MeshNode,
   type ModelNode,
+  type PropertyValue,
+  type Vec3,
 } from "@/runtime/schema";
+import { FONT_URL, GeometryElement } from "@/runtime/react/Geometry";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
 import { assetUrl } from "../store/assets";
@@ -39,7 +43,6 @@ import { isGizmoActive, useRegistry } from "./objectRegistry";
 import { getSharedMaterial } from "./materials";
 
 const SELECTION_COLOR = "#4d8dff";
-const FONT_URL = "/fonts/helvetiker_regular.typeface.json";
 
 export function SceneNodes() {
   const root = useDoc((s) => s.doc?.root);
@@ -67,6 +70,29 @@ export const NodeView = memo(function NodeView({ id }: { id: string }) {
       return <ModelView node={node} />;
   }
 });
+
+type OverrideMap = Record<string, PropertyValue> | undefined;
+
+/** active-state overrides for a target (node or material id); undefined in base */
+function useOverrides(targetId: string): OverrideMap {
+  const activeStateId = useUI((s) => s.activeStateId);
+  return useDoc((s) =>
+    activeStateId === BASE_STATE_ID
+      ? undefined
+      : s.doc?.states[activeStateId]?.overrides[targetId],
+  );
+}
+
+function effectiveView(node: ChibiNode, ov: OverrideMap) {
+  return {
+    position:
+      (ov?.["transform.position"] as Vec3 | undefined) ?? node.transform.position,
+    rotation:
+      (ov?.["transform.rotation"] as Vec3 | undefined) ?? node.transform.rotation,
+    scale: (ov?.["transform.scale"] as Vec3 | undefined) ?? node.transform.scale,
+    visible: (ov?.visible as boolean | undefined) ?? node.visible,
+  };
+}
 
 function useNodeRef<T extends Object3D>(id: string) {
   const held = useRef<T | null>(null);
@@ -105,8 +131,19 @@ function MeshView({ node }: { node: MeshNode }) {
   );
   const ref = useNodeRef<Mesh | Group>(node.id);
   const onPointerDown = useSelect(node.id);
-  const material = materialDef ? getSharedMaterial(materialDef) : undefined;
-  const { position, rotation, scale } = node.transform;
+  const overrides = useOverrides(node.id);
+  const materialOverrides = useOverrides(node.materialId);
+  const effectiveDef =
+    materialDef && materialOverrides
+      ? {
+          ...materialDef,
+          color: (materialOverrides.color as string | undefined) ?? materialDef.color,
+          opacity:
+            (materialOverrides.opacity as number | undefined) ?? materialDef.opacity,
+        }
+      : materialDef;
+  const material = effectiveDef ? getSharedMaterial(effectiveDef) : undefined;
+  const { position, rotation, scale, visible } = effectiveView(node, overrides);
   const params = node.geometry.params;
 
   if (node.geometry.kind === "text3d") {
@@ -116,7 +153,7 @@ function MeshView({ node }: { node: MeshNode }) {
         position={position}
         rotation={rotation}
         scale={scale}
-        visible={node.visible}
+        visible={visible}
         onPointerDown={onPointerDown}
       >
         <Text3D
@@ -142,7 +179,7 @@ function MeshView({ node }: { node: MeshNode }) {
       position={position}
       rotation={rotation}
       scale={scale}
-      visible={node.visible}
+      visible={visible}
       castShadow={node.castShadow}
       receiveShadow={node.receiveShadow}
       material={material}
@@ -154,58 +191,6 @@ function MeshView({ node }: { node: MeshNode }) {
       ))}
     </mesh>
   );
-}
-
-function GeometryElement({
-  kind,
-  params,
-}: {
-  kind: MeshNode["geometry"]["kind"];
-  params: GeometryParams;
-}) {
-  const n = (key: string, fallback: number) => numParam(params, key, fallback);
-  switch (kind) {
-    case "box":
-      return <boxGeometry args={[n("width", 1), n("height", 1), n("depth", 1)]} />;
-    case "sphere":
-      return (
-        <sphereGeometry
-          args={[n("radius", 0.5), n("widthSegments", 32), n("heightSegments", 16)]}
-        />
-      );
-    case "cylinder":
-      return (
-        <cylinderGeometry
-          args={[
-            n("radiusTop", 0.5),
-            n("radiusBottom", 0.5),
-            n("height", 1),
-            n("radialSegments", 32),
-          ]}
-        />
-      );
-    case "cone":
-      return (
-        <coneGeometry
-          args={[n("radius", 0.5), n("height", 1), n("radialSegments", 32)]}
-        />
-      );
-    case "torus":
-      return (
-        <torusGeometry
-          args={[
-            n("radius", 0.5),
-            n("tube", 0.2),
-            n("radialSegments", 16),
-            n("tubularSegments", 48),
-          ]}
-        />
-      );
-    case "plane":
-      return <planeGeometry args={[n("width", 2), n("height", 2)]} />;
-    default:
-      return null;
-  }
 }
 
 class ModelBoundary extends Component<
@@ -228,14 +213,17 @@ function ModelView({ node }: { node: ModelNode }) {
   const asset = useDoc((s) => s.doc?.assets[node.assetId]);
   const ref = useNodeRef<Group>(node.id);
   const onPointerDown = useSelect(node.id);
-  const { position, rotation, scale } = node.transform;
+  const { position, rotation, scale, visible } = effectiveView(
+    node,
+    useOverrides(node.id),
+  );
   return (
     <group
       ref={ref}
       position={position}
       rotation={rotation}
       scale={scale}
-      visible={node.visible}
+      visible={visible}
       onPointerDown={onPointerDown}
     >
       {asset && (
@@ -313,14 +301,17 @@ function GlbScene({
 
 function GroupView({ node }: { node: GroupNode }) {
   const ref = useNodeRef<Group>(node.id);
-  const { position, rotation, scale } = node.transform;
+  const { position, rotation, scale, visible } = effectiveView(
+    node,
+    useOverrides(node.id),
+  );
   return (
     <group
       ref={ref}
       position={position}
       rotation={rotation}
       scale={scale}
-      visible={node.visible}
+      visible={visible}
     >
       {node.children.map((cid) => (
         <NodeView key={cid} id={cid} />
@@ -332,7 +323,10 @@ function GroupView({ node }: { node: GroupNode }) {
 function LightView({ node }: { node: LightNode }) {
   const ref = useNodeRef<Group>(node.id);
   const selected = useUI((s) => s.selectedId === node.id);
-  const { position, rotation, scale } = node.transform;
+  const { position, rotation, scale, visible } = effectiveView(
+    node,
+    useOverrides(node.id),
+  );
   const light = node.light;
   return (
     <group
@@ -340,7 +334,7 @@ function LightView({ node }: { node: LightNode }) {
       position={position}
       rotation={rotation}
       scale={scale}
-      visible={node.visible}
+      visible={visible}
     >
       {light.kind === "directional" && (
         <DirectionalLightElement light={light} selected={selected} />

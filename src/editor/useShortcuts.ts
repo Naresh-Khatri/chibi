@@ -22,6 +22,12 @@ export function useShortcuts() {
       const ui = useUI.getState();
       const key = e.key.toLowerCase();
 
+      // preview swallows all editor shortcuts; Esc exits
+      if (ui.previewing) {
+        if (key === "escape") ui.setPreviewing(false);
+        return;
+      }
+
       if (meta && key === "z") {
         e.preventDefault();
         if (e.shiftKey) useDoc.getState().redo();

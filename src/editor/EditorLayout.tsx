@@ -6,6 +6,7 @@ import { Hierarchy } from "./panels/Hierarchy";
 import { Inspector } from "./panels/Inspector";
 import { Timeline } from "./panels/Timeline";
 import { Viewport } from "./viewport/Viewport";
+import { PreviewOverlay } from "./Preview";
 
 function ToastHost() {
   const toast = useUI((s) => s.toast);
@@ -18,6 +19,7 @@ function ToastHost() {
 }
 
 export function EditorLayout() {
+  const previewing = useUI((s) => s.previewing);
   return (
     <div className="grid h-dvh select-none grid-cols-[260px_minmax(0,1fr)_300px] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden bg-bg text-ink">
       <header className="col-span-3">
@@ -35,6 +37,7 @@ export function EditorLayout() {
       <footer className="col-span-3">
         <Timeline />
       </footer>
+      {previewing && <PreviewOverlay />}
       <ToastHost />
     </div>
   );

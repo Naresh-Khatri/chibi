@@ -67,6 +67,7 @@ export function Hierarchy() {
   const doc = useDoc((s) => s.doc);
   const selectedId = useUI((s) => s.selectedId);
   const select = useUI((s) => s.select);
+  const activeStateId = useUI((s) => s.activeStateId);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
@@ -85,6 +86,14 @@ export function Hierarchy() {
     }
     return map;
   }, [doc]);
+
+  const interactiveIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const ix of doc?.interactions ?? []) {
+      if (ix.trigger.type !== "start") ids.add(ix.trigger.nodeId);
+    }
+    return ids;
+  }, [doc?.interactions]);
 
   const rows = useMemo(() => {
     if (!doc) return [] as Row[];
@@ -110,6 +119,8 @@ export function Hierarchy() {
   }, [selectedId]);
 
   if (!doc) return null;
+
+  const overriddenIds = doc.states[activeStateId]?.overrides ?? {};
 
   const canNest = (id: string) => {
     const t = doc.nodes[id]?.type;
@@ -243,6 +254,19 @@ export function Hierarchy() {
                   className={`truncate ${node.visible ? "" : "text-ink-dim line-through"}`}
                 >
                   {node.name}
+                </span>
+              )}
+              {interactiveIds.has(id) && (
+                <span title="Has interactions" className="text-[9px] text-amber-400">
+                  ⚡
+                </span>
+              )}
+              {overriddenIds[id] && (
+                <span
+                  title="Overridden in the active state"
+                  className="text-[8px] text-accent"
+                >
+                  ●
                 </span>
               )}
               <span className="flex-1" />

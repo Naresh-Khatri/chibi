@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import {
+  BASE_STATE_ID,
   DEFAULT_MATERIAL_ID,
   ENVIRONMENT_PRESETS,
   GEOMETRY_DEFS,
@@ -8,6 +10,7 @@ import {
   type LightNode,
   type MeshNode,
   type ModelNode,
+  type PropertyValue,
   type Vec3,
 } from "@/runtime/schema";
 import { useDoc } from "../store/document";
@@ -19,6 +22,7 @@ import {
   setNodeVisible,
   setTransformComponent,
 } from "../store/commands";
+import { clearOverride } from "../store/stateCommands";
 import {
   addMaterial,
   assignMaterial,
@@ -34,6 +38,7 @@ import {
 } from "../store/materialCommands";
 import { importAssetFile } from "../store/assets";
 import { disposeMaterial } from "../viewport/materials";
+import { InteractionList } from "./InteractionList";
 import {
   Checkbox,
   ColorInput,
@@ -66,17 +71,49 @@ function Section({
   );
 }
 
+/** active-state overrides for a target (node or material id); undefined in base */
+function useOverrides(targetId: string): Record<string, PropertyValue> | undefined {
+  const activeStateId = useUI((s) => s.activeStateId);
+  return useDoc((s) =>
+    activeStateId === BASE_STATE_ID
+      ? undefined
+      : s.doc?.states[activeStateId]?.overrides[targetId],
+  );
+}
+
+function ResetDot({ onReset }: { onReset: () => void }) {
+  return (
+    <button
+      type="button"
+      title="Reset override to base value"
+      onClick={onReset}
+      className="shrink-0 text-[10px] leading-none text-accent hover:text-red-400"
+    >
+      ●
+    </button>
+  );
+}
+
 function LabeledRow({
   label,
   children,
+  overridden,
+  onReset,
 }: {
   label: string;
   children: React.ReactNode;
+  overridden?: boolean;
+  onReset?: () => void;
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div
+      className={`flex items-center gap-2 ${
+        overridden ? "-mx-1 rounded px-1 ring-1 ring-accent/60" : ""
+      }`}
+    >
       <span className="w-16 shrink-0 text-xs text-ink-dim">{label}</span>
       {children}
+      {overridden && onReset && <ResetDot onReset={onReset} />}
     </div>
   );
 }
@@ -88,6 +125,8 @@ function Vec3Row({
   toDisplay = (v) => v,
   fromDisplay = (v) => v,
   step = 0.1,
+  overridden,
+  onReset,
 }: {
   label: string;
   value: Vec3;
@@ -95,9 +134,11 @@ function Vec3Row({
   toDisplay?: (v: number) => number;
   fromDisplay?: (v: number) => number;
   step?: number;
+  overridden?: boolean;
+  onReset?: () => void;
 }) {
   return (
-    <LabeledRow label={label}>
+    <LabeledRow label={label} overridden={overridden} onReset={onReset}>
       <div className="flex min-w-0 flex-1 gap-1">
         {([0, 1, 2] as const).map((axis) => (
           <DragNumber
@@ -138,8 +179,63 @@ export function Inspector() {
 
 function NodeInspector({ nodeId }: { nodeId: string }) {
   const node = useDoc((s) => s.doc?.nodes[nodeId]);
+  const [tab, setTab] = useState<"design" | "interactions">("design");
+  const interactionCount = useDoc(
+    (s) =>
+      s.doc?.interactions.filter(
+        (ix) => ix.trigger.type !== "start" && ix.trigger.nodeId === nodeId,
+      ).length ?? 0,
+  );
+  const overrides = useOverrides(nodeId);
+  const activeStateId = useUI((s) => s.activeStateId);
   if (!node) return null;
-  const t = node.transform;
+
+  const tabs = (
+    <div className="flex border-b border-edge text-xs">
+      {(
+        [
+          ["design", "Design"],
+          ["interactions", `⚡ Interactions${interactionCount ? ` · ${interactionCount}` : ""}`],
+        ] as const
+      ).map(([key, label]) => (
+        <button
+          key={key}
+          type="button"
+          onClick={() => setTab(key)}
+          className={`flex-1 px-2 py-1.5 ${
+            tab === key
+              ? "border-b-2 border-accent text-ink"
+              : "text-ink-dim hover:text-ink"
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+
+  if (tab === "interactions") {
+    return (
+      <>
+        {tabs}
+        <Section title="Interactions">
+          <InteractionList scope={{ kind: "node", nodeId }} />
+        </Section>
+      </>
+    );
+  }
+
+  const t = {
+    position:
+      (overrides?.["transform.position"] as Vec3 | undefined) ??
+      node.transform.position,
+    rotation:
+      (overrides?.["transform.rotation"] as Vec3 | undefined) ??
+      node.transform.rotation,
+    scale:
+      (overrides?.["transform.scale"] as Vec3 | undefined) ?? node.transform.scale,
+  };
+  const visible = (overrides?.visible as boolean | undefined) ?? node.visible;
 
   const commitTf =
     (field: "position" | "rotation" | "scale") =>
@@ -151,9 +247,14 @@ function NodeInspector({ nodeId }: { nodeId: string }) {
         v,
         merge ? { mergeKey: `tf:${nodeId}:${field}:${axis}` } : undefined,
       );
+  const tfOverrideProps = (field: "position" | "rotation" | "scale") => ({
+    overridden: overrides?.[`transform.${field}`] !== undefined,
+    onReset: () => clearOverride(activeStateId, nodeId, `transform.${field}`),
+  });
 
   return (
     <>
+      {tabs}
       <Section title="Node">
         <LabeledRow label="Name">
           <TextInput
@@ -161,12 +262,17 @@ function NodeInspector({ nodeId }: { nodeId: string }) {
             onCommit={(v) => setNodeName(nodeId, v)}
           />
         </LabeledRow>
-        <div className="flex gap-4 pl-18">
+        <div className="flex items-center gap-4 pl-18">
           <Checkbox
             label="Visible"
-            checked={node.visible}
+            checked={visible}
             onChange={(v) => setNodeVisible(nodeId, v)}
           />
+          {overrides?.visible !== undefined && (
+            <ResetDot
+              onReset={() => clearOverride(activeStateId, nodeId, "visible")}
+            />
+          )}
         </div>
         {(node.type === "mesh" || node.type === "model") && (
           <div className="flex gap-4 pl-18">
@@ -189,6 +295,7 @@ function NodeInspector({ nodeId }: { nodeId: string }) {
           label="Position"
           value={t.position}
           onCommit={commitTf("position")}
+          {...tfOverrideProps("position")}
         />
         <Vec3Row
           label="Rotation"
@@ -197,8 +304,14 @@ function NodeInspector({ nodeId }: { nodeId: string }) {
           toDisplay={(v) => Number((v * RAD2DEG).toFixed(1))}
           fromDisplay={(v) => v * DEG2RAD}
           onCommit={commitTf("rotation")}
+          {...tfOverrideProps("rotation")}
         />
-        <Vec3Row label="Scale" value={t.scale} onCommit={commitTf("scale")} />
+        <Vec3Row
+          label="Scale"
+          value={t.scale}
+          onCommit={commitTf("scale")}
+          {...tfOverrideProps("scale")}
+        />
       </Section>
 
       {node.type === "mesh" && <GeometrySection node={node} />}
@@ -272,7 +385,13 @@ function MaterialSection({ node }: { node: MeshNode }) {
       s.doc?.materials[DEFAULT_MATERIAL_ID],
   );
   const materialList = useDoc((s) => s.doc?.materials);
+  const activeStateId = useUI((s) => s.activeStateId);
+  const overrides = useOverrides(material?.id ?? "");
   if (!material || !materialList) return null;
+
+  const effColor = (overrides?.color as string | undefined) ?? material.color;
+  const effOpacity =
+    (overrides?.opacity as number | undefined) ?? material.opacity;
 
   const mk = (prop: string) => ({ mergeKey: `mat:${material.id}:${prop}` });
   const pickerItems: MenuItem[] = [
@@ -321,9 +440,13 @@ function MaterialSection({ node }: { node: MeshNode }) {
           onCommit={(v) => renameMaterial(material.id, v)}
         />
       </LabeledRow>
-      <LabeledRow label="Color">
+      <LabeledRow
+        label="Color"
+        overridden={overrides?.color !== undefined}
+        onReset={() => clearOverride(activeStateId, material.id, "color")}
+      >
         <ColorInput
-          value={material.color}
+          value={effColor}
           onCommit={(v, merge) =>
             setMaterialProp(
               material.id,
@@ -357,9 +480,13 @@ function MaterialSection({ node }: { node: MeshNode }) {
           }
         />
       </LabeledRow>
-      <LabeledRow label="Opacity">
+      <LabeledRow
+        label="Opacity"
+        overridden={overrides?.opacity !== undefined}
+        onReset={() => clearOverride(activeStateId, material.id, "opacity")}
+      >
         <Slider
-          value={material.opacity}
+          value={effOpacity}
           onCommit={(v, merge) =>
             setMaterialProp(
               material.id,
@@ -660,6 +787,9 @@ function SceneInspector() {
             </LabeledRow>
           </>
         )}
+      </Section>
+      <Section title="Interactions · on start">
+        <InteractionList scope={{ kind: "start" }} />
       </Section>
       <div className="px-3 py-4 text-xs text-ink-dim/70">
         Select an object to edit its transform, geometry and material.

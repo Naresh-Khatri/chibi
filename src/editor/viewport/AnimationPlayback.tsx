@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import type { ChibiDocument, PropertyValue } from "@/runtime/schema";
-import { parseTargetKey, sampleClip } from "@/runtime/engine";
+import { parseTargetKey, resolveValue, sampleClip } from "@/runtime/engine";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
 import { getSceneObject } from "./objectRegistry";
@@ -65,10 +65,13 @@ export function AnimationPlayback() {
   return null;
 }
 
+// restore target = doc value resolved through the active state, not raw base
 function restoreAll(doc: ChibiDocument, touched: Set<string>) {
+  const stateId = useUI.getState().activeStateId;
   for (const key of touched) {
     const { targetId, property } = parseTargetKey(key);
-    restoreValue(doc, targetId, property);
+    const value = resolveValue(doc, stateId, targetId, property);
+    if (value !== undefined) applyValue(doc, targetId, property, value);
   }
   touched.clear();
 }
@@ -122,39 +125,3 @@ function applyValue(
   return false;
 }
 
-function restoreValue(doc: ChibiDocument, targetId: string, property: string) {
-  const node = doc.nodes[targetId];
-  if (node) {
-    const obj = getSceneObject(targetId);
-    if (!obj) return;
-    const { position, rotation, scale } = node.transform;
-    switch (property) {
-      case "visible":
-        obj.visible = node.visible;
-        break;
-      case "transform.position":
-        obj.position.set(position[0], position[1], position[2]);
-        break;
-      case "transform.rotation":
-        obj.rotation.set(rotation[0], rotation[1], rotation[2]);
-        break;
-      case "transform.scale":
-        obj.scale.set(scale[0], scale[1], scale[2]);
-        break;
-    }
-    return;
-  }
-
-  const def = doc.materials[targetId];
-  const mat = def ? getCachedMaterial(targetId) : null;
-  if (!def || !mat) return;
-  switch (property) {
-    case "color":
-      mat.color.set(def.color);
-      break;
-    case "opacity":
-      mat.opacity = def.opacity;
-      mat.transparent = def.transparent || def.opacity < 1;
-      break;
-  }
-}

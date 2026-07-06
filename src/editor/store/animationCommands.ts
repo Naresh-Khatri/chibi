@@ -7,8 +7,10 @@ import {
   type PropertyValue,
   type Track,
 } from "@/runtime/schema";
+import { getBaseValue } from "@/runtime/engine";
 import { useDoc, type DispatchOpts } from "./document";
 import { useUI } from "./ui";
+import { requireBaseState } from "./stateCommands";
 
 function dispatch(
   label: string,
@@ -32,6 +34,7 @@ function findTrack(
 }
 
 export function addClip(): string {
+  if (!requireBaseState("edit animations")) return "";
   const id = newId("an");
   dispatch("New clip", (d) => {
     const names = new Set(Object.values(d.animations).map((a) => a.name));
@@ -45,6 +48,7 @@ export function addClip(): string {
 }
 
 export function removeClip(clipId: string) {
+  if (!requireBaseState("edit animations")) return;
   dispatch("Delete clip", (d) => {
     delete d.animations[clipId];
   });
@@ -61,6 +65,7 @@ export function setClipProp(
   opts?: DispatchOpts,
 ) {
   if (updates.name !== undefined && !updates.name.trim()) return;
+  if (!requireBaseState("edit animations")) return;
   dispatch(
     "Edit clip",
     (d) => {
@@ -77,6 +82,7 @@ export function setClipProp(
 }
 
 export function addTrack(clipId: string, targetId: string, property: string) {
+  if (!requireBaseState("edit animations")) return;
   dispatch("Add track", (d) => {
     const clip = d.animations[clipId];
     if (!clip || findTrack(d, clipId, targetId, property)) return;
@@ -85,6 +91,7 @@ export function addTrack(clipId: string, targetId: string, property: string) {
 }
 
 export function removeTrack(clipId: string, targetId: string, property: string) {
+  if (!requireBaseState("edit animations")) return;
   dispatch("Delete track", (d) => {
     const clip = d.animations[clipId];
     if (!clip) return;
@@ -104,6 +111,7 @@ export function addKeyframe(
   v: PropertyValue,
   ease?: Easing,
 ) {
+  if (!requireBaseState("edit keyframes")) return;
   dispatch("Add keyframe", (d) => {
     const track = findTrack(d, clipId, targetId, property);
     if (!track) return;
@@ -128,6 +136,7 @@ export function moveKeyframe(
   newT: number,
   opts?: DispatchOpts,
 ) {
+  if (!requireBaseState("edit keyframes")) return;
   dispatch(
     "Move keyframe",
     (d) => {
@@ -149,6 +158,7 @@ export function setKeyframe(
   updates: { v?: PropertyValue; ease?: Easing },
   opts?: DispatchOpts,
 ) {
+  if (!requireBaseState("edit keyframes")) return;
   dispatch(
     "Edit keyframe",
     (d) => {
@@ -168,6 +178,7 @@ export function removeKeyframe(
   property: string,
   index: number,
 ) {
+  if (!requireBaseState("edit keyframes")) return;
   dispatch("Delete keyframe", (d) => {
     const track = findTrack(d, clipId, targetId, property);
     if (track?.keyframes[index]) track.keyframes.splice(index, 1);
@@ -180,28 +191,5 @@ export function getAnimatableValue(
   targetId: string,
   property: string,
 ): PropertyValue | undefined {
-  const node = doc.nodes[targetId];
-  if (node) {
-    switch (property) {
-      case "transform.position":
-        return [...node.transform.position];
-      case "transform.rotation":
-        return [...node.transform.rotation];
-      case "transform.scale":
-        return [...node.transform.scale];
-      case "visible":
-        return node.visible;
-    }
-    return undefined;
-  }
-  const material = doc.materials[targetId];
-  if (material) {
-    switch (property) {
-      case "color":
-        return material.color;
-      case "opacity":
-        return material.opacity;
-    }
-  }
-  return undefined;
+  return getBaseValue(doc, targetId, property);
 }

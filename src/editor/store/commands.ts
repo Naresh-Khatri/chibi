@@ -1,4 +1,5 @@
 import {
+  BASE_STATE_ID,
   DEFAULT_MATERIAL_ID,
   GEOMETRY_DEFS,
   defaultGeometryParams,
@@ -12,11 +13,14 @@ import {
   type LightNode,
   type MeshNode,
   type ModelNode,
+  type PropertyValue,
   type Transform,
   type Vec3,
 } from "@/runtime/schema";
+import { resolveValue } from "@/runtime/engine";
 import { useDoc, type DispatchOpts } from "./document";
 import { useUI } from "./ui";
+import { requireBaseState, writeOverrides } from "./stateCommands";
 
 function dispatch(
   label: string,
@@ -77,6 +81,7 @@ function uniqueName(doc: ChibiDocument, base: string): string {
 }
 
 export function addMeshNode(kind: GeometryKind) {
+  if (!requireBaseState("add objects")) return;
   const id = newId("nd");
   dispatch(`Add ${GEOMETRY_DEFS[kind].label}`, (d) => {
     const node: MeshNode = {
@@ -127,6 +132,7 @@ const LIGHT_DEFAULTS: Record<
 };
 
 export function addLightNode(kind: LightKind) {
+  if (!requireBaseState("add lights")) return;
   const id = newId("nd");
   const preset = LIGHT_DEFAULTS[kind];
   dispatch(`Add ${preset.name}`, (d) => {
@@ -146,6 +152,7 @@ export function addLightNode(kind: LightKind) {
 }
 
 export function addGroupNode() {
+  if (!requireBaseState("add groups")) return;
   const id = newId("nd");
   dispatch("Add Group", (d) => {
     const node: GroupNode = {
@@ -163,6 +170,7 @@ export function addGroupNode() {
 }
 
 export function addModelNode(asset: ChibiAsset) {
+  if (!requireBaseState("add models")) return;
   const id = newId("nd");
   const baseName = asset.name.replace(/\.(glb|gltf)$/i, "");
   dispatch(`Add ${baseName}`, (d) => {
@@ -184,6 +192,7 @@ export function addModelNode(asset: ChibiAsset) {
 }
 
 export function removeNode(nodeId: string) {
+  if (!requireBaseState("delete objects")) return;
   const doc = useDoc.getState().doc;
   if (!doc || !doc.nodes[nodeId]) return;
   const removed = new Set(subtreeIds(doc, nodeId));
@@ -193,6 +202,13 @@ export function removeNode(nodeId: string) {
     const idx = siblings.indexOf(nodeId);
     if (idx >= 0) siblings.splice(idx, 1);
     for (const id of removed) delete d.nodes[id];
+    // drop state overrides and interactions referencing the removed nodes
+    for (const state of Object.values(d.states)) {
+      for (const id of removed) delete state.overrides[id];
+    }
+    d.interactions = d.interactions.filter(
+      (ix) => ix.trigger.type === "start" || !removed.has(ix.trigger.nodeId),
+    );
   });
   const ui = useUI.getState();
   if (ui.selectedId && removed.has(ui.selectedId)) ui.select(null);
@@ -206,6 +222,11 @@ export function setNodeName(nodeId: string, name: string) {
 }
 
 export function setNodeVisible(nodeId: string, visible: boolean) {
+  const active = useUI.getState().activeStateId;
+  if (active !== BASE_STATE_ID) {
+    writeOverrides(active, nodeId, { visible }, undefined, "Toggle visibility");
+    return;
+  }
   dispatch("Toggle visibility", (d) => {
     const node = d.nodes[nodeId];
     if (node) node.visible = visible;
@@ -233,8 +254,37 @@ function vec3Equal(a: Vec3, b: Vec3): boolean {
   );
 }
 
+const TRANSFORM_FIELDS = ["position", "rotation", "scale"] as const;
+
+/** state-resolved transform field — what the viewport currently shows */
+function effectiveTransformField(
+  doc: ChibiDocument,
+  stateId: string,
+  nodeId: string,
+  field: (typeof TRANSFORM_FIELDS)[number],
+): Vec3 | undefined {
+  return resolveValue(doc, stateId, nodeId, `transform.${field}`) as
+    | Vec3
+    | undefined;
+}
+
 export function setTransform(nodeId: string, t: Transform, opts?: DispatchOpts) {
   const doc = useDoc.getState().doc;
+  const active = useUI.getState().activeStateId;
+  if (doc && active !== BASE_STATE_ID) {
+    // record only the fields that actually moved as state overrides
+    const entries: Record<string, PropertyValue> = {};
+    for (const field of TRANSFORM_FIELDS) {
+      const current = effectiveTransformField(doc, active, nodeId, field);
+      if (current && !vec3Equal(current, t[field])) {
+        entries[`transform.${field}`] = [...t[field]];
+      }
+    }
+    if (Object.keys(entries).length > 0) {
+      writeOverrides(active, nodeId, entries, opts, "Transform");
+    }
+    return;
+  }
   const current = doc?.nodes[nodeId]?.transform;
   if (
     current &&
@@ -266,6 +316,22 @@ export function setTransformComponent(
   value: number,
   opts?: DispatchOpts,
 ) {
+  const doc = useDoc.getState().doc;
+  const active = useUI.getState().activeStateId;
+  if (doc && active !== BASE_STATE_ID) {
+    const current = effectiveTransformField(doc, active, nodeId, field);
+    if (!current) return;
+    const next: Vec3 = [...current];
+    next[axis] = value;
+    writeOverrides(
+      active,
+      nodeId,
+      { [`transform.${field}`]: next },
+      opts,
+      "Transform",
+    );
+    return;
+  }
   dispatch(
     "Transform",
     (d) => {
@@ -293,6 +359,7 @@ export function setGeometryParam(
 }
 
 export function duplicateNode(nodeId: string) {
+  if (!requireBaseState("duplicate objects")) return;
   const doc = useDoc.getState().doc;
   const src = doc?.nodes[nodeId];
   if (!doc || !src) return;
@@ -322,6 +389,7 @@ export function duplicateNode(nodeId: string) {
 }
 
 export function groupNode(nodeId: string) {
+  if (!requireBaseState("group objects")) return;
   const doc = useDoc.getState().doc;
   if (!doc?.nodes[nodeId]) return;
   const groupId = newId("nd");
@@ -353,6 +421,7 @@ export function reparentNode(
   newParentId: string | null,
   index: number,
 ) {
+  if (!requireBaseState("reparent objects")) return;
   const doc = useDoc.getState().doc;
   if (!doc || !doc.nodes[nodeId]) return;
   if (nodeId === newParentId) return;

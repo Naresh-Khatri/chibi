@@ -15,6 +15,9 @@ type UIState = {
   activeClipId: string | null;
   playback: Playback;
   playhead: number;
+  // which document state edits record into ("base" = edit the document)
+  activeStateId: string;
+  previewing: boolean;
   setTool: (tool: Tool) => void;
   select: (id: string | null) => void;
   toggleSnap: () => void;
@@ -23,6 +26,8 @@ type UIState = {
   setPlayhead: (t: number) => void;
   togglePlay: () => void;
   stopPlayback: () => void;
+  setActiveState: (id: string) => void;
+  setPreviewing: (on: boolean) => void;
   showToast: (message: string) => void;
 };
 
@@ -37,6 +42,8 @@ export const useUI = create<UIState>()((set, get) => ({
   activeClipId: null,
   playback: "stopped",
   playhead: 0,
+  activeStateId: "base",
+  previewing: false,
   setTool: (tool) => set({ tool }),
   select: (selectedId) => set({ selectedId }),
   toggleSnap: () => set((s) => ({ snap: !s.snap })),
@@ -57,6 +64,10 @@ export const useUI = create<UIState>()((set, get) => ({
   togglePlay: () =>
     set((s) => ({ playback: s.playback === "playing" ? "paused" : "playing" })),
   stopPlayback: () => set({ playback: "stopped", playhead: 0 }),
+  setActiveState: (activeStateId) => set({ activeStateId }),
+  // entering preview parks timeline playback so it can't fight the runtime
+  setPreviewing: (previewing) =>
+    set(previewing ? { previewing, playback: "stopped", playhead: 0 } : { previewing }),
   showToast: (message) => {
     set({ toast: message });
     setTimeout(() => {

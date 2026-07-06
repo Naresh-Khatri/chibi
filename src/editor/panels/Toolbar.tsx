@@ -2,13 +2,16 @@
 
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
-import { GEOMETRY_DEFS, GEOMETRY_KINDS } from "@/runtime/schema";
+import { GEOMETRY_DEFS, GEOMETRY_KINDS, type Vec3 } from "@/runtime/schema";
 import { useDoc } from "../store/document";
 import { useUI, type Tool } from "../store/ui";
 import { addGroupNode, addLightNode, addMeshNode } from "../store/commands";
+import { setDocCamera } from "../store/materialCommands";
 import { exportCurrentDocument, importDocumentFromFile } from "../store/files";
 import { saveImportedDocument } from "../store/persistence";
+import { getOrbitControls } from "../viewport/objectRegistry";
 import { Dropdown, type MenuItem } from "./controls";
+import { StatesMenu } from "./StatesMenu";
 
 const TOOLS: { tool: Tool; label: string; hint: string }[] = [
   { tool: "select", label: "Select", hint: "V" },
@@ -113,12 +116,29 @@ export function Toolbar() {
 
       <div className="flex-1" />
 
-      <Dropdown button={<>States ▾</>} items={[]} disabled title="States arrive in M5" />
+      <StatesMenu />
       <button
         type="button"
-        disabled
-        title="Preview arrives in M5"
-        className="h-7 cursor-not-allowed rounded px-2 text-xs text-ink-dim/50"
+        title="Save the current view as the scene camera (used by Preview)"
+        onClick={() => {
+          const controls = getOrbitControls();
+          if (!controls) return;
+          setDocCamera({
+            position: controls.object.position.toArray() as Vec3,
+            target: controls.target.toArray() as Vec3,
+            fov: controls.object.fov,
+          });
+          useUI.getState().showToast("Scene camera set from view");
+        }}
+        className="h-7 rounded px-2 text-xs text-ink-dim hover:bg-panel-2 hover:text-ink"
+      >
+        ⌖ Set camera
+      </button>
+      <button
+        type="button"
+        title="Preview the scene with interactions (Esc exits)"
+        onClick={() => useUI.getState().setPreviewing(true)}
+        className="h-7 rounded px-2 text-xs text-ink hover:bg-panel-2"
       >
         ▶ Preview
       </button>

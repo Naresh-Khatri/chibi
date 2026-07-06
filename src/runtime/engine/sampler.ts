@@ -68,10 +68,11 @@ export function sampleKeyframes(
   const span = b.t - a.t;
   if (span <= 0) return b.v;
   const u = EASING[a.ease ?? DEFAULT_EASE]((time - a.t) / span);
-  return interpolate(a.v, b.v, u);
+  return interpolateValue(a.v, b.v, u);
 }
 
-function interpolate(
+/** interpolate by shape; booleans step (hold `a`) */
+export function interpolateValue(
   a: PropertyValue,
   b: PropertyValue,
   u: number,

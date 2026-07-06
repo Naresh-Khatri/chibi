@@ -1,13 +1,18 @@
 import {
+  BASE_STATE_ID,
   DEFAULT_MATERIAL_ID,
   createMaterial,
   newId,
+  type CameraDef,
   type ChibiDocument,
   type ChibiMaterial,
   type Environment,
   type LightNode,
+  type PropertyValue,
 } from "@/runtime/schema";
 import { useDoc, type DispatchOpts } from "./document";
+import { useUI } from "./ui";
+import { requireBaseState, writeOverrides } from "./stateCommands";
 
 function dispatch(
   label: string,
@@ -18,6 +23,7 @@ function dispatch(
 }
 
 export function addMaterial(assignToNodeId?: string): string {
+  if (!requireBaseState("add materials")) return DEFAULT_MATERIAL_ID;
   const id = newId("mt");
   dispatch("New material", (d) => {
     const names = new Set(Object.values(d.materials).map((m) => m.name));
@@ -37,6 +43,19 @@ export function setMaterialProp(
   updates: Partial<Omit<ChibiMaterial, "id" | "type" | "maps">>,
   opts?: DispatchOpts,
 ) {
+  const active = useUI.getState().activeStateId;
+  if (active !== BASE_STATE_ID) {
+    // color/opacity are state-overridable; everything else stays base-targeted
+    const { color, opacity, ...rest } = updates;
+    const entries: Record<string, PropertyValue> = {};
+    if (color !== undefined) entries.color = color;
+    if (opacity !== undefined) entries.opacity = opacity;
+    if (Object.keys(entries).length > 0) {
+      writeOverrides(active, materialId, entries, opts, "Edit material");
+    }
+    if (Object.keys(rest).length === 0) return;
+    updates = rest;
+  }
   dispatch(
     "Edit material",
     (d) => {
@@ -53,6 +72,7 @@ export function renameMaterial(materialId: string, name: string) {
 }
 
 export function assignMaterial(nodeId: string, materialId: string) {
+  if (!requireBaseState("assign materials")) return;
   dispatch("Assign material", (d) => {
     const node = d.nodes[nodeId];
     if (node?.type === "mesh" && d.materials[materialId]) {
@@ -72,6 +92,7 @@ export function materialUsageCount(materialId: string): number {
 /** Deletes a material, reassigning any meshes that used it to the default. */
 export function deleteMaterial(materialId: string) {
   if (materialId === DEFAULT_MATERIAL_ID) return;
+  if (!requireBaseState("delete materials")) return;
   dispatch("Delete material", (d) => {
     if (!d.materials[materialId]) return;
     for (const node of Object.values(d.nodes)) {
@@ -80,6 +101,9 @@ export function deleteMaterial(materialId: string) {
       }
     }
     delete d.materials[materialId];
+    for (const state of Object.values(d.states)) {
+      delete state.overrides[materialId];
+    }
   });
 }
 
@@ -129,5 +153,16 @@ export function setDocumentName(name: string) {
   if (!name.trim()) return;
   dispatch("Rename scene", (d) => {
     d.name = name.trim();
+  });
+}
+
+/** "Set camera from view": persist the orbit camera into doc.camera */
+export function setDocCamera(camera: CameraDef) {
+  dispatch("Set camera", (d) => {
+    d.camera = {
+      position: [...camera.position],
+      target: [...camera.target],
+      fov: camera.fov,
+    };
   });
 }
