@@ -193,7 +193,7 @@ export function Toolbar() {
               <ToggleGroupItem
                 value={t.tool}
                 aria-label={t.label}
-                className="h-6 min-w-7 data-[state=on]:bg-primary/20 data-[state=on]:text-primary"
+                className="h-6 min-w-7 aria-checked:bg-primary/20 aria-checked:text-primary"
               >
                 <t.icon />
               </ToggleGroupItem>
