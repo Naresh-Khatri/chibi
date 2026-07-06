@@ -7,7 +7,7 @@ const eslintConfig = defineConfig([
   ...nextTs,
   // Runtime must stay extractable as a standalone package: no editor/app imports.
   {
-    files: ["src/runtime/**/*.{ts,tsx}"],
+    files: ["packages/runtime/src/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
         "error",
@@ -23,7 +23,7 @@ const eslintConfig = defineConfig([
                 "**/app/**",
               ],
               message:
-                "src/runtime must not depend on editor or app code (see specs/00-overview.md).",
+                "packages/runtime must not depend on editor or app code (see specs/00-overview.md).",
             },
           ],
         },
@@ -37,6 +37,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "packages/*/dist/**",
   ]),
 ]);
 

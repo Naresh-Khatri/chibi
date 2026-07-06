@@ -19,6 +19,8 @@
       }
     ],
     "paths": {
+      "@/runtime": ["./packages/runtime/src/index.ts"],
+      "@/runtime/*": ["./packages/runtime/src/*"],
       "@/*": ["./src/*"]
     }
   },
@@ -30,5 +32,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "packages/*/dist"]
 }

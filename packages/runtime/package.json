@@ -1,0 +1,72 @@
+{
+  "name": "@ochibi/runtime",
+  "version": "0.1.0",
+  "description": "Runtime for chibi scenes: zod schema, animation/state/interaction engine, and the <ChibiScene> React component.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./schema": {
+      "types": "./dist/schema/index.d.ts",
+      "import": "./dist/schema/index.js",
+      "require": "./dist/schema/index.cjs"
+    },
+    "./engine": {
+      "types": "./dist/engine/index.d.ts",
+      "import": "./dist/engine/index.js",
+      "require": "./dist/engine/index.cjs"
+    },
+    "./react/Geometry": {
+      "types": "./dist/react/Geometry.d.ts",
+      "import": "./dist/react/Geometry.js",
+      "require": "./dist/react/Geometry.cjs"
+    },
+    "./react/SceneHost": {
+      "types": "./dist/react/SceneHost.d.ts",
+      "import": "./dist/react/SceneHost.js",
+      "require": "./dist/react/SceneHost.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build"
+  },
+  "peerDependencies": {
+    "@react-three/fiber": "^9.6.1",
+    "react": "^19",
+    "react-dom": "^19",
+    "three": "^0.185.1"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "jszip": "^3.10.1",
+    "nanoid": "^5.1.16",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@react-three/fiber": "^9.6.1",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/three": "^0.185.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "three": "^0.185.1",
+    "tsup": "^8.5.1",
+    "typescript": "^5"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
