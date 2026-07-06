@@ -1,0 +1,7267 @@
+{
+  "chibi": 1,
+  "name": "Orrery",
+  "root": [
+    "nd_1",
+    "nd_5",
+    "nd_3p"
+  ],
+  "nodes": {
+    "nd_1": {
+      "id": "nd_1",
+      "name": "Solar system",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_3",
+        "nd_4",
+        "nd_6",
+        "nd_c",
+        "nd_m",
+        "nd_13",
+        "nd_1h",
+        "nd_21",
+        "nd_2l"
+      ]
+    },
+    "nd_3": {
+      "id": "nd_3",
+      "name": "Sun",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 1.6,
+          "widthSegments": 48,
+          "heightSegments": 32
+        }
+      },
+      "materialId": "mt_2",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4": {
+      "id": "nd_4",
+      "name": "Sun light",
+      "type": "light",
+      "light": {
+        "kind": "point",
+        "color": "#ffd9a0",
+        "intensity": 60,
+        "distance": 0,
+        "castShadow": false
+      },
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": []
+    },
+    "nd_5": {
+      "id": "nd_5",
+      "name": "Ambient fill",
+      "type": "light",
+      "light": {
+        "kind": "directional",
+        "color": "#8899bb",
+        "intensity": 0.35,
+        "castShadow": false
+      },
+      "transform": {
+        "position": [
+          5,
+          10,
+          5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": []
+    },
+    "nd_6": {
+      "id": "nd_6",
+      "name": "Cinder orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0.07354313303525756,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_7"
+      ]
+    },
+    "nd_7": {
+      "id": "nd_7",
+      "name": "Cinder anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          3.2,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_9"
+      ]
+    },
+    "nd_9": {
+      "id": "nd_9",
+      "name": "Cinder",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.28,
+          "widthSegments": 28,
+          "heightSegments": 20
+        }
+      },
+      "materialId": "mt_8",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_c": {
+      "id": "nd_c",
+      "name": "Verdant orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0.3892952136511,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_d"
+      ]
+    },
+    "nd_d": {
+      "id": "nd_d",
+      "name": "Verdant anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          5,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_f",
+        "nd_i"
+      ]
+    },
+    "nd_f": {
+      "id": "nd_f",
+      "name": "Verdant",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.45,
+          "widthSegments": 28,
+          "heightSegments": 20
+        }
+      },
+      "materialId": "mt_e",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_i": {
+      "id": "nd_i",
+      "name": "Verdant moon 1 orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          6.138091684750677,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_j"
+      ]
+    },
+    "nd_j": {
+      "id": "nd_j",
+      "name": "Verdant moon 1 anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          1,
+          0.12,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_l"
+      ]
+    },
+    "nd_l": {
+      "id": "nd_l",
+      "name": "Verdant moon 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.1,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_k",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_m": {
+      "id": "nd_m",
+      "name": "Cobalt orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          4.392126893028964,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_n"
+      ]
+    },
+    "nd_n": {
+      "id": "nd_n",
+      "name": "Cobalt anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          6.9,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_p",
+        "nd_s",
+        "nd_z"
+      ]
+    },
+    "nd_p": {
+      "id": "nd_p",
+      "name": "Cobalt",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.52,
+          "widthSegments": 28,
+          "heightSegments": 20
+        }
+      },
+      "materialId": "mt_o",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_s": {
+      "id": "nd_s",
+      "name": "Cobalt moon 1 orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          3.2763372497402177,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_t"
+      ]
+    },
+    "nd_t": {
+      "id": "nd_t",
+      "name": "Cobalt moon 1 anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          1.07,
+          0.12,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_v",
+        "nd_w"
+      ]
+    },
+    "nd_v": {
+      "id": "nd_v",
+      "name": "Cobalt moon 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.1,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_u",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_w": {
+      "id": "nd_w",
+      "name": "Cobalt moonlet 1 orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          2.547967912107985,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_y"
+      ]
+    },
+    "nd_y": {
+      "id": "nd_y",
+      "name": "Cobalt moonlet 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.045,
+          "widthSegments": 8,
+          "heightSegments": 6
+        }
+      },
+      "materialId": "mt_x",
+      "transform": {
+        "position": [
+          0.28,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_z": {
+      "id": "nd_z",
+      "name": "Cobalt moon 2 orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          2.9294260263752956,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_10"
+      ]
+    },
+    "nd_10": {
+      "id": "nd_10",
+      "name": "Cobalt moon 2 anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          1.52,
+          -0.12,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_12"
+      ]
+    },
+    "nd_12": {
+      "id": "nd_12",
+      "name": "Cobalt moon 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.14,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_11",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_13": {
+      "id": "nd_13",
+      "name": "Rustia orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          1.5074944029756816,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_14"
+      ]
+    },
+    "nd_14": {
+      "id": "nd_14",
+      "name": "Rustia anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          8.8,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_16",
+        "nd_19",
+        "nd_1d"
+      ]
+    },
+    "nd_16": {
+      "id": "nd_16",
+      "name": "Rustia",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.38,
+          "widthSegments": 28,
+          "heightSegments": 20
+        }
+      },
+      "materialId": "mt_15",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_19": {
+      "id": "nd_19",
+      "name": "Rustia moon 1 orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          3.4766473048180373,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_1a"
+      ]
+    },
+    "nd_1a": {
+      "id": "nd_1a",
+      "name": "Rustia moon 1 anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          0.93,
+          0.12,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_1c"
+      ]
+    },
+    "nd_1c": {
+      "id": "nd_1c",
+      "name": "Rustia moon 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.1,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_1b",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_1d": {
+      "id": "nd_1d",
+      "name": "Rustia moon 2 orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          4.585607432087171,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_1e"
+      ]
+    },
+    "nd_1e": {
+      "id": "nd_1e",
+      "name": "Rustia moon 2 anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          1.3800000000000001,
+          -0.12,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_1g"
+      ]
+    },
+    "nd_1g": {
+      "id": "nd_1g",
+      "name": "Rustia moon 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.14,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_1f",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_1h": {
+      "id": "nd_1h",
+      "name": "Corona orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          1.6199029449912252,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_1i"
+      ]
+    },
+    "nd_1i": {
+      "id": "nd_1i",
+      "name": "Corona anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          11.4,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_1k",
+        "nd_1o",
+        "nd_1p",
+        "nd_1t",
+        "nd_1x"
+      ]
+    },
+    "nd_1k": {
+      "id": "nd_1k",
+      "name": "Corona",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.95,
+          "widthSegments": 28,
+          "heightSegments": 20
+        }
+      },
+      "materialId": "mt_1j",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_1o": {
+      "id": "nd_1o",
+      "name": "Corona ring",
+      "type": "mesh",
+      "geometry": {
+        "kind": "torus",
+        "params": {
+          "radius": 1.805,
+          "tube": 0.07,
+          "radialSegments": 6,
+          "tubularSegments": 96
+        }
+      },
+      "materialId": "mt_1n",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          1.3207963267948966,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          0.4
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_1p": {
+      "id": "nd_1p",
+      "name": "Corona moon 1 orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0.9798524690055124,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_1q"
+      ]
+    },
+    "nd_1q": {
+      "id": "nd_1q",
+      "name": "Corona moon 1 anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          1.5,
+          0.12,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_1s"
+      ]
+    },
+    "nd_1s": {
+      "id": "nd_1s",
+      "name": "Corona moon 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.1,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_1r",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_1t": {
+      "id": "nd_1t",
+      "name": "Corona moon 2 orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          4.800918348628225,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_1u"
+      ]
+    },
+    "nd_1u": {
+      "id": "nd_1u",
+      "name": "Corona moon 2 anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          1.95,
+          -0.12,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_1w"
+      ]
+    },
+    "nd_1w": {
+      "id": "nd_1w",
+      "name": "Corona moon 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.14,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_1v",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_1x": {
+      "id": "nd_1x",
+      "name": "Corona moon 3 orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          3.257219258427713,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_1y"
+      ]
+    },
+    "nd_1y": {
+      "id": "nd_1y",
+      "name": "Corona moon 3 anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          2.4,
+          0.12,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_20"
+      ]
+    },
+    "nd_20": {
+      "id": "nd_20",
+      "name": "Corona moon 3",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.18,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_1z",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_21": {
+      "id": "nd_21",
+      "name": "Glacio orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          1.2386499362273822,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_22"
+      ]
+    },
+    "nd_22": {
+      "id": "nd_22",
+      "name": "Glacio anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          14.2,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_24",
+        "nd_27",
+        "nd_2h"
+      ]
+    },
+    "nd_24": {
+      "id": "nd_24",
+      "name": "Glacio",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.7,
+          "widthSegments": 28,
+          "heightSegments": 20
+        }
+      },
+      "materialId": "mt_23",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_27": {
+      "id": "nd_27",
+      "name": "Glacio moon 1 orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          2.311952027796201,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_28"
+      ]
+    },
+    "nd_28": {
+      "id": "nd_28",
+      "name": "Glacio moon 1 anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          1.25,
+          0.12,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_2a",
+        "nd_2b",
+        "nd_2e"
+      ]
+    },
+    "nd_2a": {
+      "id": "nd_2a",
+      "name": "Glacio moon 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.1,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_29",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_2b": {
+      "id": "nd_2b",
+      "name": "Glacio moonlet 1 orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          1.8425273649804825,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_2d"
+      ]
+    },
+    "nd_2d": {
+      "id": "nd_2d",
+      "name": "Glacio moonlet 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.045,
+          "widthSegments": 8,
+          "heightSegments": 6
+        }
+      },
+      "materialId": "mt_2c",
+      "transform": {
+        "position": [
+          0.28,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_2e": {
+      "id": "nd_2e",
+      "name": "Glacio moonlet 2 orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          3.3598675299345278,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_2g"
+      ]
+    },
+    "nd_2g": {
+      "id": "nd_2g",
+      "name": "Glacio moonlet 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.045,
+          "widthSegments": 8,
+          "heightSegments": 6
+        }
+      },
+      "materialId": "mt_2f",
+      "transform": {
+        "position": [
+          0.42000000000000004,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_2h": {
+      "id": "nd_2h",
+      "name": "Glacio moon 2 orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          1.861897861805141,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_2i"
+      ]
+    },
+    "nd_2i": {
+      "id": "nd_2i",
+      "name": "Glacio moon 2 anchor",
+      "type": "group",
+      "transform": {
+        "position": [
+          1.7,
+          -0.12,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_2k"
+      ]
+    },
+    "nd_2k": {
+      "id": "nd_2k",
+      "name": "Glacio moon 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.14,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_2j",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_2l": {
+      "id": "nd_2l",
+      "name": "Comet orbit",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          1.1,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_2m"
+      ]
+    },
+    "nd_2m": {
+      "id": "nd_2m",
+      "name": "Comet head pivot",
+      "type": "group",
+      "transform": {
+        "position": [
+          17,
+          1.4,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0.35
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_2o",
+        "nd_2p"
+      ]
+    },
+    "nd_2o": {
+      "id": "nd_2o",
+      "name": "Comet head",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.22,
+          "widthSegments": 16,
+          "heightSegments": 12
+        }
+      },
+      "materialId": "mt_2n",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_2p": {
+      "id": "nd_2p",
+      "name": "Tail link 1",
+      "type": "group",
+      "transform": {
+        "position": [
+          0.42,
+          0.04,
+          0
+        ],
+        "rotation": [
+          0,
+          0.13,
+          0.02
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_2r",
+        "nd_2s"
+      ]
+    },
+    "nd_2r": {
+      "id": "nd_2r",
+      "name": "Tail bead 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.19,
+          "widthSegments": 10,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_2q",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_2s": {
+      "id": "nd_2s",
+      "name": "Tail link 2",
+      "type": "group",
+      "transform": {
+        "position": [
+          0.42,
+          0.04,
+          0
+        ],
+        "rotation": [
+          0,
+          0.13,
+          0.02
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_2u",
+        "nd_2v"
+      ]
+    },
+    "nd_2u": {
+      "id": "nd_2u",
+      "name": "Tail bead 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.17545454545454545,
+          "widthSegments": 10,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_2t",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_2v": {
+      "id": "nd_2v",
+      "name": "Tail link 3",
+      "type": "group",
+      "transform": {
+        "position": [
+          0.42,
+          0.04,
+          0
+        ],
+        "rotation": [
+          0,
+          0.13,
+          0.02
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_2x",
+        "nd_2y"
+      ]
+    },
+    "nd_2x": {
+      "id": "nd_2x",
+      "name": "Tail bead 3",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.1609090909090909,
+          "widthSegments": 10,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_2w",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_2y": {
+      "id": "nd_2y",
+      "name": "Tail link 4",
+      "type": "group",
+      "transform": {
+        "position": [
+          0.42,
+          0.04,
+          0
+        ],
+        "rotation": [
+          0,
+          0.13,
+          0.02
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_30",
+        "nd_31"
+      ]
+    },
+    "nd_30": {
+      "id": "nd_30",
+      "name": "Tail bead 4",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.14636363636363636,
+          "widthSegments": 10,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_2z",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_31": {
+      "id": "nd_31",
+      "name": "Tail link 5",
+      "type": "group",
+      "transform": {
+        "position": [
+          0.42,
+          0.04,
+          0
+        ],
+        "rotation": [
+          0,
+          0.13,
+          0.02
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_33",
+        "nd_34"
+      ]
+    },
+    "nd_33": {
+      "id": "nd_33",
+      "name": "Tail bead 5",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.13181818181818183,
+          "widthSegments": 10,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_32",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_34": {
+      "id": "nd_34",
+      "name": "Tail link 6",
+      "type": "group",
+      "transform": {
+        "position": [
+          0.42,
+          0.04,
+          0
+        ],
+        "rotation": [
+          0,
+          0.13,
+          0.02
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_36",
+        "nd_37"
+      ]
+    },
+    "nd_36": {
+      "id": "nd_36",
+      "name": "Tail bead 6",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.11727272727272726,
+          "widthSegments": 10,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_35",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_37": {
+      "id": "nd_37",
+      "name": "Tail link 7",
+      "type": "group",
+      "transform": {
+        "position": [
+          0.42,
+          0.04,
+          0
+        ],
+        "rotation": [
+          0,
+          0.13,
+          0.02
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_39",
+        "nd_3a"
+      ]
+    },
+    "nd_39": {
+      "id": "nd_39",
+      "name": "Tail bead 7",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.10272727272727274,
+          "widthSegments": 10,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_38",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_3a": {
+      "id": "nd_3a",
+      "name": "Tail link 8",
+      "type": "group",
+      "transform": {
+        "position": [
+          0.42,
+          0.04,
+          0
+        ],
+        "rotation": [
+          0,
+          0.13,
+          0.02
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_3c",
+        "nd_3d"
+      ]
+    },
+    "nd_3c": {
+      "id": "nd_3c",
+      "name": "Tail bead 8",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08818181818181818,
+          "widthSegments": 10,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_3b",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_3d": {
+      "id": "nd_3d",
+      "name": "Tail link 9",
+      "type": "group",
+      "transform": {
+        "position": [
+          0.42,
+          0.04,
+          0
+        ],
+        "rotation": [
+          0,
+          0.13,
+          0.02
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_3f",
+        "nd_3g"
+      ]
+    },
+    "nd_3f": {
+      "id": "nd_3f",
+      "name": "Tail bead 9",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.07363636363636364,
+          "widthSegments": 10,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_3e",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_3g": {
+      "id": "nd_3g",
+      "name": "Tail link 10",
+      "type": "group",
+      "transform": {
+        "position": [
+          0.42,
+          0.04,
+          0
+        ],
+        "rotation": [
+          0,
+          0.13,
+          0.02
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_3i",
+        "nd_3j"
+      ]
+    },
+    "nd_3i": {
+      "id": "nd_3i",
+      "name": "Tail bead 10",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05909090909090908,
+          "widthSegments": 10,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_3h",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_3j": {
+      "id": "nd_3j",
+      "name": "Tail link 11",
+      "type": "group",
+      "transform": {
+        "position": [
+          0.42,
+          0.04,
+          0
+        ],
+        "rotation": [
+          0,
+          0.13,
+          0.02
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_3l",
+        "nd_3m"
+      ]
+    },
+    "nd_3l": {
+      "id": "nd_3l",
+      "name": "Tail bead 11",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.04454545454545455,
+          "widthSegments": 10,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_3k",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_3m": {
+      "id": "nd_3m",
+      "name": "Tail link 12",
+      "type": "group",
+      "transform": {
+        "position": [
+          0.42,
+          0.04,
+          0
+        ],
+        "rotation": [
+          0,
+          0.13,
+          0.02
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_3o"
+      ]
+    },
+    "nd_3o": {
+      "id": "nd_3o",
+      "name": "Tail bead 12",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.03,
+          "widthSegments": 10,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_3n",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_3p": {
+      "id": "nd_3p",
+      "name": "Starfield",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_3t",
+        "nd_3u",
+        "nd_3v",
+        "nd_3w",
+        "nd_3x",
+        "nd_3y",
+        "nd_3z",
+        "nd_40",
+        "nd_41",
+        "nd_42",
+        "nd_43",
+        "nd_44",
+        "nd_45",
+        "nd_46",
+        "nd_47",
+        "nd_48",
+        "nd_49",
+        "nd_4a",
+        "nd_4b",
+        "nd_4c",
+        "nd_4d",
+        "nd_4e",
+        "nd_4f",
+        "nd_4g",
+        "nd_4h",
+        "nd_4i",
+        "nd_4j",
+        "nd_4k",
+        "nd_4l",
+        "nd_4m",
+        "nd_4n",
+        "nd_4o",
+        "nd_4p",
+        "nd_4q",
+        "nd_4r",
+        "nd_4s",
+        "nd_4t",
+        "nd_4u",
+        "nd_4v",
+        "nd_4w",
+        "nd_4x",
+        "nd_4y",
+        "nd_4z",
+        "nd_50",
+        "nd_51",
+        "nd_52",
+        "nd_53",
+        "nd_54",
+        "nd_55",
+        "nd_56",
+        "nd_57",
+        "nd_58",
+        "nd_59",
+        "nd_5a",
+        "nd_5b",
+        "nd_5c",
+        "nd_5d",
+        "nd_5e",
+        "nd_5f",
+        "nd_5g",
+        "nd_5h",
+        "nd_5i",
+        "nd_5j",
+        "nd_5k",
+        "nd_5l",
+        "nd_5m",
+        "nd_5n",
+        "nd_5o",
+        "nd_5p",
+        "nd_5q",
+        "nd_5r",
+        "nd_5s",
+        "nd_5t",
+        "nd_5u",
+        "nd_5v",
+        "nd_5w",
+        "nd_5x",
+        "nd_5y",
+        "nd_5z",
+        "nd_60",
+        "nd_61",
+        "nd_62",
+        "nd_63",
+        "nd_64",
+        "nd_65",
+        "nd_66",
+        "nd_67",
+        "nd_68",
+        "nd_69",
+        "nd_6a"
+      ]
+    },
+    "nd_3t": {
+      "id": "nd_3t",
+      "name": "Star 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.06144750256091357,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          29.731016893805723,
+          -10.53627017342283,
+          -4.146361251935162
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_3u": {
+      "id": "nd_3u",
+      "name": "Star 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.0828740858938545,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          12.951918176950434,
+          -11.980887120002377,
+          16.409780146671995
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_3v": {
+      "id": "nd_3v",
+      "name": "Star 3",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08322264487855137,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          1.3752398731785191,
+          -17.93631266101754,
+          -18.399495212998506
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_3w": {
+      "id": "nd_3w",
+      "name": "Star 4",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08746283865068108,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -24.016473756213088,
+          7.706427872438182,
+          -23.018855656791036
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_3x": {
+      "id": "nd_3x",
+      "name": "Star 5",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.06049649281892926,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          17.548026094799642,
+          10.37918574965151,
+          -9.474828109804692
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_3y": {
+      "id": "nd_3y",
+      "name": "Star 6",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05528637411538512,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -16.1326549835042,
+          -2.348231458809469,
+          20.27196421144845
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_3z": {
+      "id": "nd_3z",
+      "name": "Star 7",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.0781197576923296,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          3.299353716842918,
+          -4.759111939907859,
+          -29.02241830773988
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_40": {
+      "id": "nd_40",
+      "name": "Star 8",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.06983887545298785,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          28.343798199777847,
+          8.021384161070744,
+          -9.95940118418043
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_41": {
+      "id": "nd_41",
+      "name": "Star 9",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.10478209209162742,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -11.708476714855772,
+          -11.847474781859164,
+          14.83591936533886
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_42": {
+      "id": "nd_42",
+      "name": "Star 10",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.07020625573582948,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -11.154814198533634,
+          -12.009251164884697,
+          22.796282085355532
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_43": {
+      "id": "nd_43",
+      "name": "Star 11",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08287235857918859,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          31.513111869559463,
+          7.785912597064362,
+          8.862256989931689
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_44": {
+      "id": "nd_44",
+      "name": "Star 12",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.0570224836608395,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          15.484882496254885,
+          6.557295433342327,
+          -29.66029844555176
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_45": {
+      "id": "nd_45",
+      "name": "Star 13",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.10762990355491639,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -32.73346699605326,
+          6.248979364049288,
+          -6.22912913265804
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_46": {
+      "id": "nd_46",
+      "name": "Star 14",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.1080503794644028,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          18.373169192485676,
+          4.030078465857034,
+          -29.7897430183737
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_47": {
+      "id": "nd_47",
+      "name": "Star 15",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08096440947148949,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -19.157624178781834,
+          9.95954769467093,
+          -6.034706416518151
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_48": {
+      "id": "nd_48",
+      "name": "Star 16",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.09532498116604984,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -13.258623124170311,
+          8.476107471059649,
+          24.830889647945558
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_49": {
+      "id": "nd_49",
+      "name": "Star 17",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.07579964802600443,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          33.64757302294553,
+          2.3641704809712922,
+          -4.91091413255096
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4a": {
+      "id": "nd_4a",
+      "name": "Star 18",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.06874302963726223,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -17.338478037595184,
+          9.02218574617626,
+          -21.600595804871638
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4b": {
+      "id": "nd_4b",
+      "name": "Star 19",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.10660381445195526,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          0.4165435174145898,
+          -15.451123702466454,
+          5.024275697792072
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4c": {
+      "id": "nd_4c",
+      "name": "Star 20",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08713376416824758,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          12.623083073049505,
+          4.097333689913488,
+          -21.852537916730117
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4d": {
+      "id": "nd_4d",
+      "name": "Star 21",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.06667984423227609,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -26.802417432717487,
+          9.354535664867338,
+          -18.189468940921408
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4e": {
+      "id": "nd_4e",
+      "name": "Star 22",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08746393480803819,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          32.36076248239838,
+          6.127669932486825,
+          -2.797568307158437
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4f": {
+      "id": "nd_4f",
+      "name": "Star 23",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08041589983738959,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          12.001591339030778,
+          -15.567301239533196,
+          -21.785754518562452
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4g": {
+      "id": "nd_4g",
+      "name": "Star 24",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.06264014259446413,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -20.101100986663816,
+          -12.192638134355299,
+          -8.983393069420924
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4h": {
+      "id": "nd_4h",
+      "name": "Star 25",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08950731207150966,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          8.9567845739425,
+          14.473912498330893,
+          -21.229309755195427
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4i": {
+      "id": "nd_4i",
+      "name": "Star 26",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.10732331721577792,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          32.4963031390278,
+          4.376493607604161,
+          -1.9947076417163736
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4j": {
+      "id": "nd_4j",
+      "name": "Star 27",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.09774089877959341,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -26.72798336410487,
+          -10.324844787016827,
+          1.8131679925231328
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4k": {
+      "id": "nd_4k",
+      "name": "Star 28",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.07866229640785605,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          15.035937503213392,
+          -11.739250178576983,
+          -19.658380060752183
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4l": {
+      "id": "nd_4l",
+      "name": "Star 29",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.07633784722071141,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          -21.62944048968193,
+          -10.939385741614354,
+          -3.515784394634814
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4m": {
+      "id": "nd_4m",
+      "name": "Star 30",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.060389166139066225,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -19.40012146064509,
+          -10.282447879672914,
+          2.7595520549492676
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4n": {
+      "id": "nd_4n",
+      "name": "Star 31",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.10896894572302698,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          21.26534282427978,
+          -16.384729393486822,
+          3.2456820683745513
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4o": {
+      "id": "nd_4o",
+      "name": "Star 32",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.07993973297066986,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          21.200237736131424,
+          -11.739308103232133,
+          8.412228381725217
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4p": {
+      "id": "nd_4p",
+      "name": "Star 33",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.09749155794735997,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -3.162901834502031,
+          -4.6798718096832,
+          -28.378315094282637
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4q": {
+      "id": "nd_4q",
+      "name": "Star 34",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.09789929552935064,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -6.11391489139914,
+          11.272254296562592,
+          -24.276509366082646
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4r": {
+      "id": "nd_4r",
+      "name": "Star 35",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08163553067483008,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          -24.438000118831958,
+          2.17422349385186,
+          15.046364588588297
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4s": {
+      "id": "nd_4s",
+      "name": "Star 36",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.09961056204978377,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          2.563483401111568,
+          -14.374615151326491,
+          -15.263053250613414
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4t": {
+      "id": "nd_4t",
+      "name": "Star 37",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.07141471837181598,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          11.82899717349615,
+          9.986467413243973,
+          -22.383816402552394
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4u": {
+      "id": "nd_4u",
+      "name": "Star 38",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.0786178823094815,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          22.539361237908885,
+          -8.83689294904767,
+          -12.331006828087482
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4v": {
+      "id": "nd_4v",
+      "name": "Star 39",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08307688458822668,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          16.959706069267337,
+          -4.116262789147215,
+          -30.709203680018895
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4w": {
+      "id": "nd_4w",
+      "name": "Star 40",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.06759528353810311,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -27.344773606783054,
+          -6.077342221356425,
+          11.565944094665756
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4x": {
+      "id": "nd_4x",
+      "name": "Star 41",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.10046028955373913,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          26.49720430319572,
+          3.1094718609696868,
+          -23.601029096671052
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4y": {
+      "id": "nd_4y",
+      "name": "Star 42",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.1058639452420175,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -32.69998124050907,
+          -2.500693000915999,
+          0.8968437197965702
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_4z": {
+      "id": "nd_4z",
+      "name": "Star 43",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.09159811302553862,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -24.90309396816225,
+          5.2166373453188655,
+          -8.204897298599283
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_50": {
+      "id": "nd_50",
+      "name": "Star 44",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.07302909352816642,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          -26.08826312998004,
+          4.550023609300203,
+          21.36137391122669
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_51": {
+      "id": "nd_51",
+      "name": "Star 45",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.09392769857309759,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -5.300402011293544,
+          -16.13410594844064,
+          18.081365363185174
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_52": {
+      "id": "nd_52",
+      "name": "Star 46",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.054044343102723366,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          25.966897447892368,
+          -6.265416124084954,
+          -5.867739538003862
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_53": {
+      "id": "nd_53",
+      "name": "Star 47",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.09972689655143768,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          -3.2770993983764183,
+          17.307519173309725,
+          -17.39105853941444
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_54": {
+      "id": "nd_54",
+      "name": "Star 48",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.06695553702767938,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          29.142138226489084,
+          -11.745004728269436,
+          -6.950231869690556
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_55": {
+      "id": "nd_55",
+      "name": "Star 49",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.0956061535468325,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -31.40176150494143,
+          -4.330372797980987,
+          -7.7334648935575965
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_56": {
+      "id": "nd_56",
+      "name": "Star 50",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.0856514909910038,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          -20.492295432085207,
+          8.718315571973083,
+          -20.167753710641605
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_57": {
+      "id": "nd_57",
+      "name": "Star 51",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05838932766579092,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -3.1645289206592193,
+          12.279043853052807,
+          22.83435936688274
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_58": {
+      "id": "nd_58",
+      "name": "Star 52",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.083078116546385,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -5.410404371330433,
+          -1.3688566991511635,
+          -31.044947282004923
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_59": {
+      "id": "nd_59",
+      "name": "Star 53",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05610519244335592,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          8.883967458569968,
+          14.968008460463821,
+          -7.536693884936626
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5a": {
+      "id": "nd_5a",
+      "name": "Star 54",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.1046034515928477,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -6.871104882311669,
+          0.8571439288757192,
+          29.09306247845735
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5b": {
+      "id": "nd_5b",
+      "name": "Star 55",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.0667238609585911,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          21.853110427480395,
+          1.2676483621326498,
+          -27.359744579543843
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5c": {
+      "id": "nd_5c",
+      "name": "Star 56",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.09774757365230471,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          -17.14153227618365,
+          16.744088961148936,
+          0.7411048624327751
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5d": {
+      "id": "nd_5d",
+      "name": "Star 57",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.10056747467722743,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -10.259944419213411,
+          17.544117948825846,
+          17.718986173787048
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5e": {
+      "id": "nd_5e",
+      "name": "Star 58",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05627197736874223,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          25.03416338304823,
+          -13.377742298724229,
+          0.42096271886362147
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5f": {
+      "id": "nd_5f",
+      "name": "Star 59",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08535825163125993,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          14.142880823977956,
+          14.189469722395197,
+          8.06954792617547
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5g": {
+      "id": "nd_5g",
+      "name": "Star 60",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.053449489283375444,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -2.0518995606223958,
+          11.708009624355098,
+          26.77649905004183
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5h": {
+      "id": "nd_5h",
+      "name": "Star 61",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.055127090420573954,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -7.177916645636705,
+          15.434609671531561,
+          2.499750649005272
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5i": {
+      "id": "nd_5i",
+      "name": "Star 62",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.06631720796693116,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          -19.70980055862497,
+          11.423141339154085,
+          18.229968941550414
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5j": {
+      "id": "nd_5j",
+      "name": "Star 63",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.07622904830146582,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -19.00490868551444,
+          -14.561840321888415,
+          0.29384366057934336
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5k": {
+      "id": "nd_5k",
+      "name": "Star 64",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.0681923568295315,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -24.24677558557606,
+          -13.434943067602228,
+          -6.923445985880373
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5l": {
+      "id": "nd_5l",
+      "name": "Star 65",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.06092296232003719,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          -7.037495375191634,
+          10.520496032019052,
+          -18.394999815177044
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5m": {
+      "id": "nd_5m",
+      "name": "Star 66",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.1003909013653174,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -3.6486343205603338,
+          13.58871685886823,
+          -17.443929094344018
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5n": {
+      "id": "nd_5n",
+      "name": "Star 67",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05640421570744366,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -15.520113486521181,
+          -5.742369343049481,
+          -19.842126074397555
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5o": {
+      "id": "nd_5o",
+      "name": "Star 68",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08107631778344512,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          26.282544457013305,
+          6.633396471567683,
+          -1.918977461170054
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5p": {
+      "id": "nd_5p",
+      "name": "Star 69",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.09675194001290947,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          27.305757770010036,
+          0.5796945112101592,
+          13.016271275200241
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5q": {
+      "id": "nd_5q",
+      "name": "Star 70",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.06433253862895072,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          12.71053117444174,
+          8.017293866369434,
+          20.674604943194986
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5r": {
+      "id": "nd_5r",
+      "name": "Star 71",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.052006410150788725,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          4.801476025670377,
+          12.008830449965146,
+          16.38503055838154
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5s": {
+      "id": "nd_5s",
+      "name": "Star 72",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.0845391425350681,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          15.471011235194611,
+          15.582063429918652,
+          -6.094766928879511
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5t": {
+      "id": "nd_5t",
+      "name": "Star 73",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05446943677030504,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -6.535068927940757,
+          -12.322204234358223,
+          -22.53367129484839
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5u": {
+      "id": "nd_5u",
+      "name": "Star 74",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.054185050697997214,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          -25.516631509295138,
+          9.157129603730834,
+          -17.40445435925242
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5v": {
+      "id": "nd_5v",
+      "name": "Star 75",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.10522629943210632,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -23.19706926655313,
+          -4.130257738862733,
+          -10.946814338710775
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5w": {
+      "id": "nd_5w",
+      "name": "Star 76",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.07085466893855483,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -2.9828585473091436,
+          -11.929939809690252,
+          20.669355199031443
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5x": {
+      "id": "nd_5x",
+      "name": "Star 77",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.09641412852797657,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          7.100175072630292,
+          13.459836932766905,
+          -25.449631206814868
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5y": {
+      "id": "nd_5y",
+      "name": "Star 78",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.09212348943110556,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -5.816301295583388,
+          14.171539094769797,
+          -21.366116381339143
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_5z": {
+      "id": "nd_5z",
+      "name": "Star 79",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08959273954853415,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -10.53043304448245,
+          -6.895813314593461,
+          -25.67133454436073
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_60": {
+      "id": "nd_60",
+      "name": "Star 80",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08589278831146657,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          -12.389641498073217,
+          -9.596814688384063,
+          23.441513526497218
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_61": {
+      "id": "nd_61",
+      "name": "Star 81",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.06449591871351004,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -14.83796582692057,
+          -2.9195544213445,
+          -29.198446805340954
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_62": {
+      "id": "nd_62",
+      "name": "Star 82",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.07350183394271881,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          -2.3038588810360188,
+          0.7115492601898623,
+          -30.290905727079572
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_63": {
+      "id": "nd_63",
+      "name": "Star 83",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.08241354131605477,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          8.339086650197629,
+          -14.205831804801749,
+          -19.094355739547424
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_64": {
+      "id": "nd_64",
+      "name": "Star 84",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.07512920188717545,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -13.946933031224868,
+          4.081433708850181,
+          -21.822917821876022
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_65": {
+      "id": "nd_65",
+      "name": "Star 85",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.09171533881686628,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          26.522384178871423,
+          7.928561392075471,
+          -9.502688866342018
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_66": {
+      "id": "nd_66",
+      "name": "Star 86",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.09575872097630053,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          -3.3240406735759036,
+          15.199835876781286,
+          7.506346335337753
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_67": {
+      "id": "nd_67",
+      "name": "Star 87",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.06352629956789316,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -24.364831539339256,
+          -10.222378247046645,
+          8.500827528817524
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_68": {
+      "id": "nd_68",
+      "name": "Star 88",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.10668552761431783,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3q",
+      "transform": {
+        "position": [
+          0.6746567838976937,
+          18.795793524037126,
+          -0.8717805631158262
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_69": {
+      "id": "nd_69",
+      "name": "Star 89",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05256574973464012,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3r",
+      "transform": {
+        "position": [
+          13.886084184811846,
+          -0.6096361498831205,
+          23.99243776127861
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    },
+    "nd_6a": {
+      "id": "nd_6a",
+      "name": "Star 90",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.0503937540948391,
+          "widthSegments": 6,
+          "heightSegments": 4
+        }
+      },
+      "materialId": "mt_3s",
+      "transform": {
+        "position": [
+          -7.197682306595697,
+          8.870377540891095,
+          -22.86032521036389
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": false,
+      "children": []
+    }
+  },
+  "materials": {
+    "mt_2": {
+      "id": "mt_2",
+      "name": "Sun",
+      "type": "standard",
+      "color": "#ffb347",
+      "metalness": 0.1,
+      "roughness": 1,
+      "emissive": "#ff8c1a",
+      "emissiveIntensity": 2.2,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_8": {
+      "id": "mt_8",
+      "name": "Cinder",
+      "type": "standard",
+      "color": "#c9836a",
+      "metalness": 0.05,
+      "roughness": 0.7,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_e": {
+      "id": "mt_e",
+      "name": "Verdant",
+      "type": "standard",
+      "color": "#6fbf8f",
+      "metalness": 0.05,
+      "roughness": 0.7,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_k": {
+      "id": "mt_k",
+      "name": "Verdant moon 1",
+      "type": "standard",
+      "color": "#a8a29e",
+      "metalness": 0.1,
+      "roughness": 0.95,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_o": {
+      "id": "mt_o",
+      "name": "Cobalt",
+      "type": "standard",
+      "color": "#5a8fdc",
+      "metalness": 0.05,
+      "roughness": 0.7,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_u": {
+      "id": "mt_u",
+      "name": "Cobalt moon 1",
+      "type": "standard",
+      "color": "#a8a29e",
+      "metalness": 0.1,
+      "roughness": 0.95,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_x": {
+      "id": "mt_x",
+      "name": "Cobalt moonlet 1",
+      "type": "standard",
+      "color": "#78716c",
+      "metalness": 0.1,
+      "roughness": 1,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_11": {
+      "id": "mt_11",
+      "name": "Cobalt moon 2",
+      "type": "standard",
+      "color": "#a8a29e",
+      "metalness": 0.1,
+      "roughness": 0.95,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_15": {
+      "id": "mt_15",
+      "name": "Rustia",
+      "type": "standard",
+      "color": "#d0684f",
+      "metalness": 0.05,
+      "roughness": 0.7,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_1b": {
+      "id": "mt_1b",
+      "name": "Rustia moon 1",
+      "type": "standard",
+      "color": "#a8a29e",
+      "metalness": 0.1,
+      "roughness": 0.95,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_1f": {
+      "id": "mt_1f",
+      "name": "Rustia moon 2",
+      "type": "standard",
+      "color": "#a8a29e",
+      "metalness": 0.1,
+      "roughness": 0.95,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_1j": {
+      "id": "mt_1j",
+      "name": "Corona",
+      "type": "standard",
+      "color": "#d9b57e",
+      "metalness": 0.05,
+      "roughness": 0.7,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_1n": {
+      "id": "mt_1n",
+      "name": "Corona ring",
+      "type": "standard",
+      "color": "#e8d9b8",
+      "metalness": 0.1,
+      "roughness": 0.9,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_1r": {
+      "id": "mt_1r",
+      "name": "Corona moon 1",
+      "type": "standard",
+      "color": "#a8a29e",
+      "metalness": 0.1,
+      "roughness": 0.95,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_1v": {
+      "id": "mt_1v",
+      "name": "Corona moon 2",
+      "type": "standard",
+      "color": "#a8a29e",
+      "metalness": 0.1,
+      "roughness": 0.95,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_1z": {
+      "id": "mt_1z",
+      "name": "Corona moon 3",
+      "type": "standard",
+      "color": "#a8a29e",
+      "metalness": 0.1,
+      "roughness": 0.95,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_23": {
+      "id": "mt_23",
+      "name": "Glacio",
+      "type": "standard",
+      "color": "#9fd8e8",
+      "metalness": 0.05,
+      "roughness": 0.7,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_29": {
+      "id": "mt_29",
+      "name": "Glacio moon 1",
+      "type": "standard",
+      "color": "#a8a29e",
+      "metalness": 0.1,
+      "roughness": 0.95,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_2c": {
+      "id": "mt_2c",
+      "name": "Glacio moonlet 1",
+      "type": "standard",
+      "color": "#78716c",
+      "metalness": 0.1,
+      "roughness": 1,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_2f": {
+      "id": "mt_2f",
+      "name": "Glacio moonlet 2",
+      "type": "standard",
+      "color": "#78716c",
+      "metalness": 0.1,
+      "roughness": 1,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_2j": {
+      "id": "mt_2j",
+      "name": "Glacio moon 2",
+      "type": "standard",
+      "color": "#a8a29e",
+      "metalness": 0.1,
+      "roughness": 0.95,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_2n": {
+      "id": "mt_2n",
+      "name": "Comet head",
+      "type": "standard",
+      "color": "#dff3ff",
+      "metalness": 0.1,
+      "roughness": 0.4,
+      "emissive": "#9fd8ff",
+      "emissiveIntensity": 1.4,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_2q": {
+      "id": "mt_2q",
+      "name": "Tail bead 1",
+      "type": "standard",
+      "color": "#bfe8ff",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#7fc4ff",
+      "emissiveIntensity": 1,
+      "opacity": 0.85,
+      "transparent": true,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_2t": {
+      "id": "mt_2t",
+      "name": "Tail bead 2",
+      "type": "standard",
+      "color": "#bfe8ff",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#7fc4ff",
+      "emissiveIntensity": 0.9272727272727272,
+      "opacity": 0.7954545454545454,
+      "transparent": true,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_2w": {
+      "id": "mt_2w",
+      "name": "Tail bead 3",
+      "type": "standard",
+      "color": "#bfe8ff",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#7fc4ff",
+      "emissiveIntensity": 0.8545454545454545,
+      "opacity": 0.7409090909090909,
+      "transparent": true,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_2z": {
+      "id": "mt_2z",
+      "name": "Tail bead 4",
+      "type": "standard",
+      "color": "#bfe8ff",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#7fc4ff",
+      "emissiveIntensity": 0.7818181818181819,
+      "opacity": 0.6863636363636364,
+      "transparent": true,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_32": {
+      "id": "mt_32",
+      "name": "Tail bead 5",
+      "type": "standard",
+      "color": "#bfe8ff",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#7fc4ff",
+      "emissiveIntensity": 0.709090909090909,
+      "opacity": 0.6318181818181818,
+      "transparent": true,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_35": {
+      "id": "mt_35",
+      "name": "Tail bead 6",
+      "type": "standard",
+      "color": "#bfe8ff",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#7fc4ff",
+      "emissiveIntensity": 0.6363636363636364,
+      "opacity": 0.5772727272727273,
+      "transparent": true,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_38": {
+      "id": "mt_38",
+      "name": "Tail bead 7",
+      "type": "standard",
+      "color": "#bfe8ff",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#7fc4ff",
+      "emissiveIntensity": 0.5636363636363637,
+      "opacity": 0.5227272727272727,
+      "transparent": true,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_3b": {
+      "id": "mt_3b",
+      "name": "Tail bead 8",
+      "type": "standard",
+      "color": "#bfe8ff",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#7fc4ff",
+      "emissiveIntensity": 0.49090909090909085,
+      "opacity": 0.4681818181818182,
+      "transparent": true,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_3e": {
+      "id": "mt_3e",
+      "name": "Tail bead 9",
+      "type": "standard",
+      "color": "#bfe8ff",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#7fc4ff",
+      "emissiveIntensity": 0.4181818181818181,
+      "opacity": 0.41363636363636364,
+      "transparent": true,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_3h": {
+      "id": "mt_3h",
+      "name": "Tail bead 10",
+      "type": "standard",
+      "color": "#bfe8ff",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#7fc4ff",
+      "emissiveIntensity": 0.34545454545454535,
+      "opacity": 0.35909090909090907,
+      "transparent": true,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_3k": {
+      "id": "mt_3k",
+      "name": "Tail bead 11",
+      "type": "standard",
+      "color": "#bfe8ff",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#7fc4ff",
+      "emissiveIntensity": 0.2727272727272727,
+      "opacity": 0.30454545454545456,
+      "transparent": true,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_3n": {
+      "id": "mt_3n",
+      "name": "Tail bead 12",
+      "type": "standard",
+      "color": "#bfe8ff",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#7fc4ff",
+      "emissiveIntensity": 0.19999999999999996,
+      "opacity": 0.25,
+      "transparent": true,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_3q": {
+      "id": "mt_3q",
+      "name": "Star white",
+      "type": "standard",
+      "color": "#ffffff",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#ffffff",
+      "emissiveIntensity": 1.6,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_3r": {
+      "id": "mt_3r",
+      "name": "Star blue",
+      "type": "standard",
+      "color": "#bcd7ff",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#bcd7ff",
+      "emissiveIntensity": 1.3,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_3s": {
+      "id": "mt_3s",
+      "name": "Star warm",
+      "type": "standard",
+      "color": "#ffe0b8",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#ffe0b8",
+      "emissiveIntensity": 1.1,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    }
+  },
+  "assets": {},
+  "animations": {
+    "an_6b": {
+      "id": "an_6b",
+      "name": "Orbits",
+      "duration": 60,
+      "loop": true,
+      "tracks": [
+        {
+          "targetId": "nd_6",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                0.07354313303525756,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                56.622210897651534,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_c",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                0.3892952136511,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                38.08840705672862,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_i",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                6.138091684750677,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                94.10268598526488,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_m",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                4.392126893028964,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                29.52486812174731,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_s",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                3.2763372497402177,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                91.24093155025443,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_w",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                2.547967912107985,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                191.04352712749557,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_z",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                2.9294260263752956,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                122.30994686278743,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_13",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                1.5074944029756816,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                20.35705032451444,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_19",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                3.4766473048180373,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                91.44124160533224,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_1d",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                4.585607432087171,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                123.9661282684993,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_1h",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                1.6199029449912252,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                14.186273559350397,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_1p",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                0.9798524690055124,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                88.94444676951971,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_1t",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                4.800918348628225,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                124.18143918504036,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_1x",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                3.257219258427713,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                154.05366663073778,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_21",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                1.2386499362273822,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                10.035109366278803,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_27",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                2.311952027796201,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                90.2765463283104,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_2b",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                1.8425273649804825,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                190.33808658036804,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_2e",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                3.3598675299345278,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                242.12090920275878,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_2h",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                1.861897861805141,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                121.24241869821728,
+                0
+              ]
+            }
+          ]
+        },
+        {
+          "targetId": "nd_2l",
+          "property": "transform.rotation",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                0,
+                1.1,
+                0
+              ]
+            },
+            {
+              "t": 60,
+              "v": [
+                0,
+                17.436281798666926,
+                0
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "an_6d": {
+      "id": "an_6d",
+      "name": "Sun pulse",
+      "duration": 4,
+      "loop": true,
+      "tracks": [
+        {
+          "targetId": "mt_2",
+          "property": "opacity",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": 1
+            },
+            {
+              "t": 2,
+              "v": 0.9,
+              "ease": "easeInOut"
+            },
+            {
+              "t": 4,
+              "v": 1,
+              "ease": "easeInOut"
+            }
+          ]
+        },
+        {
+          "targetId": "mt_2n",
+          "property": "color",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": "#dff3ff"
+            },
+            {
+              "t": 2,
+              "v": "#ffd9f2",
+              "ease": "easeInOut"
+            },
+            {
+              "t": 4,
+              "v": "#dff3ff",
+              "ease": "easeInOut"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "states": {
+    "st_a": {
+      "id": "st_a",
+      "nodeId": "nd_9",
+      "name": "Selected",
+      "overrides": {
+        "nd_9": {
+          "transform.scale": [
+            1.6,
+            1.6,
+            1.6
+          ]
+        },
+        "mt_8": {
+          "color": "#ffffff"
+        }
+      }
+    },
+    "st_g": {
+      "id": "st_g",
+      "nodeId": "nd_f",
+      "name": "Selected",
+      "overrides": {
+        "nd_f": {
+          "transform.scale": [
+            1.6,
+            1.6,
+            1.6
+          ]
+        },
+        "mt_e": {
+          "color": "#ffffff"
+        }
+      }
+    },
+    "st_q": {
+      "id": "st_q",
+      "nodeId": "nd_p",
+      "name": "Selected",
+      "overrides": {
+        "nd_p": {
+          "transform.scale": [
+            1.6,
+            1.6,
+            1.6
+          ]
+        },
+        "mt_o": {
+          "color": "#ffffff"
+        }
+      }
+    },
+    "st_17": {
+      "id": "st_17",
+      "nodeId": "nd_16",
+      "name": "Selected",
+      "overrides": {
+        "nd_16": {
+          "transform.scale": [
+            1.6,
+            1.6,
+            1.6
+          ]
+        },
+        "mt_15": {
+          "color": "#ffffff"
+        }
+      }
+    },
+    "st_1l": {
+      "id": "st_1l",
+      "nodeId": "nd_1k",
+      "name": "Selected",
+      "overrides": {
+        "nd_1k": {
+          "transform.scale": [
+            1.6,
+            1.6,
+            1.6
+          ]
+        },
+        "mt_1j": {
+          "color": "#ffffff"
+        }
+      }
+    },
+    "st_25": {
+      "id": "st_25",
+      "nodeId": "nd_24",
+      "name": "Selected",
+      "overrides": {
+        "nd_24": {
+          "transform.scale": [
+            1.6,
+            1.6,
+            1.6
+          ]
+        },
+        "mt_23": {
+          "color": "#ffffff"
+        }
+      }
+    }
+  },
+  "interactions": [
+    {
+      "id": "ix_b",
+      "trigger": {
+        "type": "click",
+        "nodeId": "nd_9"
+      },
+      "action": {
+        "type": "toggleStates",
+        "nodeId": "nd_9",
+        "a": "base",
+        "b": "st_a",
+        "duration": 0.2,
+        "ease": "easeInOut"
+      }
+    },
+    {
+      "id": "ix_h",
+      "trigger": {
+        "type": "click",
+        "nodeId": "nd_f"
+      },
+      "action": {
+        "type": "toggleStates",
+        "nodeId": "nd_f",
+        "a": "base",
+        "b": "st_g",
+        "duration": 0.2,
+        "ease": "easeInOut"
+      }
+    },
+    {
+      "id": "ix_r",
+      "trigger": {
+        "type": "click",
+        "nodeId": "nd_p"
+      },
+      "action": {
+        "type": "toggleStates",
+        "nodeId": "nd_p",
+        "a": "base",
+        "b": "st_q",
+        "duration": 0.2,
+        "ease": "easeInOut"
+      }
+    },
+    {
+      "id": "ix_18",
+      "trigger": {
+        "type": "click",
+        "nodeId": "nd_16"
+      },
+      "action": {
+        "type": "toggleStates",
+        "nodeId": "nd_16",
+        "a": "base",
+        "b": "st_17",
+        "duration": 0.2,
+        "ease": "easeInOut"
+      }
+    },
+    {
+      "id": "ix_1m",
+      "trigger": {
+        "type": "click",
+        "nodeId": "nd_1k"
+      },
+      "action": {
+        "type": "toggleStates",
+        "nodeId": "nd_1k",
+        "a": "base",
+        "b": "st_1l",
+        "duration": 0.2,
+        "ease": "easeInOut"
+      }
+    },
+    {
+      "id": "ix_26",
+      "trigger": {
+        "type": "click",
+        "nodeId": "nd_24"
+      },
+      "action": {
+        "type": "toggleStates",
+        "nodeId": "nd_24",
+        "a": "base",
+        "b": "st_25",
+        "duration": 0.2,
+        "ease": "easeInOut"
+      }
+    },
+    {
+      "id": "ix_6c",
+      "trigger": {
+        "type": "start"
+      },
+      "action": {
+        "type": "playAnimation",
+        "animationId": "an_6b"
+      }
+    },
+    {
+      "id": "ix_6e",
+      "trigger": {
+        "type": "start"
+      },
+      "action": {
+        "type": "playAnimation",
+        "animationId": "an_6d"
+      }
+    }
+  ],
+  "environment": {
+    "background": "#05060d",
+    "preset": null,
+    "fog": null,
+    "shadows": false
+  },
+  "camera": {
+    "position": [
+      0,
+      14,
+      22
+    ],
+    "target": [
+      0,
+      0,
+      0
+    ],
+    "fov": 42
+  },
+  "editor": {
+    "grid": false
+  }
+}

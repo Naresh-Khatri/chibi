@@ -9,3 +9,4 @@ ignoredBuiltDependencies:
   - unrs-resolver
 minimumReleaseAgeExclude:
   - '@ochibi/runtime@0.1.0'
+  - '@chibi3d/runtime@0.2.0'
