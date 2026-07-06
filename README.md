@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# chibi
 
-## Getting Started
+Web-native 3D design tool (Spline alternative): designers build interactive 3D
+scenes in a browser editor; developers consume them via a `<ChibiScene>` React
+component backed by an open JSON scene format. Prototype stage — local-only
+persistence (IndexedDB), no auth, no backend.
 
-First, run the development server:
+**Read first:** [`PRD.md`](./PRD.md) (product + domain model + scene format)
+and [`specs/00-overview.md`](./specs/00-overview.md) (roadmap + conventions).
+`AGENTS.md` is the canonical guide for working in this repo (architecture,
+hard rules, workflow) — read it before making changes.
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- `/` — landing page
+- `/editor/[docId]` — the 3D scene editor
+- `/demo` — a runtime consumer page showing `<ChibiScene>` in use
+- `/components` — shadcn/ui component showcase
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Typecheck: `pnpm tsc --noEmit`
+- Lint: `pnpm lint`
+- Unit tests: `pnpm test` (vitest)
+- Package manager is **pnpm**.
 
-## Learn More
+## Layout
 
-To learn more about Next.js, take a look at the following resources:
+- `src/app/` — Next.js routes (landing, editor, demo, components showcase).
+- `src/editor/` — the editor: zustand stores (`store/`), R3F viewport
+  (`viewport/`), panels (`panels/`).
+- `packages/runtime/` — `@chibi3d/runtime`, the publishable npm package
+  (`<ChibiScene>`, engine, schema) consumed by the editor at source level; see
+  [`packages/runtime/README.md`](./packages/runtime/README.md).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Using scenes outside this repo
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```tsx
+import { useRef } from "react";
+import { ChibiScene, type ChibiSceneApi } from "@chibi3d/runtime";
 
-## Deploy on Vercel
+function Hero() {
+  const api = useRef<ChibiSceneApi>(null);
+  return <ChibiScene src="/scenes/hero.chibi.zip" api={api} className="h-[600px]" />;
+}
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [`packages/runtime/README.md`](./packages/runtime/README.md) for the full
+API and behavior notes.
