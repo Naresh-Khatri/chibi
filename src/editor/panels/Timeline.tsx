@@ -40,6 +40,26 @@ import {
   TextInput,
   type MenuItem,
 } from "./controls";
+import {
+  ChevronDown,
+  ChevronRight,
+  Clapperboard,
+  DiamondPlus,
+  Pause,
+  Play,
+  Plus,
+  Square,
+  Trash2,
+  X,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const PPS = 120; // fixed pixels per second; horizontal scroll instead of zoom
 const LABEL_W = 240;
@@ -111,15 +131,20 @@ export function Timeline() {
   }, [duration]);
 
   return (
-    <div className="border-t border-edge bg-panel">
+    <div className="border-t border-border bg-card">
       <div className="flex h-8 items-center gap-2 px-2">
         <button
           type="button"
           onClick={toggle}
           title="Toggle timeline (Shift+T)"
-          className="flex h-8 items-center gap-2 px-1 text-[11px] font-semibold uppercase tracking-wider text-ink-dim hover:text-ink"
+          className="flex h-8 items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
         >
-          <span>{open ? "▾" : "▸"}</span>
+          {open ? (
+            <ChevronDown className="size-3" />
+          ) : (
+            <ChevronRight className="size-3" />
+          )}
+          <Clapperboard className="size-3" />
           Timeline
         </button>
         {open && <Transport clip={clip} />}
@@ -127,18 +152,15 @@ export function Timeline() {
         {open && <ClipControls clip={clip} />}
       </div>
       {open && (
-        <div className="h-56 border-t border-edge">
+        <div className="h-56 border-t border-border">
           {clip ? (
             <TrackArea clip={clip} />
           ) : (
             <div className="grid h-full place-items-center">
-              <button
-                type="button"
-                onClick={() => addClip()}
-                className="rounded bg-panel-2 px-3 py-1.5 text-xs text-ink hover:bg-edge"
-              >
-                + New clip
-              </button>
+              <Button variant="secondary" size="xs" onClick={() => addClip()}>
+                <Plus />
+                New clip
+              </Button>
             </div>
           )}
         </div>
@@ -149,28 +171,26 @@ export function Timeline() {
 
 function Transport({ clip }: { clip: AnimationClip | null }) {
   const playback = useUI((s) => s.playback);
-  const btn =
-    "grid h-6 w-7 place-items-center rounded bg-panel-2 text-[10px] text-ink hover:bg-edge disabled:cursor-not-allowed disabled:text-ink-dim/50";
   return (
     <div className="flex items-center gap-1">
-      <button
-        type="button"
-        className={btn}
+      <Button
+        variant="secondary"
+        size="icon-xs"
         disabled={!clip}
         title="Play/pause (Space)"
         onClick={() => useUI.getState().togglePlay()}
       >
-        {playback === "playing" ? "❚❚" : "▶"}
-      </button>
-      <button
-        type="button"
-        className={btn}
+        {playback === "playing" ? <Pause /> : <Play />}
+      </Button>
+      <Button
+        variant="secondary"
+        size="icon-xs"
         disabled={!clip || playback === "stopped"}
         title="Stop — restores document values"
         onClick={() => useUI.getState().stopPlayback()}
       >
-        ■
-      </button>
+        <Square />
+      </Button>
       <TimeReadout duration={clip?.duration ?? 0} />
     </div>
   );
@@ -179,7 +199,7 @@ function Transport({ clip }: { clip: AnimationClip | null }) {
 function TimeReadout({ duration }: { duration: number }) {
   const playhead = useUI((s) => s.playhead);
   return (
-    <span className="ml-1 font-mono text-[11px] tabular-nums text-ink-dim">
+    <span className="ml-1 font-mono text-[11px] tabular-nums text-muted-foreground">
       {playhead.toFixed(2)} / {duration.toFixed(2)}s
     </span>
   );
@@ -192,12 +212,13 @@ function ClipControls({ clip }: { clip: AnimationClip | null }) {
     <div className="flex items-center gap-2">
       <Dropdown
         title="Switch clip"
-        button={<span>{clip ? clip.name : "No clips"} ▾</span>}
+        button={<span>{clip ? clip.name : "No clips"}</span>}
         disabled={clips.length === 0}
         align="right"
         items={clips.map(
           (c): MenuItem => ({
             label: c.name,
+            checked: c.id === clip?.id,
             onSelect: () => useUI.getState().setActiveClip(c.id),
           }),
         )}
@@ -232,23 +253,24 @@ function ClipControls({ clip }: { clip: AnimationClip | null }) {
           />
         </>
       )}
-      <button
-        type="button"
+      <Button
+        variant="secondary"
+        size="icon-xs"
         title="New clip"
         onClick={() => addClip()}
-        className="grid h-6 w-6 place-items-center rounded bg-panel-2 text-xs text-ink hover:bg-edge"
       >
-        +
-      </button>
+        <Plus />
+      </Button>
       {clip && (
-        <button
-          type="button"
+        <Button
+          variant="secondary"
+          size="icon-xs"
           title="Delete clip"
+          className="text-muted-foreground hover:text-destructive"
           onClick={() => removeClip(clip.id)}
-          className="grid h-6 w-6 place-items-center rounded bg-panel-2 text-xs text-ink-dim hover:bg-edge hover:text-ink"
         >
-          ✕
-        </button>
+          <Trash2 />
+        </Button>
       )}
     </div>
   );
@@ -271,9 +293,9 @@ function TrackArea({ clip }: { clip: AnimationClip }) {
   return (
     <div className="relative h-full overflow-auto">
       <div className="relative" style={{ width: LABEL_W + laneW }}>
-        <div className="sticky top-0 z-30 flex bg-panel">
+        <div className="sticky top-0 z-30 flex bg-card">
           <div
-            className="sticky left-0 z-10 flex h-6 shrink-0 items-center border-b border-r border-edge bg-panel px-2"
+            className="sticky left-0 z-10 flex h-6 shrink-0 items-center border-b border-r border-border bg-card px-2"
             style={{ width: LABEL_W }}
           >
             <AddTrackMenu clip={clip} />
@@ -281,7 +303,7 @@ function TrackArea({ clip }: { clip: AnimationClip }) {
           <Ruler clip={clip} laneW={laneW} />
         </div>
         {clip.tracks.length === 0 && (
-          <div className="flex h-10 items-center px-3 text-xs text-ink-dim">
+          <div className="flex h-10 items-center px-3 text-xs text-muted-foreground">
             Select an object, then add a track with “+ Track”.
           </div>
         )}
@@ -333,7 +355,13 @@ function AddTrackMenu({ clip }: { clip: AnimationClip }) {
 
   return (
     <Dropdown
-      button={<span>+ Track</span>}
+      button={
+        <>
+          <Plus className="size-3" />
+          Track
+        </>
+      }
+      chevron={false}
       disabled={!node || items.length === 0}
       title={node ? "Add a track for the selected object" : "Select an object first"}
       items={items}
@@ -362,7 +390,7 @@ function Ruler({ clip, laneW }: { clip: AnimationClip; laneW: number }) {
   return (
     <div
       ref={ref}
-      className="relative h-6 shrink-0 cursor-col-resize border-b border-edge"
+      className="relative h-6 shrink-0 cursor-col-resize border-b border-border"
       style={{ width: laneW }}
       onPointerDown={(e) => {
         e.currentTarget.setPointerCapture(e.pointerId);
@@ -374,9 +402,9 @@ function Ruler({ clip, laneW }: { clip: AnimationClip; laneW: number }) {
     >
       {ticks.map(({ x, label }) => (
         <div key={x} className="absolute bottom-0" style={{ left: x }}>
-          <div className={`w-px bg-edge ${label ? "h-3" : "h-1.5"}`} />
+          <div className={`w-px bg-border ${label ? "h-3" : "h-1.5"}`} />
           {label && (
-            <span className="absolute bottom-3 left-1 text-[9px] text-ink-dim">
+            <span className="absolute bottom-3 left-1 text-[9px] text-muted-foreground">
               {label}
             </span>
           )}
@@ -395,14 +423,14 @@ function Playhead({ trackCount }: { trackCount: number }) {
   const playhead = useUI((s) => s.playhead);
   return (
     <div
-      className="pointer-events-none absolute z-20 w-px bg-accent"
+      className="pointer-events-none absolute z-20 w-px bg-primary"
       style={{
         left: LABEL_W + playhead * PPS,
         top: 0,
         height: 24 + Math.max(trackCount, 1) * 28,
       }}
     >
-      <div className="absolute -left-[3px] top-0 h-2 w-[7px] rounded-b-sm bg-accent" />
+      <div className="absolute -left-[3px] top-0 h-2 w-[7px] rounded-b-sm bg-primary" />
     </div>
   );
 }
@@ -434,15 +462,15 @@ function TrackRow({
   };
 
   const rowBtn =
-    "grid h-5 w-5 shrink-0 place-items-center rounded text-[10px] text-ink-dim hover:bg-panel-2 hover:text-ink disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-ink-dim";
+    "grid h-5 w-5 shrink-0 place-items-center rounded text-[10px] text-muted-foreground hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-muted-foreground";
 
   return (
     <div className="flex h-7">
       <div
-        className="sticky left-0 z-10 flex shrink-0 items-center gap-1 border-b border-r border-edge bg-panel pl-2 pr-1"
+        className="sticky left-0 z-10 flex shrink-0 items-center gap-1 border-b border-r border-border bg-card pl-2 pr-1"
         style={{ width: LABEL_W }}
       >
-        <span className="min-w-0 flex-1 truncate text-xs text-ink" title={label}>
+        <span className="min-w-0 flex-1 truncate text-xs text-foreground" title={label}>
           {label}
         </span>
         <button
@@ -452,7 +480,7 @@ function TrackRow({
           disabled={!targetName}
           onClick={addKeyAtPlayhead}
         >
-          ◆+
+          <DiamondPlus className="size-3.5" />
         </button>
         <button
           type="button"
@@ -460,10 +488,10 @@ function TrackRow({
           title="Remove track"
           onClick={() => removeTrack(clip.id, track.targetId, track.property)}
         >
-          ✕
+          <X className="size-3.5" />
         </button>
       </div>
-      <div className="relative h-7 border-b border-edge/50">
+      <div className="relative h-7 border-b border-border/50">
         {/* keyed by index: stable through mid-drag re-sorts (no remount = capture kept) */}
         {track.keyframes.map((kf, i) => (
           <KeyframeDiamond
@@ -569,7 +597,7 @@ function KeyframeDiamond({
     >
       <span
         className={`h-2 w-2 rotate-45 ${
-          selected ? "bg-accent" : "bg-ink-dim hover:bg-ink"
+          selected ? "bg-primary" : "bg-muted-foreground hover:bg-foreground"
         }`}
       />
     </button>
@@ -621,7 +649,7 @@ function KeyframePopover({
   return (
     <div
       ref={ref}
-      className="fixed z-50 w-60 -translate-x-1/2 -translate-y-full rounded-md border border-edge bg-panel p-2 shadow-xl"
+      className="fixed z-50 w-60 -translate-x-1/2 -translate-y-full rounded-lg border bg-popover p-2 shadow-xl"
       style={{ left, top: sel.anchorY - 8 }}
     >
       <div className="flex flex-col gap-1.5">
@@ -647,31 +675,38 @@ function KeyframePopover({
               }}
             />
           </div>
-          <select
-            className="h-6 min-w-0 flex-1 rounded bg-panel-2 px-1 text-xs text-ink outline-none focus:ring-1 focus:ring-accent"
+          <Select
             value={kf.ease ?? "easeInOut"}
-            onChange={(e) =>
+            onValueChange={(v) =>
               setKeyframe(clip.id, track.targetId, track.property, index, {
-                ease: e.currentTarget.value as Easing,
+                ease: v as Easing,
               })
             }
           >
-            {EASE_OPTIONS.map((ease) => (
-              <option key={ease} value={ease}>
-                {ease}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger
+              size="sm"
+              className="h-6! min-w-0 flex-1 px-1.5 text-xs"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {EASE_OPTIONS.map((ease) => (
+                <SelectItem key={ease} value={ease} className="text-xs">
+                  {ease}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <button
             type="button"
             title="Delete keyframe"
-            className="grid h-5 w-5 shrink-0 place-items-center rounded text-[10px] text-ink-dim hover:bg-panel-2 hover:text-ink"
+            className="grid h-5 w-5 shrink-0 place-items-center rounded text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
             onClick={() => {
               removeKeyframe(clip.id, track.targetId, track.property, index);
               setSel(null);
             }}
           >
-            ✕
+            <Trash2 className="size-3" />
           </button>
         </div>
         <KeyframeValueEditor

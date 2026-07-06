@@ -31,7 +31,7 @@ export function EditorRoot({ docId }: { docId: string }) {
 
   if (!ready) {
     return (
-      <div className="grid h-dvh place-items-center bg-bg text-sm text-ink-dim">
+      <div className="grid h-dvh place-items-center bg-background text-sm text-muted-foreground">
         Loading scene…
       </div>
     );

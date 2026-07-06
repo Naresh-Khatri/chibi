@@ -1,12 +1,25 @@
 "use client";
 
 import {
-  useEffect,
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
+import { ChevronDown, type LucideIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Checkbox as UICheckbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Slider as UISlider } from "@/components/ui/slider";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 function formatNumber(v: number): string {
   return String(Number(v.toFixed(3)));
@@ -19,7 +32,7 @@ export function DragNumber({
   min,
   max,
   label,
-  labelClass = "text-ink-dim",
+  labelClass = "text-muted-foreground",
 }: {
   value: number;
   onCommit: (v: number, merge: boolean) => void;
@@ -62,7 +75,7 @@ export function DragNumber({
   };
 
   return (
-    <div className="flex h-6 min-w-0 flex-1 items-center gap-1 rounded bg-panel-2 px-1.5 focus-within:ring-1 focus-within:ring-accent">
+    <div className="flex h-6 min-w-0 flex-1 items-center gap-1 rounded-md border border-input bg-input/30 px-1.5 transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40">
       {label && (
         <span
           className={`cursor-ew-resize select-none text-[10px] font-semibold ${labelClass}`}
@@ -74,7 +87,7 @@ export function DragNumber({
         </span>
       )}
       <input
-        className="w-full min-w-0 bg-transparent text-right text-xs text-ink outline-none"
+        className="w-full min-w-0 bg-transparent text-right text-xs text-foreground outline-none"
         value={editing ?? formatNumber(value)}
         onFocus={(e) => {
           setEditing(formatNumber(value));
@@ -106,8 +119,8 @@ export function TextInput({
 }) {
   const [editing, setEditing] = useState<string | null>(null);
   return (
-    <input
-      className="h-6 w-full min-w-0 rounded bg-panel-2 px-1.5 text-xs text-ink outline-none focus:ring-1 focus:ring-accent"
+    <Input
+      className="h-6 rounded-md px-1.5 text-xs focus-visible:ring-2 focus-visible:ring-ring/40 md:text-xs"
       value={editing ?? value}
       placeholder={placeholder}
       onFocus={() => setEditing(value)}
@@ -138,12 +151,11 @@ export function Checkbox({
   label: string;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-1.5 text-xs text-ink">
-      <input
-        type="checkbox"
-        className="accent-accent"
+    <label className="flex cursor-pointer items-center gap-1.5 text-xs text-foreground">
+      <UICheckbox
+        className="size-3.5 [&_svg]:size-3"
         checked={checked}
-        onChange={(e) => onChange(e.currentTarget.checked)}
+        onCheckedChange={(v) => onChange(v === true)}
       />
       {label}
     </label>
@@ -165,16 +177,14 @@ export function Slider({
 }) {
   return (
     <div className="flex min-w-0 flex-1 items-center gap-2">
-      <input
-        type="range"
-        className="min-w-0 flex-1 accent-accent"
+      <UISlider
         min={min}
         max={max}
         step={step}
-        value={value}
-        onChange={(e) => onCommit(parseFloat(e.currentTarget.value), true)}
+        value={[value]}
+        onValueChange={([v]) => onCommit(v, true)}
       />
-      <span className="w-8 shrink-0 text-right text-xs text-ink">
+      <span className="w-8 shrink-0 text-right text-xs tabular-nums text-foreground">
         {value.toFixed(2)}
       </span>
     </div>
@@ -202,7 +212,7 @@ export function ColorInput({
     <div className="flex min-w-0 flex-1 items-center gap-1.5">
       <input
         type="color"
-        className="h-6 w-8 shrink-0 cursor-pointer rounded border border-edge bg-transparent"
+        className="h-6 w-8 shrink-0 cursor-pointer rounded-md border border-input bg-transparent"
         value={toFullHex(value)}
         onChange={(e) => onCommit(e.currentTarget.value, true)}
       />
@@ -218,7 +228,14 @@ export function ColorInput({
 
 export type MenuItem =
   | { divider: true }
-  | { divider?: false; label: string; onSelect: () => void };
+  | {
+      divider?: false;
+      label: string;
+      onSelect: () => void;
+      checked?: boolean;
+      icon?: LucideIcon;
+      destructive?: boolean;
+    };
 
 export function Dropdown({
   button,
@@ -226,67 +243,63 @@ export function Dropdown({
   disabled,
   title,
   align = "left",
+  chevron = true,
+  triggerClassName,
 }: {
   button: ReactNode;
   items: MenuItem[];
   disabled?: boolean;
   title?: string;
   align?: "left" | "right";
+  chevron?: boolean;
+  triggerClassName?: string;
 }) {
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: PointerEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("pointerdown", onDown);
-    return () => document.removeEventListener("pointerdown", onDown);
-  }, [open]);
-
+  // any item carrying `checked` makes this a picker: render check indicators
+  const isPicker = items.some((it) => !it.divider && it.checked !== undefined);
   return (
-    <div ref={rootRef} className="relative">
-      <button
-        type="button"
-        title={title}
-        disabled={disabled}
-        onClick={() => setOpen((v) => !v)}
-        className={`flex h-7 items-center gap-1 rounded px-2 text-xs ${
-          disabled
-            ? "cursor-not-allowed text-ink-dim/50"
-            : open
-              ? "bg-panel-2 text-ink"
-              : "text-ink hover:bg-panel-2"
-        }`}
-      >
-        {button}
-      </button>
-      {open && (
-        <div
-          className={`absolute top-8 z-50 min-w-40 rounded-md border border-edge bg-panel py-1 shadow-xl ${
-            align === "right" ? "right-0" : "left-0"
-          }`}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="xs"
+          title={title}
+          disabled={disabled}
+          className={cn("max-w-full min-w-0 font-normal", triggerClassName)}
         >
-          {items.map((item, i) =>
-            item.divider ? (
-              <div key={i} className="my-1 border-t border-edge" />
-            ) : (
-              <button
-                key={i}
-                type="button"
-                className="block w-full px-3 py-1.5 text-left text-xs text-ink hover:bg-panel-2"
-                onClick={() => {
-                  setOpen(false);
-                  item.onSelect();
-                }}
-              >
-                {item.label}
-              </button>
-            ),
-          )}
-        </div>
-      )}
-    </div>
+          {button}
+          {chevron && <ChevronDown className="text-muted-foreground" />}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align={align === "right" ? "end" : "start"}
+        className="w-auto min-w-40"
+      >
+        {items.map((item, i) =>
+          item.divider ? (
+            <DropdownMenuSeparator key={i} />
+          ) : isPicker ? (
+            <DropdownMenuCheckboxItem
+              key={i}
+              checked={item.checked ?? false}
+              onSelect={item.onSelect}
+              className="text-xs"
+            >
+              {item.icon && <item.icon className="size-3.5 text-muted-foreground" />}
+              {item.label}
+            </DropdownMenuCheckboxItem>
+          ) : (
+            <DropdownMenuItem
+              key={i}
+              onSelect={item.onSelect}
+              variant={item.destructive ? "destructive" : "default"}
+              className="text-xs"
+            >
+              {item.icon && <item.icon className="size-3.5 text-muted-foreground" />}
+              {item.label}
+            </DropdownMenuItem>
+          ),
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

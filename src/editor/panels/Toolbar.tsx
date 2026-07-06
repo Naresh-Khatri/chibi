@@ -3,11 +3,49 @@
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
+  Box,
+  Camera,
+  Circle,
+  CircleDot,
+  Cone,
+  Cylinder,
+  Flashlight,
+  FolderOpen,
+  FileArchive,
+  FileJson,
+  Group,
+  Lightbulb,
+  Magnet,
+  MousePointer2,
+  Move3d,
+  Play,
+  Redo2,
+  Rotate3d,
+  Scale3d,
+  Square,
+  Sun,
+  Torus,
+  Type,
+  Undo2,
+  X,
+  type LucideIcon,
+} from "lucide-react";
+import {
   BASE_STATE_ID,
   GEOMETRY_DEFS,
   GEOMETRY_KINDS,
+  type GeometryKind,
   type Vec3,
 } from "@/runtime/schema";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Toggle } from "@/components/ui/toggle";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useDoc } from "../store/document";
 import { useUI, type Tool } from "../store/ui";
 import { addGroupNode, addLightNode, addMeshNode } from "../store/commands";
@@ -16,6 +54,16 @@ import { exportCurrentDocument, importDocumentFromFile } from "../store/files";
 import { saveImportedDocument } from "../store/persistence";
 import { getOrbitControls } from "../viewport/objectRegistry";
 import { Dropdown, type MenuItem } from "./controls";
+
+export const GEOMETRY_ICONS: Record<GeometryKind, LucideIcon> = {
+  box: Box,
+  sphere: Circle,
+  cylinder: Cylinder,
+  cone: Cone,
+  torus: Torus,
+  plane: Square,
+  text3d: Type,
+};
 
 // mode indicator: which object state edits currently record into (states are
 // per-object; activate one in the inspector's States section)
@@ -33,19 +81,20 @@ function ActiveStateChip() {
       type="button"
       title="Edits record into this state — click to return to Base"
       onClick={() => setActiveState(BASE_STATE_ID)}
-      className="flex h-7 items-center gap-1.5 rounded bg-accent/25 px-2 text-xs text-accent"
+      className="flex h-6 items-center gap-1.5 rounded-md bg-primary/20 px-2 text-xs text-primary transition-colors hover:bg-primary/30"
     >
-      ● {nodeName} · {stateName}
-      <span className="text-accent/70">✕</span>
+      <CircleDot className="size-3" />
+      {nodeName} · {stateName}
+      <X className="size-3 opacity-70" />
     </button>
   );
 }
 
-const TOOLS: { tool: Tool; label: string; hint: string }[] = [
-  { tool: "select", label: "Select", hint: "V" },
-  { tool: "move", label: "Move", hint: "W" },
-  { tool: "rotate", label: "Rotate", hint: "E" },
-  { tool: "scale", label: "Scale", hint: "R" },
+const TOOLS: { tool: Tool; label: string; hint: string; icon: LucideIcon }[] = [
+  { tool: "select", label: "Select", hint: "V", icon: MousePointer2 },
+  { tool: "move", label: "Move", hint: "W", icon: Move3d },
+  { tool: "rotate", label: "Rotate", hint: "E", icon: Rotate3d },
+  { tool: "scale", label: "Scale", hint: "R", icon: Scale3d },
 ];
 
 export function Toolbar() {
@@ -62,92 +111,143 @@ export function Toolbar() {
   const redo = useDoc((s) => s.redo);
 
   const fileItems: MenuItem[] = [
-    { label: "Export .chibi.zip", onSelect: () => exportCurrentDocument("zip") },
-    { label: "Export .chibi.json", onSelect: () => exportCurrentDocument("json") },
+    {
+      label: "Export .chibi.zip",
+      icon: FileArchive,
+      onSelect: () => exportCurrentDocument("zip"),
+    },
+    {
+      label: "Export .chibi.json",
+      icon: FileJson,
+      onSelect: () => exportCurrentDocument("json"),
+    },
     { divider: true },
-    { label: "Open file…", onSelect: () => fileInputRef.current?.click() },
+    {
+      label: "Open file…",
+      icon: FolderOpen,
+      onSelect: () => fileInputRef.current?.click(),
+    },
   ];
 
   const addItems: MenuItem[] = [
     ...GEOMETRY_KINDS.map((kind) => ({
       label: GEOMETRY_DEFS[kind].label,
+      icon: GEOMETRY_ICONS[kind],
       onSelect: () => addMeshNode(kind),
     })),
     { divider: true },
-    { label: "Group", onSelect: addGroupNode },
+    { label: "Group", icon: Group, onSelect: addGroupNode },
     { divider: true },
-    { label: "Directional light", onSelect: () => addLightNode("directional") },
-    { label: "Point light", onSelect: () => addLightNode("point") },
-    { label: "Spot light", onSelect: () => addLightNode("spot") },
+    {
+      label: "Directional light",
+      icon: Sun,
+      onSelect: () => addLightNode("directional"),
+    },
+    {
+      label: "Point light",
+      icon: Lightbulb,
+      onSelect: () => addLightNode("point"),
+    },
+    {
+      label: "Spot light",
+      icon: Flashlight,
+      onSelect: () => addLightNode("spot"),
+    },
   ];
 
   return (
-    <div className="flex h-12 items-center gap-2 border-b border-edge bg-panel px-3">
-      <span className="text-sm font-semibold tracking-wide text-ink">
-        chibi
-      </span>
-      <span className="max-w-40 truncate text-xs text-ink-dim">{docName}</span>
-
-      <div className="mx-2 h-5 border-l border-edge" />
-
-      <Dropdown button={<>Add ▾</>} items={addItems} title="Add object" />
-
-      <div className="mx-1 flex items-center gap-0.5 rounded bg-panel-2/60 p-0.5">
-        {TOOLS.map((t) => (
-          <button
-            key={t.tool}
-            type="button"
-            title={`${t.label} (${t.hint})`}
-            onClick={() => setTool(t.tool)}
-            className={`h-6 rounded px-2 text-xs ${
-              tool === t.tool
-                ? "bg-accent/25 text-accent"
-                : "text-ink-dim hover:text-ink"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+    <div className="flex h-12 items-center gap-1.5 border-b bg-card px-3">
+      <div className="flex items-center gap-1.5">
+        <Box className="size-4 text-primary" />
+        <span className="text-sm font-semibold tracking-wide text-foreground">
+          chibi
+        </span>
       </div>
+      <span className="max-w-40 truncate text-xs text-muted-foreground">
+        {docName}
+      </span>
 
-      <button
-        type="button"
-        title="Snap (hold Ctrl while dragging)"
-        onClick={toggleSnap}
-        className={`h-7 rounded px-2 text-xs ${
-          snap ? "bg-accent/25 text-accent" : "text-ink-dim hover:text-ink"
-        }`}
+      <Separator
+        orientation="vertical"
+        className="mx-1.5 data-[orientation=vertical]:h-5"
+      />
+
+      <Dropdown
+        button={<>Add</>}
+        items={addItems}
+        title="Add object"
+        triggerClassName="font-medium"
+      />
+
+      <ToggleGroup
+        type="single"
+        size="sm"
+        spacing={1}
+        value={tool}
+        onValueChange={(v) => v && setTool(v as Tool)}
+        className="rounded-lg bg-muted/40 p-0.5"
       >
+        {TOOLS.map((t) => (
+          <Tooltip key={t.tool}>
+            <TooltipTrigger asChild>
+              <ToggleGroupItem
+                value={t.tool}
+                aria-label={t.label}
+                className="h-6 min-w-7 data-[state=on]:bg-primary/20 data-[state=on]:text-primary"
+              >
+                <t.icon />
+              </ToggleGroupItem>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              {t.label} · {t.hint}
+            </TooltipContent>
+          </Tooltip>
+        ))}
+      </ToggleGroup>
+
+      <Toggle
+        size="sm"
+        pressed={snap}
+        onPressedChange={toggleSnap}
+        title="Snap (hold Ctrl while dragging)"
+        className="h-6 gap-1 px-2 text-xs data-[state=on]:bg-primary/20 data-[state=on]:text-primary"
+      >
+        <Magnet className="size-3.5" />
         Snap
-      </button>
+      </Toggle>
 
-      <div className="mx-1 h-5 border-l border-edge" />
+      <Separator
+        orientation="vertical"
+        className="mx-1.5 data-[orientation=vertical]:h-5"
+      />
 
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="icon-xs"
         title="Undo (Cmd/Ctrl+Z)"
         disabled={!canUndo}
         onClick={undo}
-        className="h-7 rounded px-2 text-sm text-ink hover:bg-panel-2 disabled:cursor-not-allowed disabled:text-ink-dim/40"
       >
-        ↺
-      </button>
-      <button
-        type="button"
+        <Undo2 />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon-xs"
         title="Redo (Shift+Cmd/Ctrl+Z)"
         disabled={!canRedo}
         onClick={redo}
-        className="h-7 rounded px-2 text-sm text-ink hover:bg-panel-2 disabled:cursor-not-allowed disabled:text-ink-dim/40"
       >
-        ↻
-      </button>
+        <Redo2 />
+      </Button>
 
       <div className="flex-1" />
 
       <ActiveStateChip />
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="xs"
         title="Save the current view as the scene camera (used by Preview)"
+        className="text-muted-foreground hover:text-foreground"
         onClick={() => {
           const controls = getOrbitControls();
           if (!controls) return;
@@ -158,19 +258,20 @@ export function Toolbar() {
           });
           useUI.getState().showToast("Scene camera set from view");
         }}
-        className="h-7 rounded px-2 text-xs text-ink-dim hover:bg-panel-2 hover:text-ink"
       >
-        ⌖ Set camera
-      </button>
-      <button
-        type="button"
+        <Camera />
+        Set camera
+      </Button>
+      <Button
+        variant="secondary"
+        size="xs"
         title="Preview the scene with interactions (Esc exits)"
         onClick={() => useUI.getState().setPreviewing(true)}
-        className="h-7 rounded px-2 text-xs text-ink hover:bg-panel-2"
       >
-        ▶ Preview
-      </button>
-      <Dropdown button={<>File ▾</>} items={fileItems} align="right" />
+        <Play />
+        Preview
+      </Button>
+      <Dropdown button={<>File</>} items={fileItems} align="right" />
       <input
         ref={fileInputRef}
         type="file"

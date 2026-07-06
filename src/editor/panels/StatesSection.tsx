@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Plus, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { BASE_STATE_ID } from "@/runtime/schema";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
@@ -48,9 +50,9 @@ export function StatesSection({ nodeId }: { nodeId: string }) {
           className={`group flex h-6 cursor-default items-center gap-1.5 rounded px-1.5 text-xs ${
             row.id === activeHere
               ? row.id === BASE_STATE_ID
-                ? "bg-panel-2 text-ink"
-                : "bg-accent/20 text-ink"
-              : "text-ink-dim hover:bg-panel-2 hover:text-ink"
+                ? "bg-muted text-foreground"
+                : "bg-primary/20 text-foreground"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
           }`}
           onClick={() => {
             if (editingId !== row.id) setActiveState(row.id);
@@ -59,14 +61,16 @@ export function StatesSection({ nodeId }: { nodeId: string }) {
             if (row.id !== BASE_STATE_ID) setEditingId(row.id);
           }}
         >
-          <span className="w-3 text-accent">
-            {row.id === activeHere ? "●" : ""}
+          <span className="grid w-3 place-items-center">
+            {row.id === activeHere && (
+              <span className="size-1.5 rounded-full bg-primary" />
+            )}
           </span>
           {editingId === row.id ? (
             <input
               autoFocus
               defaultValue={row.name}
-              className="w-full min-w-0 rounded bg-panel-2 px-1 text-xs text-ink outline-none ring-1 ring-accent"
+              className="w-full min-w-0 rounded bg-muted px-1 text-xs text-foreground outline-none ring-1 ring-primary"
               onClick={(e) => e.stopPropagation()}
               onBlur={(e) => {
                 renameState(row.id, e.currentTarget.value);
@@ -90,24 +94,26 @@ export function StatesSection({ nodeId }: { nodeId: string }) {
             <button
               type="button"
               title="Delete state"
-              className="hidden text-ink-dim hover:text-red-400 group-hover:block"
+              className="hidden text-muted-foreground hover:text-destructive group-hover:block"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(row.id);
               }}
             >
-              ✕
+              <Trash2 className="size-3" />
             </button>
           )}
         </div>
       ))}
-      <button
-        type="button"
+      <Button
+        variant="secondary"
+        size="xs"
+        className="self-start"
         onClick={() => addState(nodeId)}
-        className="h-6 self-start rounded bg-panel-2 px-2 text-xs text-ink hover:bg-panel-2/70"
       >
-        + Add state
-      </button>
+        <Plus />
+        Add state
+      </Button>
     </div>
   );
 }

@@ -9,7 +9,21 @@ import {
   type DragEvent as ReactDragEvent,
 } from "react";
 import type { Object3D } from "three";
+import {
+  ChevronDown,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  Group,
+  Layers,
+  Lightbulb,
+  Package,
+  Trash2,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
 import type { ChibiNode } from "@/runtime/schema";
+import { GEOMETRY_ICONS } from "./Toolbar";
 import { getSceneObject, useRegistry } from "../viewport/objectRegistry";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
@@ -22,12 +36,16 @@ import {
 
 type DropPos = "before" | "inside" | "after";
 
-const TYPE_ICONS: Record<ChibiNode["type"], string> = {
-  mesh: "◼",
-  group: "▣",
-  light: "✳",
-  model: "◆",
+const TYPE_ICONS: Record<Exclude<ChibiNode["type"], "mesh">, LucideIcon> = {
+  group: Group,
+  light: Lightbulb,
+  model: Package,
 };
+
+function nodeIcon(node: ChibiNode): LucideIcon {
+  if (node.type === "mesh") return GEOMETRY_ICONS[node.geometry.kind];
+  return TYPE_ICONS[node.type];
+}
 
 // Read-only view of a GLB's internal object tree (informational only).
 function ModelInternals({ nodeId, depth }: { nodeId: string; depth: number }) {
@@ -50,7 +68,7 @@ function ModelInternals({ nodeId, depth }: { nodeId: string; depth: number }) {
       {rows.map((row) => (
         <div
           key={row.key}
-          className="flex h-6 items-center gap-1 pr-2 text-[11px] italic text-ink-dim/70"
+          className="flex h-6 items-center gap-1 pr-2 text-[11px] italic text-muted-foreground/70"
           style={{ paddingLeft: 8 + row.depth * 14 + 16 }}
         >
           <span className="text-[9px]">·</span>
@@ -155,7 +173,8 @@ export function Hierarchy() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="border-b border-edge px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-ink-dim">
+      <div className="flex items-center gap-1.5 border-b px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <Layers className="size-3" />
         Hierarchy
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto py-1">
@@ -198,26 +217,26 @@ export function Hierarchy() {
               onDoubleClick={() => setEditingId(id)}
               className={`group flex h-7 cursor-default items-center gap-1 pr-2 text-xs ${
                 isSelected
-                  ? "bg-accent/20 text-ink"
-                  : "text-ink hover:bg-panel-2"
+                  ? "bg-primary/20 text-foreground"
+                  : "text-foreground hover:bg-muted"
               } ${
                 isDrop && dropTarget.pos === "inside"
-                  ? "ring-1 ring-inset ring-accent"
+                  ? "ring-1 ring-inset ring-primary"
                   : ""
               } ${
                 isDrop && dropTarget.pos === "before"
-                  ? "shadow-[inset_0_2px_0_0_var(--color-accent)]"
+                  ? "shadow-[inset_0_2px_0_0_var(--color-primary)]"
                   : ""
               } ${
                 isDrop && dropTarget.pos === "after"
-                  ? "shadow-[inset_0_-2px_0_0_var(--color-accent)]"
+                  ? "shadow-[inset_0_-2px_0_0_var(--color-primary)]"
                   : ""
               }`}
               style={{ paddingLeft: 8 + depth * 14 }}
             >
               <button
                 type="button"
-                className={`w-3 text-center text-[9px] text-ink-dim ${hasChildren ? "" : "invisible"}`}
+                className={`grid w-3.5 place-items-center text-muted-foreground hover:text-foreground ${hasChildren ? "" : "invisible"}`}
                 onClick={(e) => {
                   e.stopPropagation();
                   setCollapsed((prev) => {
@@ -228,16 +247,27 @@ export function Hierarchy() {
                   });
                 }}
               >
-                {collapsed.has(id) ? "▸" : "▾"}
+                {collapsed.has(id) ? (
+                  <ChevronRight className="size-3" />
+                ) : (
+                  <ChevronDown className="size-3" />
+                )}
               </button>
-              <span className="text-[10px] text-ink-dim">
-                {TYPE_ICONS[node.type]}
-              </span>
+              {(() => {
+                const Icon = nodeIcon(node);
+                return (
+                  <Icon
+                    className={`size-3.5 shrink-0 ${
+                      isSelected ? "text-primary" : "text-muted-foreground"
+                    }`}
+                  />
+                );
+              })()}
               {editingId === id ? (
                 <input
                   autoFocus
                   defaultValue={node.name}
-                  className="w-full min-w-0 rounded bg-panel-2 px-1 text-xs text-ink outline-none ring-1 ring-accent"
+                  className="w-full min-w-0 rounded bg-muted px-1 text-xs text-foreground outline-none ring-1 ring-primary"
                   onClick={(e) => e.stopPropagation()}
                   onBlur={(e) => {
                     setNodeName(id, e.currentTarget.value);
@@ -251,46 +281,49 @@ export function Hierarchy() {
                 />
               ) : (
                 <span
-                  className={`truncate ${node.visible ? "" : "text-ink-dim line-through"}`}
+                  className={`truncate ${node.visible ? "" : "text-muted-foreground line-through"}`}
                 >
                   {node.name}
                 </span>
               )}
               {interactiveIds.has(id) && (
-                <span title="Has interactions" className="text-[9px] text-amber-400">
-                  ⚡
-                </span>
+                <Zap
+                  aria-label="Has interactions"
+                  className="size-3 shrink-0 fill-amber-400/20 text-amber-400"
+                />
               )}
               {overriddenIds[id] && (
                 <span
                   title="Overridden in the active state"
-                  className="text-[8px] text-accent"
-                >
-                  ●
-                </span>
+                  className="size-1.5 shrink-0 rounded-full bg-primary"
+                />
               )}
               <span className="flex-1" />
               <button
                 type="button"
                 title="Delete"
-                className="hidden text-ink-dim hover:text-red-400 group-hover:block"
+                className="hidden text-muted-foreground hover:text-destructive group-hover:block"
                 onClick={(e) => {
                   e.stopPropagation();
                   removeNode(id);
                 }}
               >
-                ✕
+                <Trash2 className="size-3" />
               </button>
               <button
                 type="button"
                 title={node.visible ? "Hide" : "Show"}
-                className={`${node.visible ? "text-ink-dim" : "text-ink-dim/50"} hover:text-ink`}
+                className={`${node.visible ? "text-muted-foreground" : "text-muted-foreground/50"} hover:text-foreground`}
                 onClick={(e) => {
                   e.stopPropagation();
                   setNodeVisible(id, !node.visible);
                 }}
               >
-                {node.visible ? "◉" : "○"}
+                {node.visible ? (
+                  <Eye className="size-3" />
+                ) : (
+                  <EyeOff className="size-3" />
+                )}
               </button>
             </div>
             {node.type === "model" && !collapsed.has(id) && (
@@ -302,7 +335,7 @@ export function Hierarchy() {
         <div
           className={`min-h-10 flex-1 ${
             dropTarget?.id === "__root__"
-              ? "shadow-[inset_0_2px_0_0_var(--color-accent)]"
+              ? "shadow-[inset_0_2px_0_0_var(--color-primary)]"
               : ""
           }`}
           onDragOver={(e) => {

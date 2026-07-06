@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowRight, Plus, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   BASE_STATE_ID,
   type Action,
@@ -99,19 +101,16 @@ export function InteractionList({ scope }: { scope: InteractionScope }) {
         />
       ))}
       {rows.length === 0 && (
-        <div className="text-[11px] text-ink-dim/70">
+        <div className="text-[11px] text-muted-foreground/70">
           {scope.kind === "start"
             ? "Nothing runs on scene start yet."
             : "No interactions on this object yet."}
         </div>
       )}
-      <button
-        type="button"
-        onClick={add}
-        className="h-6 self-start rounded bg-panel-2 px-2 text-xs text-ink hover:bg-panel-2/70"
-      >
-        + Add interaction
-      </button>
+      <Button variant="secondary" size="xs" className="self-start" onClick={add}>
+        <Plus />
+        Add interaction
+      </Button>
     </div>
   );
 }
@@ -119,7 +118,7 @@ export function InteractionList({ scope }: { scope: InteractionScope }) {
 function ParamRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="w-14 shrink-0 text-[11px] text-ink-dim">{label}</span>
+      <span className="w-14 shrink-0 text-[11px] text-muted-foreground">{label}</span>
       {children}
     </div>
   );
@@ -148,10 +147,8 @@ function InteractionRow({
   const triggerItems: MenuItem[] =
     scope.kind === "node"
       ? (["click", "hoverEnter", "hoverExit"] as const).map((type) => ({
-          label:
-            type === ix.trigger.type
-              ? `✓ ${TRIGGER_LABELS[type]}`
-              : TRIGGER_LABELS[type],
+          label: TRIGGER_LABELS[type],
+          checked: type === ix.trigger.type,
           onSelect: () =>
             setInteractionTrigger(ix.id, { type, nodeId: scope.nodeId }),
         }))
@@ -161,6 +158,7 @@ function InteractionRow({
   const actionTypeItems: MenuItem[] = [
     {
       label: ACTION_LABELS.transition,
+      checked: action.type === "transition",
       onSelect: () =>
         action.type !== "transition" &&
         setInteractionAction(ix.id, {
@@ -173,6 +171,7 @@ function InteractionRow({
     },
     {
       label: ACTION_LABELS.playAnimation,
+      checked: action.type === "playAnimation",
       onSelect: () =>
         action.type !== "playAnimation" &&
         setInteractionAction(ix.id, {
@@ -182,6 +181,7 @@ function InteractionRow({
     },
     {
       label: ACTION_LABELS.toggleStates,
+      checked: action.type === "toggleStates",
       onSelect: () =>
         action.type !== "toggleStates" &&
         setInteractionAction(ix.id, {
@@ -203,14 +203,15 @@ function InteractionRow({
         : [value, ...statefulNodeIds];
     if (ids.length === 0) {
       return (
-        <span className="text-[11px] text-ink-dim/70">no objects with states yet</span>
+        <span className="text-[11px] text-muted-foreground/70">no objects with states yet</span>
       );
     }
     return (
       <Dropdown
-        button={<>{nodes[value]?.name ?? "pick an object"} ▾</>}
+        button={<>{nodes[value]?.name ?? "pick an object"}</>}
         items={ids.map((id) => ({
-          label: id === value ? `✓ ${nodes[id]?.name ?? id}` : (nodes[id]?.name ?? id),
+          label: nodes[id]?.name ?? id,
+          checked: id === value,
           onSelect: () => onPick(id),
         }))}
       />
@@ -230,9 +231,10 @@ function InteractionRow({
       value === BASE_STATE_ID ? "Base" : (states[value]?.name ?? "missing state");
     return (
       <Dropdown
-        button={<>{label} ▾</>}
+        button={<>{label}</>}
         items={options.map((s) => ({
-          label: s.id === value ? `✓ ${s.name}` : s.name,
+          label: s.name,
+          checked: s.id === value,
           onSelect: () => onPick(s.id),
         }))}
       />
@@ -241,9 +243,10 @@ function InteractionRow({
 
   const easePicker = (value: Easing, onPick: (e: Easing) => void) => (
     <Dropdown
-      button={<>{value} ▾</>}
+      button={<>{value}</>}
       items={EASE_OPTIONS.map((e) => ({
-        label: e === value ? `✓ ${e}` : e,
+        label: e,
+        checked: e === value,
         onSelect: () => onPick(e),
       }))}
     />
@@ -270,29 +273,29 @@ function InteractionRow({
   );
 
   return (
-    <div className="flex flex-col gap-1 rounded border border-edge bg-panel-2/30 p-1.5">
+    <div className="flex flex-col gap-1 rounded border border-border bg-muted/30 p-1.5">
       <div className="flex items-center gap-1">
         {scope.kind === "start" ? (
-          <span className="px-1 text-xs text-ink">Start</span>
+          <span className="px-1 text-xs text-foreground">Start</span>
         ) : (
           <Dropdown
-            button={<>{TRIGGER_LABELS[ix.trigger.type]} ▾</>}
+            button={<>{TRIGGER_LABELS[ix.trigger.type]}</>}
             items={triggerItems}
           />
         )}
-        <span className="text-xs text-ink-dim">→</span>
+        <ArrowRight className="size-3 shrink-0 text-muted-foreground" />
         <Dropdown
-          button={<>{ACTION_LABELS[action.type]} ▾</>}
+          button={<>{ACTION_LABELS[action.type]}</>}
           items={actionTypeItems}
         />
         <span className="flex-1" />
         <button
           type="button"
           title="Delete interaction"
-          className="text-ink-dim hover:text-red-400"
+          className="text-muted-foreground transition-colors hover:text-destructive"
           onClick={() => removeInteraction(ix.id)}
         >
-          ✕
+          <Trash2 className="size-3" />
         </button>
       </div>
 
@@ -324,12 +327,13 @@ function InteractionRow({
       {action.type === "playAnimation" && (
         <ParamRow label="Clip">
           {clipList.length === 0 ? (
-            <span className="text-[11px] text-ink-dim/70">no clips yet</span>
+            <span className="text-[11px] text-muted-foreground/70">no clips yet</span>
           ) : (
             <Dropdown
-              button={<>{animations[action.animationId]?.name ?? "pick a clip"} ▾</>}
+              button={<>{animations[action.animationId]?.name ?? "pick a clip"}</>}
               items={clipList.map((c) => ({
-                label: c.id === action.animationId ? `✓ ${c.name}` : c.name,
+                label: c.name,
+                checked: c.id === action.animationId,
                 onSelect: () =>
                   setInteractionAction(ix.id, { ...action, animationId: c.id }),
               }))}

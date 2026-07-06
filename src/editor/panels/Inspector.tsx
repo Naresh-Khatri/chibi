@@ -2,6 +2,15 @@
 
 import { useState } from "react";
 import {
+  Palette,
+  Plus,
+  RotateCcw,
+  SlidersHorizontal,
+  Trash2,
+  Zap,
+} from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
   BASE_STATE_ID,
   DEFAULT_MATERIAL_ID,
   ENVIRONMENT_PRESETS,
@@ -63,8 +72,8 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border-b border-edge px-3 py-2.5">
-      <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-ink-dim">
+    <div className="border-b border-border px-3 py-2.5">
+      <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         {title}
       </div>
       <div className="flex flex-col gap-1.5">{children}</div>
@@ -88,9 +97,9 @@ function ResetDot({ onReset }: { onReset: () => void }) {
       type="button"
       title="Reset override to base value"
       onClick={onReset}
-      className="shrink-0 text-[10px] leading-none text-accent hover:text-red-400"
+      className="shrink-0 text-primary transition-colors hover:text-destructive"
     >
-      ●
+      <RotateCcw className="size-3" />
     </button>
   );
 }
@@ -109,10 +118,10 @@ function LabeledRow({
   return (
     <div
       className={`flex items-center gap-2 ${
-        overridden ? "-mx-1 rounded px-1 ring-1 ring-accent/60" : ""
+        overridden ? "-mx-1 rounded px-1 ring-1 ring-primary/60" : ""
       }`}
     >
-      <span className="w-16 shrink-0 text-xs text-ink-dim">{label}</span>
+      <span className="w-16 shrink-0 text-xs text-muted-foreground">{label}</span>
       {children}
       {overridden && onReset && <ResetDot onReset={onReset} />}
     </div>
@@ -164,7 +173,8 @@ export function Inspector() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="border-b border-edge px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-ink-dim">
+      <div className="flex items-center gap-1.5 border-b px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <SlidersHorizontal className="size-3" />
         Inspector
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
@@ -192,27 +202,27 @@ function NodeInspector({ nodeId }: { nodeId: string }) {
   if (!node) return null;
 
   const tabs = (
-    <div className="flex border-b border-edge text-xs">
-      {(
-        [
-          ["design", "Design"],
-          ["interactions", `⚡ Interactions${interactionCount ? ` · ${interactionCount}` : ""}`],
-        ] as const
-      ).map(([key, label]) => (
-        <button
-          key={key}
-          type="button"
-          onClick={() => setTab(key)}
-          className={`flex-1 px-2 py-1.5 ${
-            tab === key
-              ? "border-b-2 border-accent text-ink"
-              : "text-ink-dim hover:text-ink"
-          }`}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
+    <Tabs
+      value={tab}
+      onValueChange={(v) => setTab(v as "design" | "interactions")}
+      className="border-b px-2 py-1.5"
+    >
+      <TabsList className="w-full">
+        <TabsTrigger value="design" className="text-xs">
+          <Palette className="size-3.5" />
+          Design
+        </TabsTrigger>
+        <TabsTrigger value="interactions" className="text-xs">
+          <Zap className="size-3.5" />
+          Interactions
+          {interactionCount > 0 && (
+            <span className="rounded-sm bg-primary/20 px-1 text-[10px] tabular-nums text-primary">
+              {interactionCount}
+            </span>
+          )}
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
   );
 
   if (tab === "interactions") {
@@ -332,13 +342,13 @@ function ModelSection({ node }: { node: ModelNode }) {
   return (
     <Section title="Model">
       <LabeledRow label="Asset">
-        <span className="truncate text-xs text-ink">
+        <span className="truncate text-xs text-foreground">
           {asset
             ? `${asset.name} · ${(asset.size / 1_000_000).toFixed(1)} MB`
             : "missing asset"}
         </span>
       </LabeledRow>
-      <div className="text-[11px] text-ink-dim/70">
+      <div className="text-[11px] text-muted-foreground/70">
         Embedded materials render as-is; internal hierarchy is read-only.
       </div>
     </Section>
@@ -401,11 +411,16 @@ function MaterialSection({ node }: { node: MeshNode }) {
   const mk = (prop: string) => ({ mergeKey: `mat:${material.id}:${prop}` });
   const pickerItems: MenuItem[] = [
     ...Object.values(materialList).map((m) => ({
-      label: m.id === material.id ? `✓ ${m.name}` : m.name,
+      label: m.name,
+      checked: m.id === material.id,
       onSelect: () => assignMaterial(node.id, m.id),
     })),
     { divider: true },
-    { label: "+ New material", onSelect: () => addMaterial(node.id) },
+    {
+      label: "New material",
+      icon: Plus,
+      onSelect: () => addMaterial(node.id),
+    },
   ];
 
   const onDelete = () => {
@@ -426,16 +441,16 @@ function MaterialSection({ node }: { node: MeshNode }) {
   return (
     <Section title="Material">
       <div className="flex items-center gap-1">
-        <Dropdown button={<>{material.name} ▾</>} items={pickerItems} />
+        <Dropdown button={<>{material.name}</>} items={pickerItems} />
         <span className="flex-1" />
         {material.id !== DEFAULT_MATERIAL_ID && (
           <button
             type="button"
             title="Delete material"
-            className="text-ink-dim hover:text-red-400"
+            className="text-muted-foreground transition-colors hover:text-destructive"
             onClick={onDelete}
           >
-            ✕
+            <Trash2 className="size-3.5" />
           </button>
         )}
       </div>
@@ -576,9 +591,14 @@ function TextureSlotRow({
   const current = currentId && assets ? assets[currentId] : undefined;
 
   const items: MenuItem[] = [
-    { label: "None", onSelect: () => setMaterialMap(material.id, slot, null) },
+    {
+      label: "None",
+      checked: !currentId,
+      onSelect: () => setMaterialMap(material.id, slot, null),
+    },
     ...textures.map((t) => ({
-      label: t.id === currentId ? `✓ ${t.name}` : t.name,
+      label: t.name,
+      checked: t.id === currentId,
       onSelect: () => setMaterialMap(material.id, slot, t.id),
     })),
   ];
@@ -586,7 +606,7 @@ function TextureSlotRow({
   return (
     <LabeledRow label={label}>
       <div
-        className="min-w-0 flex-1 rounded border border-dashed border-edge"
+        className="min-w-0 flex-1 rounded border border-dashed border-border"
         title="Pick a texture or drop an image here"
         onDragOver={(e) => {
           if (e.dataTransfer.types.includes("Files")) e.preventDefault();
@@ -600,7 +620,7 @@ function TextureSlotRow({
         }}
       >
         <Dropdown
-          button={<span className="truncate">{current?.name ?? "None"} ▾</span>}
+          button={<span className="truncate">{current?.name ?? "None"}</span>}
           items={items}
         />
       </div>
@@ -700,9 +720,14 @@ function SceneInspector() {
   if (!env) return null;
 
   const presetItems: MenuItem[] = [
-    { label: "None", onSelect: () => setEnvironment({ preset: null }) },
+    {
+      label: "None",
+      checked: env.preset === null,
+      onSelect: () => setEnvironment({ preset: null }),
+    },
     ...ENVIRONMENT_PRESETS.map((p) => ({
-      label: env.preset === p ? `✓ ${p}` : p,
+      label: p,
+      checked: env.preset === p,
       onSelect: () => setEnvironment({ preset: p }),
     })),
   ];
@@ -727,10 +752,7 @@ function SceneInspector() {
           />
         </LabeledRow>
         <LabeledRow label="Preset">
-          <Dropdown
-            button={<>{env.preset ?? "None"} ▾</>}
-            items={presetItems}
-          />
+          <Dropdown button={<>{env.preset ?? "None"}</>} items={presetItems} />
         </LabeledRow>
         <div className="flex gap-4 pl-18">
           <Checkbox
@@ -796,7 +818,7 @@ function SceneInspector() {
       <Section title="Interactions · on start">
         <InteractionList scope={{ kind: "start" }} />
       </Section>
-      <div className="px-3 py-4 text-xs text-ink-dim/70">
+      <div className="px-3 py-4 text-xs text-muted-foreground/70">
         Select an object to edit its transform, geometry and material.
       </div>
     </>

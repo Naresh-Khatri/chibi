@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { Check, Copy } from "lucide-react";
 import {
   ChibiScene,
   loadDocument,
@@ -370,9 +371,10 @@ function CodeBlock({ code, className = "" }: { code: string; className?: string 
             setTimeout(() => setCopied(false), 1500);
           });
         }}
-        className="absolute right-3 top-3 rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1 text-[10px] text-zinc-400 transition-colors hover:text-white"
+        className="absolute right-3 top-3 flex items-center gap-1 rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1 text-[10px] text-zinc-400 transition-colors hover:text-white"
       >
-        {copied ? "copied ✓" : "copy"}
+        {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+        {copied ? "copied" : "copy"}
       </button>
       <pre className="overflow-x-auto p-4 font-mono text-[12px] leading-5 text-zinc-300">
         {code}

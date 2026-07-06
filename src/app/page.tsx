@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Box, Clock, FolderOpen, Plus, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { newId } from "@/runtime/schema";
 import {
   deleteDocument,
@@ -32,31 +34,33 @@ export default function Home() {
   useEffect(refresh, [refresh]);
 
   return (
-    <main className="grid min-h-dvh place-items-center bg-bg">
+    <main className="grid min-h-dvh place-items-center bg-background">
       <div className="flex w-full max-w-md flex-col gap-8 px-6">
         <div className="text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-ink">chibi</h1>
-          <p className="mt-2 text-sm text-ink-dim">
+          <div className="mb-3 inline-grid size-12 place-items-center rounded-xl bg-primary/15">
+            <Box className="size-6 text-primary" />
+          </div>
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">
+            chibi
+          </h1>
+          <p className="mt-2 text-sm text-balance text-muted-foreground">
             A web-native 3D editor. Design interactive scenes in the browser,
             ship them as React components.
           </p>
         </div>
 
         <div className="flex justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => router.push(`/editor/${newId("doc")}`)}
-            className="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-white hover:bg-accent/85"
-          >
+          <Button onClick={() => router.push(`/editor/${newId("doc")}`)}>
+            <Plus />
             New scene
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="outline"
             onClick={() => fileInputRef.current?.click()}
-            className="rounded-lg border border-edge px-5 py-2.5 text-sm text-ink hover:bg-panel-2"
           >
+            <FolderOpen />
             Open file…
-          </button>
+          </Button>
           <input
             ref={fileInputRef}
             type="file"
@@ -79,29 +83,33 @@ export default function Home() {
         </div>
 
         {error && (
-          <p className="text-center text-xs text-red-400">{error}</p>
+          <p className="text-center text-xs text-destructive">{error}</p>
         )}
 
         {recents && recents.length > 0 && (
-          <div className="rounded-lg border border-edge bg-panel">
-            <div className="border-b border-edge px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-ink-dim">
+          <div className="rounded-xl border bg-card">
+            <div className="flex items-center gap-1.5 border-b px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <Clock className="size-3" />
               Recent scenes
             </div>
             {recents.map((recent) => (
               <div
                 key={recent.docId}
-                className="group flex cursor-pointer items-center gap-2 border-b border-edge/50 px-3 py-2 last:border-b-0 hover:bg-panel-2"
+                className="group flex cursor-pointer items-center gap-2.5 border-b border-border/50 px-3 py-2 transition-colors last:border-b-0 hover:bg-muted/50"
                 onClick={() => router.push(`/editor/${recent.docId}`)}
               >
-                <span className="truncate text-sm text-ink">{recent.name}</span>
+                <Box className="size-3.5 shrink-0 text-muted-foreground" />
+                <span className="truncate text-sm text-foreground">
+                  {recent.name}
+                </span>
                 <span className="flex-1" />
-                <span className="text-xs text-ink-dim">
+                <span className="text-xs text-muted-foreground">
                   {timeAgo(recent.updatedAt)}
                 </span>
                 <button
                   type="button"
                   title="Delete scene"
-                  className="hidden text-ink-dim hover:text-red-400 group-hover:block"
+                  className="hidden text-muted-foreground transition-colors hover:text-destructive group-hover:block"
                   onClick={async (e) => {
                     e.stopPropagation();
                     if (!window.confirm(`Delete "${recent.name}"?`)) return;
@@ -109,7 +117,7 @@ export default function Home() {
                     refresh();
                   }}
                 >
-                  ✕
+                  <Trash2 className="size-3.5" />
                 </button>
               </div>
             ))}

@@ -74,7 +74,7 @@ export function Viewport() {
   return (
     <div
       className={`relative h-full min-h-0 min-w-0 ${
-        dropping ? "ring-2 ring-inset ring-accent" : ""
+        dropping ? "ring-2 ring-inset ring-primary" : ""
       }`}
       onPointerDown={(e) => {
         pointerDownAt.current = { x: e.clientX, y: e.clientY };
