@@ -1,7 +1,8 @@
 "use client";
 
-import { Info } from "lucide-react";
+import { Info, PanelLeft, PanelRight } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 import { useUI } from "./store/ui";
 import { Toolbar } from "./panels/Toolbar";
 import { Hierarchy } from "./panels/Hierarchy";
@@ -21,24 +22,76 @@ function ToastHost() {
   );
 }
 
+function FloatingPanel({
+  side,
+  open,
+  onToggle,
+  children,
+}: {
+  side: "left" | "right";
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  if (!open) {
+    return (
+      <Button
+        variant="secondary"
+        size="icon-xs"
+        title={side === "left" ? "Show hierarchy" : "Show inspector"}
+        onClick={onToggle}
+        className={`absolute top-3 z-20 shadow-lg ${side === "left" ? "left-3" : "right-3"}`}
+      >
+        {side === "left" ? <PanelLeft /> : <PanelRight />}
+      </Button>
+    );
+  }
+  return (
+    <div
+      className={`absolute inset-y-3 z-20 flex w-64 flex-col overflow-hidden rounded-xl border bg-card/95 shadow-xl backdrop-blur ${
+        side === "left" ? "left-3" : "right-3"
+      }`}
+    >
+      <button
+        type="button"
+        title="Collapse"
+        onClick={onToggle}
+        className="absolute right-2 top-2 z-10 text-muted-foreground hover:text-foreground"
+      >
+        {side === "left" ? (
+          <PanelLeft className="size-3.5" />
+        ) : (
+          <PanelRight className="size-3.5" />
+        )}
+      </button>
+      {children}
+    </div>
+  );
+}
+
 export function EditorLayout() {
   const previewing = useUI((s) => s.previewing);
+  const hierarchyOpen = useUI((s) => s.hierarchyOpen);
+  const inspectorOpen = useUI((s) => s.inspectorOpen);
+  const toggleHierarchy = useUI((s) => s.toggleHierarchy);
+  const toggleInspector = useUI((s) => s.toggleInspector);
+
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="grid h-dvh select-none grid-cols-[260px_minmax(0,1fr)_300px] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden bg-background text-foreground">
-        <header className="col-span-3">
+      <div className="grid h-dvh select-none grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden bg-background text-foreground">
+        <header>
           <Toolbar />
         </header>
-        <aside className="border-r bg-card">
-          <Hierarchy />
-        </aside>
-        <main className="min-h-0 min-w-0">
+        <main className="relative min-h-0 min-w-0">
           <Viewport />
+          <FloatingPanel side="left" open={hierarchyOpen} onToggle={toggleHierarchy}>
+            <Hierarchy />
+          </FloatingPanel>
+          <FloatingPanel side="right" open={inspectorOpen} onToggle={toggleInspector}>
+            <Inspector />
+          </FloatingPanel>
         </main>
-        <aside className="border-l bg-card">
-          <Inspector />
-        </aside>
-        <footer className="col-span-3">
+        <footer>
           <Timeline />
         </footer>
         {previewing && <PreviewOverlay />}

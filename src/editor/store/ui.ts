@@ -11,6 +11,8 @@ type UIState = {
   selectedId: string | null;
   snap: boolean;
   timelineOpen: boolean;
+  hierarchyOpen: boolean;
+  inspectorOpen: boolean;
   toast: string | null;
   activeClipId: string | null;
   playback: Playback;
@@ -22,6 +24,8 @@ type UIState = {
   select: (id: string | null) => void;
   toggleSnap: () => void;
   toggleTimeline: () => void;
+  toggleHierarchy: () => void;
+  toggleInspector: () => void;
   setActiveClip: (id: string | null) => void;
   setPlayhead: (t: number) => void;
   togglePlay: () => void;
@@ -38,6 +42,8 @@ export const useUI = create<UIState>()((set, get) => ({
   selectedId: null,
   snap: false,
   timelineOpen: false,
+  hierarchyOpen: true,
+  inspectorOpen: true,
   toast: null,
   activeClipId: null,
   playback: "stopped",
@@ -53,6 +59,8 @@ export const useUI = create<UIState>()((set, get) => ({
         ? { timelineOpen: false, playback: "stopped", playhead: 0 }
         : { timelineOpen: true },
     ),
+  toggleHierarchy: () => set((s) => ({ hierarchyOpen: !s.hierarchyOpen })),
+  toggleInspector: () => set((s) => ({ inspectorOpen: !s.inspectorOpen })),
   setActiveClip: (activeClipId) =>
     set({ activeClipId, playback: "stopped", playhead: 0 }),
   // Scrubbing pauses at the new playhead so the sampled pose stays visible.

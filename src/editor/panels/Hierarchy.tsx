@@ -173,9 +173,8 @@ export function Hierarchy() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex items-center gap-1.5 border-b px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <div className="flex items-center gap-1.5 border-b px-3 py-2 text-muted-foreground">
         <Layers className="size-3" />
-        Hierarchy
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto py-1">
         {rows.map(({ id, depth }) => {
