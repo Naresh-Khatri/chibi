@@ -169,7 +169,7 @@ export function Toolbar() {
 
       <Separator
         orientation="vertical"
-        className="mx-1.5 data-[orientation=vertical]:h-5"
+        className="mx-1.5"
       />
 
       <Dropdown
@@ -218,7 +218,7 @@ export function Toolbar() {
 
       <Separator
         orientation="vertical"
-        className="mx-1.5 data-[orientation=vertical]:h-5"
+        className="mx-1.5"
       />
 
       <Button
