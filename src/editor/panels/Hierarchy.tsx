@@ -79,14 +79,23 @@ function ModelInternals({ nodeId, depth }: { nodeId: string; depth: number }) {
   );
 }
 
-type Row = { id: string; depth: number };
+type Row = {
+  id: string;
+  depth: number;
+  isLast: boolean;
+  ancestorLast: boolean[];
+};
+
+const INDENT = 14;
 
 export function Hierarchy() {
   const doc = useDoc((s) => s.doc);
+  const docId = useDoc((s) => s.docId);
   const selectedId = useUI((s) => s.selectedId);
   const select = useUI((s) => s.select);
   const activeStateId = useUI((s) => s.activeStateId);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const collapsedInitFor = useRef<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<{
@@ -116,15 +125,18 @@ export function Hierarchy() {
   const rows = useMemo(() => {
     if (!doc) return [] as Row[];
     const out: Row[] = [];
-    const walk = (ids: string[], depth: number) => {
-      for (const id of ids) {
+    const walk = (ids: string[], depth: number, ancestorLast: boolean[]) => {
+      ids.forEach((id, i) => {
         const node = doc.nodes[id];
-        if (!node) continue;
-        out.push({ id, depth });
-        if (!collapsed.has(id)) walk(node.children, depth + 1);
-      }
+        if (!node) return;
+        const isLast = i === ids.length - 1;
+        out.push({ id, depth, isLast, ancestorLast });
+        if (!collapsed.has(id)) {
+          walk(node.children, depth + 1, [...ancestorLast, isLast]);
+        }
+      });
     };
-    walk(doc.root, 0);
+    walk(doc.root, 0, []);
     return out;
   }, [doc, collapsed]);
 
@@ -135,6 +147,18 @@ export function Hierarchy() {
         ?.scrollIntoView({ block: "nearest" });
     }
   }, [selectedId]);
+
+  useEffect(() => {
+    if (!doc || collapsedInitFor.current === docId) return;
+    collapsedInitFor.current = docId;
+    const rootIds = new Set(doc.root);
+    const all = new Set<string>();
+    for (const node of Object.values(doc.nodes)) {
+      if (rootIds.has(node.id)) continue;
+      if (node.children.length > 0 || node.type === "model") all.add(node.id);
+    }
+    setCollapsed(all);
+  }, [doc, docId]);
 
   if (!doc) return null;
 
@@ -177,7 +201,7 @@ export function Hierarchy() {
         <Layers className="size-3" />
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto py-1">
-        {rows.map(({ id, depth }) => {
+        {rows.map(({ id, depth, isLast, ancestorLast }) => {
           const node = doc.nodes[id];
           const isSelected = id === selectedId;
           const isDrop = dropTarget?.id === id;
@@ -212,11 +236,12 @@ export function Hierarchy() {
                 setDragId(null);
                 setDropTarget(null);
               }}
+              tabIndex={0}
               onClick={() => select(id)}
               onDoubleClick={() => setEditingId(id)}
-              className={`group flex h-7 cursor-default items-center gap-1 pr-2 text-xs ${
+              className={`group flex h-7 cursor-default items-center gap-1 pr-2 pl-2 text-xs outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-primary ${
                 isSelected
-                  ? "bg-primary/20 text-foreground"
+                  ? "bg-primary text-primary-foreground"
                   : "text-foreground hover:bg-muted"
               } ${
                 isDrop && dropTarget.pos === "inside"
@@ -231,11 +256,52 @@ export function Hierarchy() {
                   ? "shadow-[inset_0_-2px_0_0_var(--color-primary)]"
                   : ""
               }`}
-              style={{ paddingLeft: 8 + depth * 14 }}
             >
+              {ancestorLast.slice(0, depth - 1).map((last, i) => (
+                <div
+                  key={i}
+                  className="relative h-7 shrink-0 self-stretch"
+                  style={{ width: INDENT }}
+                >
+                  {!last && (
+                    <span
+                      className="absolute top-0 bottom-0 w-px bg-border"
+                      style={{ left: INDENT / 2 }}
+                    />
+                  )}
+                </div>
+              ))}
+              {depth > 0 && (
+                <div
+                  className="relative h-7 shrink-0 self-stretch"
+                  style={{ width: INDENT }}
+                >
+                  <span
+                    className="absolute rounded-bl-sm border-l border-b border-border"
+                    style={{
+                      left: INDENT / 2,
+                      top: 0,
+                      height: INDENT,
+                      width: INDENT / 2 + 4,
+                    }}
+                  />
+                  {!isLast && (
+                    <span
+                      className="absolute bottom-0 w-px bg-border"
+                      style={{ left: INDENT / 2, top: INDENT }}
+                    />
+                  )}
+                </div>
+              )}
               <button
                 type="button"
-                className={`grid w-3.5 place-items-center text-muted-foreground hover:text-foreground ${hasChildren ? "" : "invisible"}`}
+                className={`grid size-3.5 shrink-0 place-items-center rounded-sm ${
+                  hasChildren
+                    ? collapsed.has(id)
+                      ? "border border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                      : "bg-primary text-primary-foreground"
+                    : "invisible"
+                }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   setCollapsed((prev) => {
@@ -247,9 +313,9 @@ export function Hierarchy() {
                 }}
               >
                 {collapsed.has(id) ? (
-                  <ChevronRight className="size-3" />
+                  <ChevronRight className="size-2.5" />
                 ) : (
-                  <ChevronDown className="size-3" />
+                  <ChevronDown className="size-2.5" />
                 )}
               </button>
               {(() => {
@@ -257,7 +323,9 @@ export function Hierarchy() {
                 return (
                   <Icon
                     className={`size-3.5 shrink-0 ${
-                      isSelected ? "text-primary" : "text-muted-foreground"
+                      isSelected
+                        ? "text-primary-foreground"
+                        : "text-muted-foreground"
                     }`}
                   />
                 );
