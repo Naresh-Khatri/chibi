@@ -151,10 +151,8 @@ export function Hierarchy() {
   useEffect(() => {
     if (!doc || collapsedInitFor.current === docId) return;
     collapsedInitFor.current = docId;
-    const rootIds = new Set(doc.root);
     const all = new Set<string>();
     for (const node of Object.values(doc.nodes)) {
-      if (rootIds.has(node.id)) continue;
       if (node.children.length > 0 || node.type === "model") all.add(node.id);
     }
     setCollapsed(all);
