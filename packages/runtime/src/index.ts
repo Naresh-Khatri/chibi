@@ -1,5 +1,5 @@
 /**
- * @ochibi/runtime public surface — everything a host app needs to render and
+ * @chibi3d/runtime public surface — everything a host app needs to render and
  * drive an exported chibi scene. Keep this curated: editor-only helpers stay
  * on their subpaths.
  */

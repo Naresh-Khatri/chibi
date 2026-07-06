@@ -272,7 +272,7 @@ export default function DemoPage() {
 }
 
 const INTEGRATION_SNIPPET = `import { useRef } from "react";
-import { ChibiScene, type ChibiSceneApi, type RuntimeEvent } from "@ochibi/runtime";
+import { ChibiScene, type ChibiSceneApi, type RuntimeEvent } from "@chibi3d/runtime";
 
 export function Hero() {
   const api = useRef<ChibiSceneApi>(null);

@@ -1,4 +1,4 @@
-# @ochibi/runtime
+# @chibi3d/runtime
 
 Render and drive an exported [chibi](../../PRD.md) scene in any React app.
 This folder is the future npm package — it has **no imports from the editor or
@@ -6,7 +6,7 @@ the Next.js app** (ESLint-enforced), so it can be extracted unchanged.
 
 ```tsx
 import { useRef } from "react";
-import { ChibiScene, type ChibiSceneApi } from "@ochibi/runtime";
+import { ChibiScene, type ChibiSceneApi } from "@chibi3d/runtime";
 
 function Hero() {
   const api = useRef<ChibiSceneApi>(null);
@@ -66,15 +66,21 @@ Also exported: `loadDocument(urlOrBytes)` (zip/json loader returning
   with zod; legacy (≤ M5) documents are migrated in-place by
   `schema/migrate.ts`.
 
-## Extraction to an npm package
+## Publishing
 
-Not done in the prototype, but the folder is ready:
+This is a real workspace package (`packages/runtime`), not just a folder of
+source — it has its own `package.json`, `tsconfig.json`, and `tsup.config.ts`.
+The editor/app still consume it at source level via the `@/runtime/*`
+tsconfig path alias, so no build is needed for local dev; building is only
+required to cut an npm release:
 
-1. `package.json` with peer deps `react`, `react-dom`, `three`,
-   `@react-three/fiber` (direct deps: `@react-three/drei`, `zod`, `nanoid`,
-   `jszip` as an optional lazy import).
-2. Build with tsup (`ChibiScene` and friends are `"use client"` modules;
-   preserve the directive).
-3. Entry point is `index.ts` — everything else is internal.
-4. `vitest run src/runtime` already passes with no editor code on the module
-   graph, which is the self-containment proof.
+```sh
+pnpm --filter @chibi3d/runtime build     # emits dist/ (esm + cjs + d.ts)
+cd packages/runtime && npm publish      # publishConfig.access is already "public"
+```
+
+Public surface: `index.ts` (curated) plus the editor-facing subpaths
+`./schema`, `./engine`, `./react/Geometry`, `./react/SceneHost` — everything
+else under `src/` is internal. `vitest run` (root) covers
+`packages/runtime/src` with no editor code on the module graph, which is the
+self-containment proof.
