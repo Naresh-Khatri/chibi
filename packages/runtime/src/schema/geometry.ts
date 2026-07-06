@@ -20,7 +20,7 @@ export const GEOMETRY_DEFS: Record<
       { key: "width", label: "Width", type: "number", default: 1, min: 0.01, step: 0.1 },
       { key: "height", label: "Height", type: "number", default: 1, min: 0.01, step: 0.1 },
       { key: "depth", label: "Depth", type: "number", default: 1, min: 0.01, step: 0.1 },
-      { key: "radius", label: "Corner radius", type: "number", default: 0.05, min: 0, step: 0.01 },
+      { key: "radius", label: "Corner radius", type: "number", default: 0.05, min: 0, max: 0.5, step: 0.01 },
       { key: "smoothness", label: "Smoothness", type: "number", default: 4, min: 1, max: 16, step: 1 },
     ],
   },
@@ -63,7 +63,7 @@ export const GEOMETRY_DEFS: Record<
     params: [
       { key: "width", label: "Width", type: "number", default: 2, min: 0.01, step: 0.1 },
       { key: "height", label: "Height", type: "number", default: 2, min: 0.01, step: 0.1 },
-      { key: "cornerRadius", label: "Corner radius", type: "number", default: 0, min: 0, step: 0.01 },
+      { key: "cornerRadius", label: "Corner radius", type: "number", default: 0, min: 0, max: 1, step: 0.01 },
     ],
   },
   text3d: {

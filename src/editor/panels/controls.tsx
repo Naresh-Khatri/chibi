@@ -25,6 +25,48 @@ function formatNumber(v: number): string {
   return String(Number(v.toFixed(3)));
 }
 
+/** drag-to-scrub pointer handlers: attach to any element to let dragging it inc/dec a value */
+export function useDragScrub({
+  value,
+  onCommit,
+  step = 0.1,
+  min,
+  max,
+}: {
+  value: number;
+  onCommit: (v: number, merge: boolean) => void;
+  step?: number;
+  min?: number;
+  max?: number;
+}) {
+  const drag = useRef<{ startValue: number; acc: number } | null>(null);
+
+  const clamp = (v: number) => {
+    if (min !== undefined) v = Math.max(min, v);
+    if (max !== undefined) v = Math.min(max, v);
+    return v;
+  };
+
+  const onPointerDown = (e: ReactPointerEvent<HTMLElement>) => {
+    e.preventDefault();
+    drag.current = { startValue: value, acc: 0 };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: ReactPointerEvent<HTMLElement>) => {
+    if (!drag.current) return;
+    drag.current.acc += e.movementX;
+    const scale = e.shiftKey ? 10 : 1;
+    const raw = drag.current.startValue + drag.current.acc * step * 0.5 * scale;
+    const snapped = step >= 1 ? Math.round(raw) : raw;
+    onCommit(clamp(Number(snapped.toFixed(4))), true);
+  };
+  const onPointerUp = () => {
+    drag.current = null;
+  };
+
+  return { onPointerDown, onPointerMove, onPointerUp };
+}
+
 export function DragNumber({
   value,
   onCommit,
@@ -43,29 +85,12 @@ export function DragNumber({
   labelClass?: string;
 }) {
   const [editing, setEditing] = useState<string | null>(null);
-  const drag = useRef<{ startValue: number; acc: number } | null>(null);
+  const labelDrag = useDragScrub({ value, onCommit, step, min, max });
 
   const clamp = (v: number) => {
     if (min !== undefined) v = Math.max(min, v);
     if (max !== undefined) v = Math.min(max, v);
     return v;
-  };
-
-  const onLabelPointerDown = (e: ReactPointerEvent<HTMLSpanElement>) => {
-    e.preventDefault();
-    drag.current = { startValue: value, acc: 0 };
-    e.currentTarget.setPointerCapture(e.pointerId);
-  };
-  const onLabelPointerMove = (e: ReactPointerEvent<HTMLSpanElement>) => {
-    if (!drag.current) return;
-    drag.current.acc += e.movementX;
-    const scale = e.shiftKey ? 10 : 1;
-    const raw = drag.current.startValue + drag.current.acc * step * 0.5 * scale;
-    const snapped = step >= 1 ? Math.round(raw) : raw;
-    onCommit(clamp(Number(snapped.toFixed(4))), true);
-  };
-  const onLabelPointerUp = () => {
-    drag.current = null;
   };
 
   const commitText = (text: string) => {
@@ -79,9 +104,7 @@ export function DragNumber({
       {label && (
         <span
           className={`cursor-ew-resize select-none text-[10px] font-semibold ${labelClass}`}
-          onPointerDown={onLabelPointerDown}
-          onPointerMove={onLabelPointerMove}
-          onPointerUp={onLabelPointerUp}
+          {...labelDrag}
         >
           {label}
         </span>
@@ -175,18 +198,47 @@ export function Slider({
   max?: number;
   step?: number;
 }) {
+  const [editing, setEditing] = useState<string | null>(null);
+
+  const commitText = (text: string) => {
+    const parsed = parseFloat(text);
+    if (!Number.isNaN(parsed)) {
+      onCommit(Math.min(max, Math.max(min, parsed)), false);
+    }
+    setEditing(null);
+  };
+
   return (
     <div className="flex min-w-0 flex-1 items-center gap-2">
+      <input
+        className="h-6 w-12 shrink-0 rounded-md border border-input bg-input/30 px-1.5 text-right text-xs text-foreground outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/40"
+        value={editing ?? formatNumber(value)}
+        onFocus={(e) => {
+          setEditing(formatNumber(value));
+          e.currentTarget.select();
+        }}
+        onChange={(e) => setEditing(e.currentTarget.value)}
+        onBlur={(e) => commitText(e.currentTarget.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.currentTarget.blur();
+          if (e.key === "Escape") {
+            setEditing(null);
+            e.currentTarget.blur();
+          }
+          e.stopPropagation();
+        }}
+      />
       <UISlider
         min={min}
         max={max}
         step={step}
         value={[value]}
         onValueChange={([v]) => onCommit(v, true)}
+        className="flex-1"
+        trackClassName="h-2.5 data-horizontal:h-2.5 bg-input/50"
+        rangeClassName="bg-transparent"
+        thumbClassName="h-4 w-2.5 rounded-full border-0 bg-muted-foreground/60 ring-0 hover:ring-0 focus-visible:ring-0 active:ring-0 hover:bg-muted-foreground/80"
       />
-      <span className="w-8 shrink-0 text-right text-xs tabular-nums text-foreground">
-        {value.toFixed(2)}
-      </span>
     </div>
   );
 }

@@ -56,6 +56,7 @@ import {
   Dropdown,
   Slider,
   TextInput,
+  useDragScrub,
   type MenuItem,
 } from "./controls";
 
@@ -104,24 +105,44 @@ function ResetDot({ onReset }: { onReset: () => void }) {
   );
 }
 
+type ScrubConfig = {
+  value: number;
+  onCommit: (v: number, merge: boolean) => void;
+  step?: number;
+  min?: number;
+  max?: number;
+};
+
 function LabeledRow({
   label,
   children,
   overridden,
   onReset,
+  scrub,
 }: {
   label: string;
   children: React.ReactNode;
   overridden?: boolean;
   onReset?: () => void;
+  scrub?: ScrubConfig;
 }) {
+  const scrubHandlers = useDragScrub(
+    scrub ?? { value: 0, onCommit: () => {} },
+  );
   return (
     <div
       className={`flex items-center gap-2 ${
         overridden ? "-mx-1 rounded px-1 ring-1 ring-primary/60" : ""
       }`}
     >
-      <span className="w-16 shrink-0 text-xs text-muted-foreground">{label}</span>
+      <span
+        className={`w-16 shrink-0 text-xs text-muted-foreground ${
+          scrub ? "cursor-ew-resize select-none" : ""
+        }`}
+        {...(scrub ? scrubHandlers : undefined)}
+      >
+        {label}
+      </span>
       {children}
       {overridden && onReset && <ResetDot onReset={onReset} />}
     </div>
@@ -360,25 +381,48 @@ function GeometrySection({ node }: { node: MeshNode }) {
     <Section title={`Geometry · ${def.label}`}>
       {def.params.map((param) => {
         const raw = node.geometry.params[param.key] ?? param.default;
+        const commit = (v: number, merge: boolean) =>
+          setGeometryParam(
+            node.id,
+            param.key,
+            param.step && param.step >= 1 ? Math.round(v) : v,
+            merge ? { mergeKey: `geo:${node.id}:${param.key}` } : undefined,
+          );
+        const numValue = typeof raw === "number" ? raw : Number(raw) || 0;
         return (
-          <LabeledRow key={param.key} label={param.label}>
+          <LabeledRow
+            key={param.key}
+            label={param.label}
+            scrub={
+              param.type === "number"
+                ? {
+                    value: numValue,
+                    onCommit: commit,
+                    step: param.step,
+                    min: param.min,
+                    max: param.max,
+                  }
+                : undefined
+            }
+          >
             {param.type === "number" ? (
-              <DragNumber
-                value={typeof raw === "number" ? raw : Number(raw) || 0}
-                min={param.min}
-                max={param.max}
-                step={param.step ?? 0.1}
-                onCommit={(v, merge) =>
-                  setGeometryParam(
-                    node.id,
-                    param.key,
-                    param.step && param.step >= 1 ? Math.round(v) : v,
-                    merge
-                      ? { mergeKey: `geo:${node.id}:${param.key}` }
-                      : undefined,
-                  )
-                }
-              />
+              param.min !== undefined && param.max !== undefined ? (
+                <Slider
+                  value={numValue}
+                  min={param.min}
+                  max={param.max}
+                  step={param.step ?? 0.1}
+                  onCommit={commit}
+                />
+              ) : (
+                <DragNumber
+                  value={numValue}
+                  min={param.min}
+                  max={param.max}
+                  step={param.step ?? 0.1}
+                  onCommit={commit}
+                />
+              )
             ) : (
               <TextInput
                 value={String(raw)}
@@ -408,6 +452,18 @@ function MaterialSection({ node }: { node: MeshNode }) {
     (overrides?.opacity as number | undefined) ?? material.opacity;
 
   const mk = (prop: string) => ({ mergeKey: `mat:${material.id}:${prop}` });
+  const commitMetalness = (v: number, merge: boolean) =>
+    setMaterialProp(material.id, { metalness: v }, merge ? mk("metalness") : undefined);
+  const commitRoughness = (v: number, merge: boolean) =>
+    setMaterialProp(material.id, { roughness: v }, merge ? mk("roughness") : undefined);
+  const commitOpacity = (v: number, merge: boolean) =>
+    setMaterialProp(material.id, { opacity: v }, merge ? mk("opacity") : undefined);
+  const commitEmissiveIntensity = (v: number, merge: boolean) =>
+    setMaterialProp(
+      material.id,
+      { emissiveIntensity: v },
+      merge ? mk("emissiveIntensity") : undefined,
+    );
   const pickerItems: MenuItem[] = [
     ...Object.values(materialList).map((m) => ({
       label: m.name,
@@ -475,45 +531,25 @@ function MaterialSection({ node }: { node: MeshNode }) {
           }
         />
       </LabeledRow>
-      <LabeledRow label="Metalness">
-        <Slider
-          value={material.metalness}
-          onCommit={(v, merge) =>
-            setMaterialProp(
-              material.id,
-              { metalness: v },
-              merge ? mk("metalness") : undefined,
-            )
-          }
-        />
+      <LabeledRow
+        label="Metalness"
+        scrub={{ value: material.metalness, onCommit: commitMetalness, step: 0.01, min: 0, max: 1 }}
+      >
+        <Slider value={material.metalness} onCommit={commitMetalness} />
       </LabeledRow>
-      <LabeledRow label="Roughness">
-        <Slider
-          value={material.roughness}
-          onCommit={(v, merge) =>
-            setMaterialProp(
-              material.id,
-              { roughness: v },
-              merge ? mk("roughness") : undefined,
-            )
-          }
-        />
+      <LabeledRow
+        label="Roughness"
+        scrub={{ value: material.roughness, onCommit: commitRoughness, step: 0.01, min: 0, max: 1 }}
+      >
+        <Slider value={material.roughness} onCommit={commitRoughness} />
       </LabeledRow>
       <LabeledRow
         label="Opacity"
         overridden={overrides?.opacity !== undefined}
         onReset={() => clearOverride(activeStateId, material.id, "opacity")}
+        scrub={{ value: effOpacity, onCommit: commitOpacity, step: 0.01, min: 0, max: 1 }}
       >
-        <Slider
-          value={effOpacity}
-          onCommit={(v, merge) =>
-            setMaterialProp(
-              material.id,
-              { opacity: v },
-              merge ? mk("opacity") : undefined,
-            )
-          }
-        />
+        <Slider value={effOpacity} onCommit={commitOpacity} />
       </LabeledRow>
       <LabeledRow label="Emissive">
         <ColorInput
@@ -527,18 +563,15 @@ function MaterialSection({ node }: { node: MeshNode }) {
           }
         />
       </LabeledRow>
-      <LabeledRow label="Intensity">
+      <LabeledRow
+        label="Intensity"
+        scrub={{ value: material.emissiveIntensity, onCommit: commitEmissiveIntensity, step: 0.1, min: 0 }}
+      >
         <DragNumber
           value={material.emissiveIntensity}
           min={0}
           step={0.1}
-          onCommit={(v, merge) =>
-            setMaterialProp(
-              material.id,
-              { emissiveIntensity: v },
-              merge ? mk("emissiveIntensity") : undefined,
-            )
-          }
+          onCommit={commitEmissiveIntensity}
         />
       </LabeledRow>
       <div className="flex gap-4 pl-18">
@@ -630,6 +663,15 @@ function TextureSlotRow({
 function LightSection({ node }: { node: LightNode }) {
   const light = node.light;
   const mk = (prop: string) => ({ mergeKey: `light:${node.id}:${prop}` });
+  const commitIntensity = (v: number, merge: boolean) =>
+    setLightProp(node.id, { intensity: v }, merge ? mk("intensity") : undefined);
+  const commitDistance = (v: number, merge: boolean) =>
+    setLightProp(node.id, { distance: v }, merge ? mk("distance") : undefined);
+  const commitAngle = (v: number, merge: boolean) =>
+    setLightProp(node.id, { angle: v * DEG2RAD }, merge ? mk("angle") : undefined);
+  const commitPenumbra = (v: number, merge: boolean) =>
+    setLightProp(node.id, { penumbra: v }, merge ? mk("penumbra") : undefined);
+  const angleDeg = Number(((light.angle ?? Math.PI / 6) * RAD2DEG).toFixed(1));
   return (
     <Section title={`Light · ${light.kind}`}>
       <LabeledRow label="Color">
@@ -640,64 +682,44 @@ function LightSection({ node }: { node: LightNode }) {
           }
         />
       </LabeledRow>
-      <LabeledRow label="Intensity">
-        <DragNumber
-          value={light.intensity}
-          min={0}
-          step={0.1}
-          onCommit={(v, merge) =>
-            setLightProp(
-              node.id,
-              { intensity: v },
-              merge ? mk("intensity") : undefined,
-            )
-          }
-        />
+      <LabeledRow
+        label="Intensity"
+        scrub={{ value: light.intensity, onCommit: commitIntensity, step: 0.1, min: 0 }}
+      >
+        <DragNumber value={light.intensity} min={0} step={0.1} onCommit={commitIntensity} />
       </LabeledRow>
       {light.kind !== "directional" && (
-        <LabeledRow label="Distance">
+        <LabeledRow
+          label="Distance"
+          scrub={{ value: light.distance ?? 0, onCommit: commitDistance, step: 0.5, min: 0 }}
+        >
           <DragNumber
             value={light.distance ?? 0}
             min={0}
             step={0.5}
-            onCommit={(v, merge) =>
-              setLightProp(
-                node.id,
-                { distance: v },
-                merge ? mk("distance") : undefined,
-              )
-            }
+            onCommit={commitDistance}
           />
         </LabeledRow>
       )}
       {light.kind === "spot" && (
         <>
-          <LabeledRow label="Angle°">
-            <DragNumber
-              value={Number(((light.angle ?? Math.PI / 6) * RAD2DEG).toFixed(1))}
-              min={1}
-              max={89}
-              step={1}
-              onCommit={(v, merge) =>
-                setLightProp(
-                  node.id,
-                  { angle: v * DEG2RAD },
-                  merge ? mk("angle") : undefined,
-                )
-              }
-            />
+          <LabeledRow
+            label="Angle°"
+            scrub={{ value: angleDeg, onCommit: commitAngle, step: 1, min: 1, max: 89 }}
+          >
+            <Slider value={angleDeg} min={1} max={89} step={1} onCommit={commitAngle} />
           </LabeledRow>
-          <LabeledRow label="Penumbra">
-            <Slider
-              value={light.penumbra ?? 0.3}
-              onCommit={(v, merge) =>
-                setLightProp(
-                  node.id,
-                  { penumbra: v },
-                  merge ? mk("penumbra") : undefined,
-                )
-              }
-            />
+          <LabeledRow
+            label="Penumbra"
+            scrub={{
+              value: light.penumbra ?? 0.3,
+              onCommit: commitPenumbra,
+              step: 0.01,
+              min: 0,
+              max: 1,
+            }}
+          >
+            <Slider value={light.penumbra ?? 0.3} onCommit={commitPenumbra} />
           </LabeledRow>
         </>
       )}
@@ -785,7 +807,19 @@ function SceneInspector() {
                 }
               />
             </LabeledRow>
-            <LabeledRow label="Near">
+            <LabeledRow
+              label="Near"
+              scrub={{
+                value: env.fog.near,
+                onCommit: (v, merge) =>
+                  setEnvironment(
+                    { fog: { ...env.fog!, near: v } },
+                    merge ? { mergeKey: "env:fognear" } : undefined,
+                  ),
+                step: 0.5,
+                min: 0,
+              }}
+            >
               <DragNumber
                 value={env.fog.near}
                 min={0}
@@ -798,7 +832,19 @@ function SceneInspector() {
                 }
               />
             </LabeledRow>
-            <LabeledRow label="Far">
+            <LabeledRow
+              label="Far"
+              scrub={{
+                value: env.fog.far,
+                onCommit: (v, merge) =>
+                  setEnvironment(
+                    { fog: { ...env.fog!, far: v } },
+                    merge ? { mergeKey: "env:fogfar" } : undefined,
+                  ),
+                step: 1,
+                min: 0.1,
+              }}
+            >
               <DragNumber
                 value={env.fog.far}
                 min={0.1}
