@@ -147,6 +147,7 @@ function MeshView({ node }: { node: MeshNode }) {
   const params = node.geometry.params;
 
   if (node.geometry.kind === "text3d") {
+    const bevel = numParam(params, "bevel", 0);
     return (
       <group
         ref={ref}
@@ -160,6 +161,10 @@ function MeshView({ node }: { node: MeshNode }) {
           font={FONT_URL}
           size={numParam(params, "size", 0.5)}
           height={numParam(params, "depth", 0.2)}
+          bevelEnabled={bevel > 0}
+          bevelSize={bevel}
+          bevelThickness={bevel}
+          bevelSegments={4}
           castShadow={node.castShadow}
           receiveShadow={node.receiveShadow}
           material={material}
