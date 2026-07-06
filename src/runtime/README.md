@@ -1,4 +1,4 @@
-# @chibi/runtime
+# @ochibi/runtime
 
 Render and drive an exported [chibi](../../PRD.md) scene in any React app.
 This folder is the future npm package — it has **no imports from the editor or
@@ -6,7 +6,7 @@ the Next.js app** (ESLint-enforced), so it can be extracted unchanged.
 
 ```tsx
 import { useRef } from "react";
-import { ChibiScene, type ChibiSceneApi } from "@chibi/runtime";
+import { ChibiScene, type ChibiSceneApi } from "@ochibi/runtime";
 
 function Hero() {
   const api = useRef<ChibiSceneApi>(null);
