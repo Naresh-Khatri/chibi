@@ -1,6 +1,6 @@
 {
   "name": "@chibi3d/runtime",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Runtime for chibi scenes: zod schema, animation/state/interaction engine, and the <ChibiScene> React component.",
   "license": "MIT",
   "type": "module",
