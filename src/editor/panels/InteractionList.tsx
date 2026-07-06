@@ -4,9 +4,10 @@ import {
   BASE_STATE_ID,
   type Action,
   type AnimationClip,
+  type ChibiNode,
   type Easing,
   type Interaction,
-  type SceneState,
+  type ObjectState,
 } from "@/runtime/schema";
 import { useDoc } from "../store/document";
 import {
@@ -35,11 +36,33 @@ const ACTION_LABELS: Record<Action["type"], string> = {
 /** node scope = that node's pointer triggers; "start" = document-level */
 export type InteractionScope = { kind: "node"; nodeId: string } | { kind: "start" };
 
+// states are per-object: default to the trigger node when it has states, else
+// the first object that does
+function defaultStateTarget(
+  scope: InteractionScope,
+  states: Record<string, ObjectState>,
+): { nodeId: string; firstState: string } {
+  const list = Object.values(states);
+  const scopeNode = scope.kind === "node" ? scope.nodeId : undefined;
+  const nodeId =
+    (scopeNode && list.some((s) => s.nodeId === scopeNode)
+      ? scopeNode
+      : undefined) ??
+    list[0]?.nodeId ??
+    scopeNode ??
+    "";
+  return {
+    nodeId,
+    firstState: list.find((s) => s.nodeId === nodeId)?.id ?? BASE_STATE_ID,
+  };
+}
+
 export function InteractionList({ scope }: { scope: InteractionScope }) {
   const interactions = useDoc((s) => s.doc?.interactions);
   const states = useDoc((s) => s.doc?.states);
   const animations = useDoc((s) => s.doc?.animations);
-  if (!interactions || !states || !animations) return null;
+  const nodes = useDoc((s) => s.doc?.nodes);
+  if (!interactions || !states || !animations || !nodes) return null;
 
   const rows = interactions.filter((ix) =>
     scope.kind === "start"
@@ -48,14 +71,15 @@ export function InteractionList({ scope }: { scope: InteractionScope }) {
   );
 
   const add = () => {
-    const firstNonBase = Object.keys(states).find((id) => id !== BASE_STATE_ID);
+    const target = defaultStateTarget(scope, states);
     addInteraction(
       scope.kind === "start"
         ? { type: "start" }
         : { type: "click", nodeId: scope.nodeId },
       {
         type: "transition",
-        to: firstNonBase ?? BASE_STATE_ID,
+        nodeId: target.nodeId,
+        to: target.firstState,
         duration: 0.4,
         ease: "easeOut",
       },
@@ -71,6 +95,7 @@ export function InteractionList({ scope }: { scope: InteractionScope }) {
           scope={scope}
           states={states}
           animations={animations}
+          nodes={nodes}
         />
       ))}
       {rows.length === 0 && (
@@ -105,17 +130,20 @@ function InteractionRow({
   scope,
   states,
   animations,
+  nodes,
 }: {
   ix: Interaction;
   scope: InteractionScope;
-  states: Record<string, SceneState>;
+  states: Record<string, ObjectState>;
   animations: Record<string, AnimationClip>;
+  nodes: Record<string, ChibiNode>;
 }) {
   const action = ix.action;
   const stateList = Object.values(states);
   const clipList = Object.values(animations);
-  const firstNonBase =
-    stateList.find((s) => s.id !== BASE_STATE_ID)?.id ?? BASE_STATE_ID;
+  const statefulNodeIds = [...new Set(stateList.map((s) => s.nodeId))];
+  const firstStateOf = (nodeId: string) =>
+    stateList.find((s) => s.nodeId === nodeId)?.id ?? BASE_STATE_ID;
 
   const triggerItems: MenuItem[] =
     scope.kind === "node"
@@ -129,6 +157,7 @@ function InteractionRow({
         }))
       : [];
 
+  const target = defaultStateTarget(scope, states);
   const actionTypeItems: MenuItem[] = [
     {
       label: ACTION_LABELS.transition,
@@ -136,7 +165,8 @@ function InteractionRow({
         action.type !== "transition" &&
         setInteractionAction(ix.id, {
           type: "transition",
-          to: firstNonBase,
+          nodeId: target.nodeId,
+          to: target.firstState,
           duration: 0.4,
           ease: "easeOut",
         }),
@@ -156,23 +186,58 @@ function InteractionRow({
         action.type !== "toggleStates" &&
         setInteractionAction(ix.id, {
           type: "toggleStates",
+          nodeId: target.nodeId,
           a: BASE_STATE_ID,
-          b: firstNonBase,
+          b: target.firstState,
           duration: 0.4,
           ease: "easeOut",
         }),
     },
   ];
 
-  const statePicker = (value: string, onPick: (id: string) => void) => (
-    <Dropdown
-      button={<>{states[value]?.name ?? "missing state"} ▾</>}
-      items={stateList.map((s) => ({
-        label: s.id === value ? `✓ ${s.name}` : s.name,
-        onSelect: () => onPick(s.id),
-      }))}
-    />
-  );
+  const objectPicker = (value: string, onPick: (nodeId: string) => void) => {
+    // stateful nodes + the current pick (kept even if its states were deleted)
+    const ids =
+      !value || statefulNodeIds.includes(value)
+        ? statefulNodeIds
+        : [value, ...statefulNodeIds];
+    if (ids.length === 0) {
+      return (
+        <span className="text-[11px] text-ink-dim/70">no objects with states yet</span>
+      );
+    }
+    return (
+      <Dropdown
+        button={<>{nodes[value]?.name ?? "pick an object"} ▾</>}
+        items={ids.map((id) => ({
+          label: id === value ? `✓ ${nodes[id]?.name ?? id}` : (nodes[id]?.name ?? id),
+          onSelect: () => onPick(id),
+        }))}
+      />
+    );
+  };
+
+  const statePicker = (
+    nodeId: string,
+    value: string,
+    onPick: (id: string) => void,
+  ) => {
+    const options = [
+      { id: BASE_STATE_ID, name: "Base" },
+      ...stateList.filter((s) => s.nodeId === nodeId),
+    ];
+    const label =
+      value === BASE_STATE_ID ? "Base" : (states[value]?.name ?? "missing state");
+    return (
+      <Dropdown
+        button={<>{label} ▾</>}
+        items={options.map((s) => ({
+          label: s.id === value ? `✓ ${s.name}` : s.name,
+          onSelect: () => onPick(s.id),
+        }))}
+      />
+    );
+  };
 
   const easePicker = (value: Easing, onPick: (e: Easing) => void) => (
     <Dropdown
@@ -233,8 +298,17 @@ function InteractionRow({
 
       {action.type === "transition" && (
         <>
+          <ParamRow label="Object">
+            {objectPicker(action.nodeId, (nodeId) =>
+              setInteractionAction(ix.id, {
+                ...action,
+                nodeId,
+                to: firstStateOf(nodeId),
+              }),
+            )}
+          </ParamRow>
           <ParamRow label="To state">
-            {statePicker(action.to, (to) =>
+            {statePicker(action.nodeId, action.to, (to) =>
               setInteractionAction(ix.id, { ...action, to }),
             )}
           </ParamRow>
@@ -266,13 +340,23 @@ function InteractionRow({
 
       {action.type === "toggleStates" && (
         <>
+          <ParamRow label="Object">
+            {objectPicker(action.nodeId, (nodeId) =>
+              setInteractionAction(ix.id, {
+                ...action,
+                nodeId,
+                a: BASE_STATE_ID,
+                b: firstStateOf(nodeId),
+              }),
+            )}
+          </ParamRow>
           <ParamRow label="State A">
-            {statePicker(action.a, (a) =>
+            {statePicker(action.nodeId, action.a, (a) =>
               setInteractionAction(ix.id, { ...action, a }),
             )}
           </ParamRow>
           <ParamRow label="State B">
-            {statePicker(action.b, (b) =>
+            {statePicker(action.nodeId, action.b, (b) =>
               setInteractionAction(ix.id, { ...action, b }),
             )}
           </ParamRow>

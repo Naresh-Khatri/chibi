@@ -98,6 +98,7 @@ describe("document round-trip", () => {
 
     doc.states["st_hot"] = {
       id: "st_hot",
+      nodeId: sphere.id,
       name: "Hover",
       overrides: {
         [sphere.id]: { "transform.scale": [1.2, 1.2, 1.2] },
@@ -109,7 +110,13 @@ describe("document round-trip", () => {
       {
         id: "ix_hover",
         trigger: { type: "hoverEnter", nodeId: sphere.id },
-        action: { type: "transition", to: "st_hot", duration: 0.4, ease: "easeOut" },
+        action: {
+          type: "transition",
+          nodeId: sphere.id,
+          to: "st_hot",
+          duration: 0.4,
+          ease: "easeOut",
+        },
       },
       {
         id: "ix_click",

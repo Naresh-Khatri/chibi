@@ -23,20 +23,32 @@ export function interactiveNodeIds(doc: ChibiDocument): {
 
 /**
  * interaction dispatcher. host feeds pointer events in + pulls a value map
- * per frame; applying it to three objects is the host's job. interrupting a
- * transition mid-flight tweens from the current values — no jumps.
+ * per frame; applying it to three objects is the host's job. states are
+ * per-object: each node has its own logical state + in-flight transition, so
+ * objects animate independently. interrupting a node's transition mid-flight
+ * tweens from the current values — no jumps.
  */
 export class InteractionRuntime {
-  currentStateId = BASE_STATE_ID; // toggleStates compares against this
-
   private doc: ChibiDocument;
-  private current: SampleMap; // live value per state-managed key
-  private transition: Transition | null = null;
+  private current: SampleMap = new Map(); // live value per state-managed key
+  private currentStates = new Map<string, string>(); // nodeId -> stateId
+  private transitions = new Map<string, Transition>(); // nodeId -> in-flight
   private players = new Map<string, ClipPlayer>();
 
   constructor(doc: ChibiDocument) {
     this.doc = doc;
-    this.current = resolveStateValues(doc, BASE_STATE_ID);
+    for (const state of Object.values(doc.states)) {
+      if (this.currentStates.has(state.nodeId)) continue;
+      this.currentStates.set(state.nodeId, BASE_STATE_ID);
+      for (const [key, value] of resolveStateValues(doc, state.nodeId, BASE_STATE_ID)) {
+        this.current.set(key, value);
+      }
+    }
+  }
+
+  /** the node's logical state; toggleStates compares against this */
+  stateOf(nodeId: string): string {
+    return this.currentStates.get(nodeId) ?? BASE_STATE_ID;
   }
 
   /** fire `start` triggers — call once on scene mount */
@@ -60,10 +72,11 @@ export class InteractionRuntime {
 
   /** values to apply this frame; clip samples layer over state values, finished non-looping clips hold their last pose */
   advance(delta: number): SampleMap {
-    if (this.transition) {
-      const values = this.transition.advance(delta);
-      for (const [key, value] of values) this.current.set(key, value);
-      if (this.transition.done) this.transition = null;
+    for (const [nodeId, transition] of this.transitions) {
+      for (const [key, value] of transition.advance(delta)) {
+        this.current.set(key, value);
+      }
+      if (transition.done) this.transitions.delete(nodeId);
     }
     const out = new Map(this.current);
     for (const player of this.players.values()) {
@@ -75,11 +88,12 @@ export class InteractionRuntime {
   private run(action: Action): void {
     switch (action.type) {
       case "transition":
-        this.goTo(action.to, action.duration, action.ease);
+        this.goTo(action.nodeId, action.to, action.duration, action.ease);
         break;
       case "toggleStates":
         this.goTo(
-          this.currentStateId === action.a ? action.b : action.a,
+          action.nodeId,
+          this.stateOf(action.nodeId) === action.a ? action.b : action.a,
           action.duration,
           action.ease,
         );
@@ -98,14 +112,26 @@ export class InteractionRuntime {
     }
   }
 
-  private goTo(stateId: string, duration: number, ease: Easing): void {
-    if (!this.doc.states[stateId]) return;
-    this.currentStateId = stateId;
-    this.transition = createTransition(
-      this.current,
-      resolveStateValues(this.doc, stateId),
-      duration,
-      ease,
+  private goTo(
+    nodeId: string,
+    stateId: string,
+    duration: number,
+    ease: Easing,
+  ): void {
+    if (stateId !== BASE_STATE_ID && this.doc.states[stateId]?.nodeId !== nodeId) {
+      return;
+    }
+    this.currentStates.set(nodeId, stateId);
+    // per-node transition — replaces only this node's tween; `to` only holds
+    // the node's managed keys, so the shared `current` map is a safe `from`
+    this.transitions.set(
+      nodeId,
+      createTransition(
+        this.current,
+        resolveStateValues(this.doc, nodeId, stateId),
+        duration,
+        ease,
+      ),
     );
   }
 }

@@ -20,7 +20,11 @@ import {
 import { resolveValue } from "@/runtime/engine";
 import { useDoc, type DispatchOpts } from "./document";
 import { useUI } from "./ui";
-import { requireBaseState, writeOverrides } from "./stateCommands";
+import {
+  activeOverrideState,
+  requireBaseState,
+  writeOverrides,
+} from "./stateCommands";
 
 function dispatch(
   label: string,
@@ -202,16 +206,30 @@ export function removeNode(nodeId: string) {
     const idx = siblings.indexOf(nodeId);
     if (idx >= 0) siblings.splice(idx, 1);
     for (const id of removed) delete d.nodes[id];
-    // drop state overrides and interactions referencing the removed nodes
-    for (const state of Object.values(d.states)) {
+    // drop states owned by removed nodes, and orphaned overrides/interactions
+    for (const [stateId, state] of Object.entries(d.states)) {
+      if (removed.has(state.nodeId)) {
+        delete d.states[stateId];
+        continue;
+      }
       for (const id of removed) delete state.overrides[id];
     }
-    d.interactions = d.interactions.filter(
-      (ix) => ix.trigger.type === "start" || !removed.has(ix.trigger.nodeId),
-    );
+    d.interactions = d.interactions.filter((ix) => {
+      if (ix.trigger.type !== "start" && removed.has(ix.trigger.nodeId)) {
+        return false;
+      }
+      // state actions on a removed owner (covers refs to its deleted states)
+      return ix.action.type === "playAnimation" || !removed.has(ix.action.nodeId);
+    });
   });
   const ui = useUI.getState();
   if (ui.selectedId && removed.has(ui.selectedId)) ui.select(null);
+  if (
+    ui.activeStateId !== BASE_STATE_ID &&
+    !useDoc.getState().doc?.states[ui.activeStateId]
+  ) {
+    ui.setActiveState(BASE_STATE_ID);
+  }
 }
 
 export function setNodeName(nodeId: string, name: string) {
@@ -222,9 +240,9 @@ export function setNodeName(nodeId: string, name: string) {
 }
 
 export function setNodeVisible(nodeId: string, visible: boolean) {
-  const active = useUI.getState().activeStateId;
-  if (active !== BASE_STATE_ID) {
-    writeOverrides(active, nodeId, { visible }, undefined, "Toggle visibility");
+  const active = activeOverrideState();
+  if (active?.nodeId === nodeId) {
+    writeOverrides(active.stateId, nodeId, { visible }, undefined, "Toggle visibility");
     return;
   }
   dispatch("Toggle visibility", (d) => {
@@ -270,18 +288,19 @@ function effectiveTransformField(
 
 export function setTransform(nodeId: string, t: Transform, opts?: DispatchOpts) {
   const doc = useDoc.getState().doc;
-  const active = useUI.getState().activeStateId;
-  if (doc && active !== BASE_STATE_ID) {
+  const active = activeOverrideState();
+  // edits to the active state's owner record overrides; other nodes edit base
+  if (doc && active?.nodeId === nodeId) {
     // record only the fields that actually moved as state overrides
     const entries: Record<string, PropertyValue> = {};
     for (const field of TRANSFORM_FIELDS) {
-      const current = effectiveTransformField(doc, active, nodeId, field);
+      const current = effectiveTransformField(doc, active.stateId, nodeId, field);
       if (current && !vec3Equal(current, t[field])) {
         entries[`transform.${field}`] = [...t[field]];
       }
     }
     if (Object.keys(entries).length > 0) {
-      writeOverrides(active, nodeId, entries, opts, "Transform");
+      writeOverrides(active.stateId, nodeId, entries, opts, "Transform");
     }
     return;
   }
@@ -317,14 +336,14 @@ export function setTransformComponent(
   opts?: DispatchOpts,
 ) {
   const doc = useDoc.getState().doc;
-  const active = useUI.getState().activeStateId;
-  if (doc && active !== BASE_STATE_ID) {
-    const current = effectiveTransformField(doc, active, nodeId, field);
+  const active = activeOverrideState();
+  if (doc && active?.nodeId === nodeId) {
+    const current = effectiveTransformField(doc, active.stateId, nodeId, field);
     if (!current) return;
     const next: Vec3 = [...current];
     next[axis] = value;
     writeOverrides(
-      active,
+      active.stateId,
       nodeId,
       { [`transform.${field}`]: next },
       opts,

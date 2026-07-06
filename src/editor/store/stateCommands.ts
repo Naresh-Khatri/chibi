@@ -17,28 +17,41 @@ function dispatch(
   useDoc.getState().dispatch(label, recipe, opts);
 }
 
-/** guard for base-only ops (structural edits, keyframes): toast + false while a non-base state is active. value commands record overrides instead — see commands.ts */
+/** guard for base-only ops (structural edits, keyframes): toast + false while a state is active. value commands record overrides instead — see commands.ts */
 export function requireBaseState(what: string): boolean {
   const ui = useUI.getState();
   if (ui.activeStateId === BASE_STATE_ID) return true;
-  ui.showToast(`Switch to the Base state to ${what}`);
+  ui.showToast(`Switch back to Base to ${what}`);
   return false;
 }
 
-export function addState(): string {
+/** the active state + its owner node; null while editing Base (or if stale) */
+export function activeOverrideState(): { stateId: string; nodeId: string } | null {
+  const stateId = useUI.getState().activeStateId;
+  if (stateId === BASE_STATE_ID) return null;
+  const state = useDoc.getState().doc?.states[stateId];
+  return state ? { stateId, nodeId: state.nodeId } : null;
+}
+
+export function addState(nodeId: string): string {
+  if (!useDoc.getState().doc?.nodes[nodeId]) return BASE_STATE_ID;
   const id = newId("st");
   dispatch("Add state", (d) => {
-    const names = new Set(Object.values(d.states).map((s) => s.name));
-    let i = 2;
+    const names = new Set(
+      Object.values(d.states)
+        .filter((s) => s.nodeId === nodeId)
+        .map((s) => s.name),
+    );
+    let i = 1;
     while (names.has(`State ${i}`)) i++;
-    d.states[id] = { id, name: `State ${i}`, overrides: {} };
+    d.states[id] = { id, nodeId, name: `State ${i}`, overrides: {} };
   });
   useUI.getState().setActiveState(id);
   return id;
 }
 
 export function renameState(stateId: string, name: string) {
-  if (stateId === BASE_STATE_ID || !name.trim()) return;
+  if (!name.trim()) return;
   dispatch("Rename state", (d) => {
     const state = d.states[stateId];
     if (state) state.name = name.trim();
@@ -62,7 +75,6 @@ function actionReferencesState(action: Action, stateId: string): boolean {
 
 /** deletes the state + any interactions referencing it */
 export function deleteState(stateId: string) {
-  if (stateId === BASE_STATE_ID) return;
   dispatch("Delete state", (d) => {
     if (!d.states[stateId]) return;
     delete d.states[stateId];

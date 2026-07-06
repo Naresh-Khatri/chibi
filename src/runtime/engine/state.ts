@@ -1,4 +1,4 @@
-import type { ChibiDocument, PropertyValue } from "../schema/types";
+import type { ChibiDocument, ObjectState, PropertyValue } from "../schema/types";
 import { makeTargetKey, type SampleMap, type TargetKey } from "./sampler";
 
 /** base value of a registry property; vec3s copied so callers can't mutate the doc */
@@ -54,10 +54,18 @@ export function resolveValue(
   );
 }
 
-/** union of keys overridden by ANY state — transitioning must restore keys the target state doesn't override back to base */
-export function stateManagedKeys(doc: ChibiDocument): Set<TargetKey> {
+/** the node's own states (its virtual Base is not materialized) */
+export function statesOf(doc: ChibiDocument, nodeId: string): ObjectState[] {
+  return Object.values(doc.states).filter((s) => s.nodeId === nodeId);
+}
+
+/** union of keys overridden by ANY of the node's states — transitioning must restore keys the target state doesn't override back to base */
+export function nodeManagedKeys(
+  doc: ChibiDocument,
+  nodeId: string,
+): Set<TargetKey> {
   const keys = new Set<TargetKey>();
-  for (const state of Object.values(doc.states)) {
+  for (const state of statesOf(doc, nodeId)) {
     for (const [targetId, props] of Object.entries(state.overrides)) {
       for (const property of Object.keys(props)) {
         keys.add(makeTargetKey(targetId, property));
@@ -67,14 +75,15 @@ export function stateManagedKeys(doc: ChibiDocument): Set<TargetKey> {
   return keys;
 }
 
-/** state -> flat value map over every managed key (override ?? base); viewport "apply state" + transition tween target */
+/** node state -> flat value map over the node's managed keys (override ?? base); viewport "apply state" + transition tween target */
 export function resolveStateValues(
   doc: ChibiDocument,
+  nodeId: string,
   stateId: string,
 ): SampleMap {
   const out: SampleMap = new Map();
   const overrides = doc.states[stateId]?.overrides ?? {};
-  for (const key of stateManagedKeys(doc)) {
+  for (const key of nodeManagedKeys(doc, nodeId)) {
     const i = key.indexOf(":");
     const targetId = key.slice(0, i);
     const property = key.slice(i + 1);

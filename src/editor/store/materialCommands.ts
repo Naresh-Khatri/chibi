@@ -1,5 +1,4 @@
 import {
-  BASE_STATE_ID,
   DEFAULT_MATERIAL_ID,
   createMaterial,
   newId,
@@ -11,8 +10,11 @@ import {
   type PropertyValue,
 } from "@/runtime/schema";
 import { useDoc, type DispatchOpts } from "./document";
-import { useUI } from "./ui";
-import { requireBaseState, writeOverrides } from "./stateCommands";
+import {
+  activeOverrideState,
+  requireBaseState,
+  writeOverrides,
+} from "./stateCommands";
 
 function dispatch(
   label: string,
@@ -43,15 +45,17 @@ export function setMaterialProp(
   updates: Partial<Omit<ChibiMaterial, "id" | "type" | "maps">>,
   opts?: DispatchOpts,
 ) {
-  const active = useUI.getState().activeStateId;
-  if (active !== BASE_STATE_ID) {
-    // color/opacity are state-overridable; everything else stays base-targeted
+  const active = activeOverrideState();
+  const owner = active ? useDoc.getState().doc?.nodes[active.nodeId] : undefined;
+  // material edits record into the active state only when its owner node uses
+  // this material; color/opacity are the overridable props, rest stays base
+  if (active && owner?.type === "mesh" && owner.materialId === materialId) {
     const { color, opacity, ...rest } = updates;
     const entries: Record<string, PropertyValue> = {};
     if (color !== undefined) entries.color = color;
     if (opacity !== undefined) entries.opacity = opacity;
     if (Object.keys(entries).length > 0) {
-      writeOverrides(active, materialId, entries, opts, "Edit material");
+      writeOverrides(active.stateId, materialId, entries, opts, "Edit material");
     }
     if (Object.keys(rest).length === 0) return;
     updates = rest;

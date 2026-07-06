@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { migrateDocument } from "./migrate";
 
 export const vec3Schema = z.tuple([z.number(), z.number(), z.number()]);
 export type Vec3 = z.infer<typeof vec3Schema>;
@@ -160,12 +161,15 @@ export const animationClipSchema = z.object({
 });
 export type AnimationClip = z.infer<typeof animationClipSchema>;
 
-export const sceneStateSchema = z.object({
+// per-object: a state belongs to a node. overrides may target the owner node
+// (transform.*, visible) and its material (color, opacity)
+export const objectStateSchema = z.object({
   id: z.string(),
+  nodeId: z.string(),
   name: z.string(),
   overrides: z.record(z.string(), z.record(z.string(), propertyValueSchema)),
 });
-export type SceneState = z.infer<typeof sceneStateSchema>;
+export type ObjectState = z.infer<typeof objectStateSchema>;
 
 export const triggerSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("start") }),
@@ -175,9 +179,11 @@ export const triggerSchema = z.discriminatedUnion("type", [
 ]);
 export type Trigger = z.infer<typeof triggerSchema>;
 
+// state actions name the owner object; `to`/`a`/`b` are its state ids or "base"
 export const actionSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("transition"),
+    nodeId: z.string(),
     to: z.string(),
     duration: z.number(),
     ease: easingSchema,
@@ -185,6 +191,7 @@ export const actionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("playAnimation"), animationId: z.string() }),
   z.object({
     type: z.literal("toggleStates"),
+    nodeId: z.string(),
     a: z.string(),
     b: z.string(),
     duration: z.number(),
@@ -232,7 +239,7 @@ export const documentSchema = z.object({
   materials: z.record(z.string(), materialSchema),
   assets: z.record(z.string(), assetSchema),
   animations: z.record(z.string(), animationClipSchema),
-  states: z.record(z.string(), sceneStateSchema),
+  states: z.record(z.string(), objectStateSchema),
   interactions: z.array(interactionSchema),
   environment: environmentSchema,
   camera: cameraSchema,
@@ -241,5 +248,5 @@ export const documentSchema = z.object({
 export type ChibiDocument = z.infer<typeof documentSchema>;
 
 export function validateDocument(data: unknown): ChibiDocument {
-  return documentSchema.parse(data);
+  return documentSchema.parse(migrateDocument(data));
 }

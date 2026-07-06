@@ -2,7 +2,12 @@
 
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
-import { GEOMETRY_DEFS, GEOMETRY_KINDS, type Vec3 } from "@/runtime/schema";
+import {
+  BASE_STATE_ID,
+  GEOMETRY_DEFS,
+  GEOMETRY_KINDS,
+  type Vec3,
+} from "@/runtime/schema";
 import { useDoc } from "../store/document";
 import { useUI, type Tool } from "../store/ui";
 import { addGroupNode, addLightNode, addMeshNode } from "../store/commands";
@@ -11,7 +16,30 @@ import { exportCurrentDocument, importDocumentFromFile } from "../store/files";
 import { saveImportedDocument } from "../store/persistence";
 import { getOrbitControls } from "../viewport/objectRegistry";
 import { Dropdown, type MenuItem } from "./controls";
-import { StatesMenu } from "./StatesMenu";
+
+// mode indicator: which object state edits currently record into (states are
+// per-object; activate one in the inspector's States section)
+function ActiveStateChip() {
+  const activeStateId = useUI((s) => s.activeStateId);
+  const setActiveState = useUI((s) => s.setActiveState);
+  const stateName = useDoc((s) => s.doc?.states[activeStateId]?.name);
+  const nodeName = useDoc((s) => {
+    const state = s.doc?.states[activeStateId];
+    return state ? s.doc?.nodes[state.nodeId]?.name : undefined;
+  });
+  if (activeStateId === BASE_STATE_ID || !stateName) return null;
+  return (
+    <button
+      type="button"
+      title="Edits record into this state — click to return to Base"
+      onClick={() => setActiveState(BASE_STATE_ID)}
+      className="flex h-7 items-center gap-1.5 rounded bg-accent/25 px-2 text-xs text-accent"
+    >
+      ● {nodeName} · {stateName}
+      <span className="text-accent/70">✕</span>
+    </button>
+  );
+}
 
 const TOOLS: { tool: Tool; label: string; hint: string }[] = [
   { tool: "select", label: "Select", hint: "V" },
@@ -116,7 +144,7 @@ export function Toolbar() {
 
       <div className="flex-1" />
 
-      <StatesMenu />
+      <ActiveStateChip />
       <button
         type="button"
         title="Save the current view as the scene camera (used by Preview)"

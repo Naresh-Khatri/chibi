@@ -1,8 +1,8 @@
 import { del as idbDel, get as idbGet, set as idbSet } from "idb-keyval";
 import {
   createDocument,
-  documentSchema,
   newId,
+  validateDocument,
   type ChibiDocument,
 } from "@/runtime/schema";
 import { useDoc } from "./document";
@@ -41,7 +41,7 @@ export async function deleteDocument(docId: string) {
     try {
       const raw = await idbGet(docKey(recent.docId));
       if (!raw) continue;
-      const doc = documentSchema.parse(raw);
+      const doc = validateDocument(raw);
       for (const asset of Object.values(doc.assets)) referenced.add(asset.hash);
     } catch {
       // unreadable doc — keep its key, skip for GC purposes
@@ -59,8 +59,9 @@ export async function saveImportedDocument(doc: ChibiDocument): Promise<string> 
 
 export async function loadOrCreate(docId: string): Promise<ChibiDocument> {
   try {
+    // validateDocument also migrates legacy scene-level states to per-object
     const raw = await idbGet(docKey(docId));
-    if (raw) return documentSchema.parse(raw);
+    if (raw) return validateDocument(raw);
   } catch (err) {
     console.warn("chibi: failed to load saved document, starting fresh", err);
   }

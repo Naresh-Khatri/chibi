@@ -39,6 +39,7 @@ import {
 import { importAssetFile } from "../store/assets";
 import { disposeMaterial } from "../viewport/materials";
 import { InteractionList } from "./InteractionList";
+import { StatesSection } from "./StatesSection";
 import {
   Checkbox,
   ColorInput,
@@ -288,6 +289,10 @@ function NodeInspector({ nodeId }: { nodeId: string }) {
             />
           </div>
         )}
+      </Section>
+
+      <Section title="States">
+        <StatesSection nodeId={nodeId} />
       </Section>
 
       <Section title="Transform">
