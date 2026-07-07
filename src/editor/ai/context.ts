@@ -1,7 +1,9 @@
-import type { ChibiDocument, ChibiNode, Vec3 } from "@/runtime/schema";
+import { Vector3, type Mesh, type MeshStandardMaterial } from "three";
+import type { ChibiDocument, ChibiNode, ModelNode, Vec3 } from "@/runtime/schema";
+import { getObjectAtPath } from "@/runtime/react/GlbPart";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
-import { getOrbitControls } from "../viewport/objectRegistry";
+import { getGltfScene, getOrbitControls } from "../viewport/objectRegistry";
 
 // Above this the per-node detail is dropped for an outline; the model uses
 // get_node / get_material to drill in.
@@ -9,6 +11,36 @@ const OUTLINE_THRESHOLD = 50;
 
 const round = (n: number) => Number(n.toFixed(3));
 const vec = (v: Vec3) => `[${v.map(round).join(", ")}]`;
+
+// Split parts usually keep meaningless names from the source file ("Cube_3").
+// Surface what the loaded GLB knows — embedded material name + color and the
+// mesh's approximate size — so the model can infer what a part actually is.
+export function partHint(node: ModelNode): string | undefined {
+  if (node.path === undefined) return undefined;
+  const scene = getGltfScene(node.assetId);
+  const obj = scene ? getObjectAtPath(scene, node.path) : null;
+  if (!obj || !(obj as Mesh).isMesh) return undefined;
+  const mesh = obj as Mesh;
+  const bits: string[] = [];
+  const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+  const looks = materials
+    .slice(0, 2)
+    .map((m) => {
+      const std = m as MeshStandardMaterial;
+      const color = std.color ? `#${std.color.getHexString()}` : "";
+      return [m.name && `"${m.name}"`, color].filter(Boolean).join(" ");
+    })
+    .filter(Boolean);
+  if (looks.length > 0) bits.push(`embedded material ${looks.join(", ")}`);
+  if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
+  const bb = mesh.geometry.boundingBox;
+  if (bb) {
+    const size = bb.getSize(new Vector3());
+    const s = node.transform.scale;
+    bits.push(`size ${vec([size.x * s[0], size.y * s[1], size.z * s[2]])}`);
+  }
+  return bits.length > 0 ? bits.join(" · ") : undefined;
+}
 
 /** one node, full detail, without children (nesting shows the tree) */
 function nodeDetail(node: ChibiNode): string {
@@ -26,7 +58,13 @@ function nodeDetail(node: ChibiNode): string {
     if (!node.receiveShadow) parts.push("no receiveShadow");
   }
   if (node.type === "light") parts.push(`light ${JSON.stringify(node.light)}`);
-  if (node.type === "model") parts.push(`asset ${node.assetId}`);
+  if (node.type === "model") {
+    parts.push(`asset ${node.assetId}`);
+    if (node.path !== undefined) parts.push(`part ${node.path}`);
+    if (node.materialId !== undefined) parts.push(`material ${node.materialId}`);
+    const hint = partHint(node);
+    if (hint) parts.push(hint);
+  }
   return parts.join(" · ");
 }
 

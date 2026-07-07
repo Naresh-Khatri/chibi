@@ -3,7 +3,9 @@ import { validateDocument } from "@/runtime/schema";
 import {
   extractJson,
   generateDocument,
+  GENERATION_BUDGETS,
   GenerationError,
+  MAX_ATTEMPTS,
   remapGeneratedIds,
   type CompleteFn,
 } from "./generate";
@@ -247,21 +249,22 @@ describe("generateDocument", () => {
     const promise = generateDocument("an orb scene", complete);
     await expect(promise).rejects.toBeInstanceOf(GenerationError);
     await expect(promise).rejects.toMatchObject({
-      message: expect.stringContaining("after 3 attempts"),
+      message: expect.stringContaining(`after ${MAX_ATTEMPTS} attempts`),
       rawText: "I would love to, but no JSON today.",
     });
-    expect(complete).toHaveBeenCalledTimes(3);
+    expect(complete).toHaveBeenCalledTimes(MAX_ATTEMPTS);
   });
 
   it("hard-fails a scene more than 2x over the node budget", async () => {
     const bloated = modelDoc();
     const nodes = bloated.nodes as Record<string, unknown>;
-    for (let i = 0; i < 90; i++) {
+    const extras = GENERATION_BUDGETS.nodes * 2 + 10;
+    for (let i = 0; i < extras; i++) {
       nodes[`extra${i}`] = { ...bloated.nodes.orb, id: `extra${i}`, name: `Extra ${i}` };
     }
     const complete = vi.fn(async () => JSON.stringify(bloated));
     await expect(generateDocument("orbs", complete)).rejects.toThrow(/over budget/);
-    expect(complete).toHaveBeenCalledTimes(3);
+    expect(complete).toHaveBeenCalledTimes(MAX_ATTEMPTS);
   });
 
   it("warns but succeeds between 1x and 2x budget", async () => {
@@ -269,11 +272,13 @@ describe("generateDocument", () => {
     try {
       const chunky = modelDoc();
       const nodes = chunky.nodes as Record<string, unknown>;
-      for (let i = 0; i < 45; i++) {
+      const base = Object.keys(nodes).length;
+      const extras = GENERATION_BUDGETS.nodes + 5 - base;
+      for (let i = 0; i < extras; i++) {
         nodes[`extra${i}`] = { ...chunky.nodes.orb, id: `extra${i}`, name: `Extra ${i}` };
       }
       const doc = await generateDocument("orbs", async () => JSON.stringify(chunky));
-      expect(Object.keys(doc.nodes).length).toBe(49);
+      expect(Object.keys(doc.nodes).length).toBe(GENERATION_BUDGETS.nodes + 5);
       expect(warn).toHaveBeenCalledWith(expect.stringContaining("nodes budget"));
     } finally {
       warn.mockRestore();

@@ -7,16 +7,16 @@ import {
   validateDocument,
   type ChibiDocument,
 } from "@/runtime/schema";
-import { getAgentModel } from "./client";
+import { getAgentModel, MAX_API_RETRIES } from "./client";
 import { GENERATION_SYSTEM_PROMPT } from "./prompts";
 
 // M8 single-shot document generation (specs/09 §1): one call returns a full
 // ChibiDocument JSON; parse → remap all ids → validate; retry on validation
 // failure feeding the zod error paths back.
 
-const MAX_ATTEMPTS = 3; // 1 + 2 retries
+export const MAX_ATTEMPTS = 5; // 1 + 4 retries
 
-export const GENERATION_BUDGETS = { nodes: 40, materials: 10, lights: 4 };
+export const GENERATION_BUDGETS = { nodes: 80, materials: 12, lights: 4 };
 
 /** final failure carries the raw model output so the UI can offer it for inspection */
 export class GenerationError extends Error {
@@ -38,6 +38,7 @@ async function completeWithModel(messages: ModelMessage[]): Promise<string> {
     // trailing assistant "{" becomes a Mistral prefix — the reply continues
     // the JSON object (and typically omits the prefilled brace)
     messages: [...messages, { role: "assistant", content: "{" }],
+    maxRetries: MAX_API_RETRIES,
   });
   return result.text;
 }
@@ -176,14 +177,14 @@ export function remapGeneratedIds(data: unknown): unknown {
       : ix.trigger;
     const action = isRec(ix.action)
       ? {
-          ...ix.action,
-          ...(ix.action.nodeId !== undefined && { nodeId: ref(ix.action.nodeId) }),
-          ...(ix.action.animationId !== undefined && { animationId: ref(ix.action.animationId) }),
-          // state refs; "base" isn't in the map and passes through
-          ...(ix.action.to !== undefined && { to: ref(ix.action.to) }),
-          ...(ix.action.a !== undefined && { a: ref(ix.action.a) }),
-          ...(ix.action.b !== undefined && { b: ref(ix.action.b) }),
-        }
+        ...ix.action,
+        ...(ix.action.nodeId !== undefined && { nodeId: ref(ix.action.nodeId) }),
+        ...(ix.action.animationId !== undefined && { animationId: ref(ix.action.animationId) }),
+        // state refs; "base" isn't in the map and passes through
+        ...(ix.action.to !== undefined && { to: ref(ix.action.to) }),
+        ...(ix.action.a !== undefined && { a: ref(ix.action.a) }),
+        ...(ix.action.b !== undefined && { b: ref(ix.action.b) }),
+      }
       : ix.action;
     return { ...ix, id: newId("ix"), trigger, action };
   };

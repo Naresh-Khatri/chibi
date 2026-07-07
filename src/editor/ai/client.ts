@@ -1,5 +1,9 @@
 import { createMistral } from "@ai-sdk/mistral";
-import type { LanguageModel } from "ai";
+import {
+  wrapLanguageModel,
+  type LanguageModel,
+  type LanguageModelMiddleware,
+} from "ai";
 
 // BYO key, browser-only: localStorage, never the document/IndexedDB/exports.
 const API_KEY_STORAGE = "chibi.ai.apiKey";
@@ -39,9 +43,43 @@ export function setModelId(id: string) {
   }
 }
 
+// Mistral rate-limits aggressively (free-tier keys: ~1 request/second).
+// Space out request *starts* globally so agent tool rounds, generation
+// retries and SDK 429-retries never burst past the limit.
+const MIN_REQUEST_INTERVAL_MS = 1100;
+
+let nextSlot = 0;
+async function awaitRequestSlot() {
+  const now = Date.now();
+  const at = Math.max(now, nextSlot);
+  nextSlot = at + MIN_REQUEST_INTERVAL_MS;
+  if (at > now) await new Promise((r) => setTimeout(r, at - now));
+}
+
+const throttleMiddleware: LanguageModelMiddleware = {
+  wrapGenerate: async ({ doGenerate }) => {
+    await awaitRequestSlot();
+    return doGenerate();
+  },
+  wrapStream: async ({ doStream }) => {
+    await awaitRequestSlot();
+    return doStream();
+  },
+};
+
+/**
+ * Retry budget for generateText/streamText: what rides out a 429 window is
+ * the SDK's exponential backoff (2s, 4s, 8s, 16s, 32s) — the default of 2
+ * retries gives up after ~6s, well inside Mistral's per-minute windows.
+ */
+export const MAX_API_RETRIES = 5;
+
 /** Mistral model bound to the stored key; throws if no key is set. */
 export function getAgentModel(): LanguageModel {
   const apiKey = getApiKey();
   if (!apiKey) throw new Error("No API key set");
-  return createMistral({ apiKey })(getModelId());
+  return wrapLanguageModel({
+    model: createMistral({ apiKey })(getModelId()),
+    middleware: throttleMiddleware,
+  });
 }

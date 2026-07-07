@@ -34,7 +34,7 @@ import {
   setLightProp,
   setMaterialProp,
 } from "../store/materialCommands";
-import { buildSceneContext } from "./context";
+import { buildSceneContext, partHint } from "./context";
 
 const AI_LABEL_PREFIX = "AI: ";
 
@@ -53,6 +53,19 @@ function getNodeOrThrow(doc: ChibiDocument, nodeId: string) {
   const node = doc.nodes[nodeId];
   if (!node) throw new Error(`No node with id "${nodeId}"`);
   return node;
+}
+
+// meshes and split model parts (model nodes with `path`) take chibi
+// materials; whole GLB models render their embedded materials until split
+function assertMaterialTarget(doc: ChibiDocument, nodeId: string) {
+  const node = getNodeOrThrow(doc, nodeId);
+  if (node.type === "mesh") return;
+  if (node.type === "model" && node.path !== undefined) return;
+  throw new Error(
+    node.type === "model"
+      ? `${nodeId} is a whole GLB model — its embedded materials render as-is. The user must split it first (Inspector → "Split into objects"); the resulting parts accept materials.`
+      : `${nodeId} is a ${node.type} — only meshes and split model parts take materials`,
+  );
 }
 
 // mirror of requireBaseState that raises instead of toasting, so refusals
@@ -133,9 +146,17 @@ export function buildTools(): ToolSet {
     }),
 
     get_node: tool({
-      description: "Full JSON for one node.",
+      description:
+        "Full JSON for one node. Split model parts include a partHint (embedded material name/color, size) to identify generically named parts.",
       inputSchema: z.object({ nodeId: z.string() }),
-      execute: async ({ nodeId }) => getNodeOrThrow(getDoc(), nodeId),
+      execute: async ({ nodeId }) => {
+        const node = getNodeOrThrow(getDoc(), nodeId);
+        if (node.type === "model" && node.path !== undefined) {
+          const hint = partHint(node);
+          if (hint) return { ...node, partHint: hint };
+        }
+        return node;
+      },
     }),
 
     get_material: tool({
@@ -150,7 +171,7 @@ export function buildTools(): ToolSet {
 
     find_nodes: tool({
       description:
-        "Find nodes by name substring and/or type. Returns id/name/type list.",
+        "Find nodes by name substring and/or type. Returns id/name/type list; split model parts include a hint (embedded material name/color, size) to identify generically named parts.",
       inputSchema: z.object({
         query: z.string().optional().describe("case-insensitive name substring"),
         type: z.enum(["mesh", "group", "light", "model"]).optional(),
@@ -163,7 +184,11 @@ export function buildTools(): ToolSet {
               (!q || n.name.toLowerCase().includes(q)) &&
               (!type || n.type === type),
           )
-          .map((n) => ({ id: n.id, name: n.name, type: n.type }));
+          .map((n) => {
+            const hint =
+              n.type === "model" && n.path !== undefined ? partHint(n) : undefined;
+            return { id: n.id, name: n.name, type: n.type, ...(hint && { hint }) };
+          });
       },
     }),
 
@@ -380,14 +405,14 @@ export function buildTools(): ToolSet {
 
     add_material: tool({
       description:
-        "Create a new material (optionally assigning it to a mesh and setting props in one go). Prefer editing/reusing existing materials.",
+        "Create a new material (optionally assigning it to a mesh or split model part and setting props in one go). Prefer editing/reusing existing materials.",
       inputSchema: z.object({
         assignToNodeId: z.string().optional(),
         props: materialProps.optional(),
       }),
       execute: async ({ assignToNodeId, props }) => {
         assertBaseState("add materials");
-        if (assignToNodeId) getNodeOrThrow(getDoc(), assignToNodeId);
+        if (assignToNodeId) assertMaterialTarget(getDoc(), assignToNodeId);
         const id = ai(() => addMaterial(assignToNodeId));
         if (props) {
           ai(() => setMaterialProp(id, defined(props)));
@@ -397,20 +422,29 @@ export function buildTools(): ToolSet {
     }),
 
     assign_material: tool({
-      description: "Assign an existing material to a mesh node.",
-      inputSchema: z.object({ nodeId: z.string(), materialId: z.string() }),
+      description:
+        "Assign an existing material to a mesh node or a split model part. Pass materialId null on a part to restore its embedded GLB material.",
+      inputSchema: z.object({ nodeId: z.string(), materialId: z.string().nullable() }),
       execute: async ({ nodeId, materialId }) => {
         assertBaseState("assign materials");
         const doc = getDoc();
-        const node = getNodeOrThrow(doc, nodeId);
-        if (node.type !== "mesh") {
-          throw new Error(`${nodeId} is a ${node.type}, not a mesh`);
-        }
-        if (!doc.materials[materialId]) {
+        assertMaterialTarget(doc, nodeId);
+        if (materialId === null) {
+          if (doc.nodes[nodeId].type !== "model") {
+            throw new Error("materialId null only clears a model part's override — meshes always need a material");
+          }
+        } else if (!doc.materials[materialId]) {
           throw new Error(`No material with id "${materialId}"`);
         }
         ai(() => assignMaterial(nodeId, materialId));
-        return { nodeId, materialId, summary: `assigned ${materialId} to ${nodeId}` };
+        return {
+          nodeId,
+          materialId,
+          summary:
+            materialId === null
+              ? `restored embedded material on ${nodeId}`
+              : `assigned ${materialId} to ${nodeId}`,
+        };
       },
     }),
 

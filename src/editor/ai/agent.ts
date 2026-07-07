@@ -6,7 +6,7 @@ import {
   type ToolSet,
 } from "ai";
 import { useDoc } from "../store/document";
-import { getAgentModel } from "./client";
+import { getAgentModel, MAX_API_RETRIES } from "./client";
 import { buildSceneContext } from "./context";
 import { BUDGET_EXHAUSTED_PROMPT, SYSTEM_PROMPT } from "./prompts";
 import { useAiChat } from "./store";
@@ -22,13 +22,22 @@ export function stopTurn() {
 }
 
 function errorMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  if (typeof err === "string") return err;
-  try {
-    return JSON.stringify(err);
-  } catch {
-    return "Unknown error";
+  const raw =
+    err instanceof Error
+      ? err.message
+      : typeof err === "string"
+        ? err
+        : (() => {
+            try {
+              return JSON.stringify(err);
+            } catch {
+              return "Unknown error";
+            }
+          })();
+  if (/rate limit|429|too many requests/i.test(raw)) {
+    return "Mistral rate limit hit even after retries — wait a minute and try again. Free-tier keys allow ~1 request/second and a small per-minute token budget; a paid tier or a smaller model (AI settings) avoids this.";
   }
+  return raw;
 }
 
 // Multi-turn memory is the visible conversation (spec: nothing beyond it).
@@ -139,6 +148,7 @@ export async function sendChatMessage(text: string) {
         messages,
         tools: buildTools(),
         stopWhen: isStepCount(MAX_STEPS),
+        maxRetries: MAX_API_RETRIES,
         abortSignal: signal,
       }),
     );
@@ -158,6 +168,7 @@ export async function sendChatMessage(text: string) {
             },
             { role: "user", content: BUDGET_EXHAUSTED_PROMPT },
           ],
+          maxRetries: MAX_API_RETRIES,
           abortSignal: signal,
         }),
       );
