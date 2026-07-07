@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   Check,
   Code2,
@@ -11,6 +11,7 @@ import {
   Share2,
   type LucideIcon,
 } from "lucide-react";
+import type { BundledLanguage } from "shiki";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { highlightCode } from "@/lib/shiki";
 import { useDoc } from "../store/document";
 import { exportCurrentDocument, fileBase } from "../store/files";
 
@@ -50,13 +52,33 @@ function InlineCode({ children }: { children: ReactNode }) {
   );
 }
 
-function CodeBlock({ code }: { code: string }) {
+function CodeBlock({ code, lang }: { code: string; lang: BundledLanguage }) {
   const [copied, setCopied] = useState(false);
+  const [html, setHtml] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setHtml(null);
+    highlightCode(code, lang).then((result) => {
+      if (!cancelled) setHtml(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [code, lang]);
+
   return (
     <div className="group relative overflow-hidden rounded-lg border bg-muted/40">
-      <pre className="overflow-x-auto p-3 pr-9 text-[11px] leading-relaxed">
-        <code className="font-mono">{code}</code>
-      </pre>
+      {html ? (
+        <div
+          className="overflow-x-auto p-3 pr-9 text-[11px] leading-relaxed [&_pre]:bg-transparent! [&_pre]:font-mono"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      ) : (
+        <pre className="overflow-x-auto p-3 pr-9 text-[11px] leading-relaxed">
+          <code className="font-mono">{code}</code>
+        </pre>
+      )}
       <Button
         variant="ghost"
         size="icon-xs"
@@ -124,7 +146,7 @@ function CodeExportPanel() {
           installed.
         </p>
         <div className="mt-2">
-          <CodeBlock code="npm install @chibi3d/runtime" />
+          <CodeBlock code="npm install @chibi3d/runtime" lang="bash" />
         </div>
       </div>
 
@@ -141,6 +163,7 @@ function CodeExportPanel() {
 export default function Scene() {
   return <ChibiScene src="/${filename}" className="h-[600px]" />;
 }`}
+            lang="tsx"
           />
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
