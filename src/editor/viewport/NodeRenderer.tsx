@@ -27,6 +27,7 @@ import {
   BASE_STATE_ID,
   DEFAULT_MATERIAL_ID,
   type ChibiAsset,
+  type ChibiDocument,
   type ChibiNode,
   type GroupNode,
   type LightNode,
@@ -40,6 +41,7 @@ import { GlbPart } from "@/runtime/react/GlbPart";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
 import { assetUrl } from "../store/assets";
+import { findParentId } from "../store/commands";
 import {
   isClick,
   isGizmoActive,
@@ -118,6 +120,25 @@ function useNodeRef<T extends Object3D>(id: string) {
   );
 }
 
+// clicking always hits the deepest node under the cursor (groups have no
+// geometry to raycast against); walk that hit up to its root-level ancestor
+// and step one level deeper per click so the first click selects the whole
+// object and repeated clicks drill down toward the exact part clicked.
+function resolveClickSelection(
+  doc: ChibiDocument,
+  hitId: string,
+  currentId: string | null,
+): string {
+  const chain = [hitId];
+  for (let cur = hitId, parent = findParentId(doc, cur); parent; cur = parent, parent = findParentId(doc, cur)) {
+    chain.unshift(parent);
+  }
+  const idx = currentId ? chain.indexOf(currentId) : -1;
+  if (idx === -1) return chain[0];
+  if (idx === chain.length - 1) return currentId as string;
+  return chain[idx + 1];
+}
+
 // Selecting on pointerdown alone would select whatever node is under the
 // cursor at the start of an orbit/pan drag; wait for pointerup and only
 // select if it stayed a click, not a camera drag.
@@ -131,7 +152,11 @@ function useSelect(id: string) {
     (e: ThreeEvent<PointerEvent>) => {
       if (isGizmoActive()) return;
       e.stopPropagation();
-      if (isClick(e.clientX, e.clientY)) useUI.getState().select(id);
+      if (!isClick(e.clientX, e.clientY)) return;
+      const doc = useDoc.getState().doc;
+      if (!doc) return;
+      const { selectedId, select } = useUI.getState();
+      select(resolveClickSelection(doc, id, selectedId));
     },
     [id],
   );
