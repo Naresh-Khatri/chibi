@@ -27,6 +27,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { newId } from "@/runtime/schema";
+import { track } from "@/lib/analytics";
 import {
   deleteDocument,
   getRecents,
@@ -61,6 +62,7 @@ function TemplateCards() {
               setOpening(template.title);
               try {
                 const docId = await saveImportedDocument(template.build());
+                track("scene_created", { source: "template", template: template.title });
                 router.push(`/editor/${docId}`);
               } catch (err) {
                 console.error("chibi: template failed to open", err);
@@ -190,11 +192,13 @@ function ScenePrompt() {
     try {
       const doc = await generateDocument(text);
       const docId = await saveImportedDocument(doc);
+      track("scene_generated", { promptLength: text.length });
       router.push(`/editor/${docId}`);
       // stay in the running state while the editor route loads
     } catch (err) {
       setError(err instanceof Error ? err.message : "Generation failed");
       if (err instanceof GenerationError) setRawText(err.rawText);
+      track("scene_generation_failed");
       setRunning(false);
     }
   };
@@ -333,7 +337,12 @@ export default function Home() {
         </div>
 
         <div className="flex justify-center gap-3">
-          <Button onClick={() => router.push(`/editor/${newId("doc")}`)}>
+          <Button
+            onClick={() => {
+              track("scene_created", { source: "blank" });
+              router.push(`/editor/${newId("doc")}`);
+            }}
+          >
             <Plus />
             New scene
           </Button>
@@ -357,6 +366,7 @@ export default function Home() {
               try {
                 const doc = await importDocumentFromFile(file);
                 const docId = await saveImportedDocument(doc);
+                track("scene_created", { source: "import" });
                 router.push(`/editor/${docId}`);
               } catch (err) {
                 setError(err instanceof Error ? err.message : "Import failed");

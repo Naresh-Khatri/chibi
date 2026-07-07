@@ -42,6 +42,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { track } from "@/lib/analytics";
 import { nodeIcon } from "./Hierarchy";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
@@ -625,6 +626,7 @@ export function AiChat() {
     if (!text || status === "running") return;
     setDraft("");
     setMention(null);
+    track("ai_chat_message_sent");
     void sendChatMessage(text);
   };
 

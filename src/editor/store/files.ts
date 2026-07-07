@@ -1,5 +1,6 @@
 import JSZip from "jszip";
 import { validateDocument, type ChibiDocument } from "@/runtime/schema";
+import { track } from "@/lib/analytics";
 import { useDoc } from "./document";
 import { getAssetBlob, storeAssetBlob } from "./assets";
 import { useUI } from "./ui";
@@ -33,6 +34,7 @@ export async function exportCurrentDocument(format: "json" | "zip") {
       new Blob([JSON.stringify(doc, null, 2)], { type: "application/json" }),
       `${base}.chibi.json`,
     );
+    track("scene_exported", { format: "json" });
     return;
   }
 
@@ -53,6 +55,7 @@ export async function exportCurrentDocument(format: "json" | "zip") {
     await zip.generateAsync({ type: "blob" }),
     `${base}.chibi.zip`,
   );
+  track("scene_exported", { format: "zip" });
 }
 
 /** Parses a .chibi.json / .chibi.zip file and stores any bundled assets. */
