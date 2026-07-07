@@ -141,12 +141,28 @@ export function Hierarchy() {
   }, [doc, collapsed]);
 
   useEffect(() => {
+    if (!selectedId) return;
+    const ancestors: string[] = [];
+    let cur = parentOf.get(selectedId);
+    while (cur) {
+      ancestors.push(cur);
+      cur = parentOf.get(cur);
+    }
+    setCollapsed((prev) => {
+      if (!ancestors.some((id) => prev.has(id))) return prev;
+      const next = new Set(prev);
+      for (const id of ancestors) next.delete(id);
+      return next;
+    });
+  }, [selectedId, parentOf]);
+
+  useEffect(() => {
     if (selectedId) {
       rowRefs.current
         .get(selectedId)
         ?.scrollIntoView({ block: "nearest" });
     }
-  }, [selectedId]);
+  }, [selectedId, collapsed]);
 
   useEffect(() => {
     if (!doc || collapsedInitFor.current === docId) return;
