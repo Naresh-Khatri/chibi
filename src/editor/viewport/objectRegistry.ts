@@ -63,3 +63,22 @@ export function setOrbitControls(controls: OrbitLike | null) {
 export function getOrbitControls(): OrbitLike | null {
   return orbitControls;
 }
+
+// Distance (in screen px) a pointer may travel between down and up and
+// still count as a click rather than a camera-orbit/pan drag.
+const CLICK_SLOP_PX = 6;
+
+let pointerDownAt: { x: number; y: number } | null = null;
+
+export function setPointerDownAt(pos: { x: number; y: number } | null) {
+  pointerDownAt = pos;
+}
+
+/** Whether (x, y) is close enough to the last pointer-down to count as a click, not a drag. */
+export function isClick(x: number, y: number): boolean {
+  if (!pointerDownAt) return true;
+  return (
+    Math.abs(x - pointerDownAt.x) < CLICK_SLOP_PX &&
+    Math.abs(y - pointerDownAt.y) < CLICK_SLOP_PX
+  );
+}

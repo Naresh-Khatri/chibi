@@ -17,9 +17,13 @@ import { AnimationPlayback } from "./AnimationPlayback";
 import { Gizmo } from "./Gizmo";
 import { SelectionBox } from "./SelectionBox";
 import { handleDroppedFiles } from "./dropImport";
-import { isGizmoActive, setOrbitControls, type OrbitLike } from "./objectRegistry";
-
-const CLICK_SLOP_PX = 6;
+import {
+  isClick,
+  isGizmoActive,
+  setOrbitControls,
+  setPointerDownAt,
+  type OrbitLike,
+} from "./objectRegistry";
 
 // Keep the axes gizmo clear of the floating inspector panel
 // (right-3 inset = 12px + w-64 = 256px) when it is open.
@@ -73,7 +77,6 @@ export function Viewport() {
     );
   });
   const inspectorOpen = useUI((s) => s.inspectorOpen);
-  const pointerDownAt = useRef<{ x: number; y: number } | null>(null);
   const dragDepth = useRef(0);
   const [dropping, setDropping] = useState(false);
 
@@ -83,7 +86,7 @@ export function Viewport() {
         dropping ? "ring-2 ring-inset ring-primary" : ""
       }`}
       onPointerDown={(e) => {
-        pointerDownAt.current = { x: e.clientX, y: e.clientY };
+        setPointerDownAt({ x: e.clientX, y: e.clientY });
       }}
       onDragEnter={(e) => {
         if (!e.dataTransfer.types.includes("Files")) return;
@@ -116,12 +119,7 @@ export function Viewport() {
         }}
         onPointerMissed={(e) => {
           if (isGizmoActive()) return;
-          const down = pointerDownAt.current;
-          if (
-            down &&
-            Math.abs(e.clientX - down.x) < CLICK_SLOP_PX &&
-            Math.abs(e.clientY - down.y) < CLICK_SLOP_PX
-          ) {
+          if (isClick(e.clientX, e.clientY)) {
             useUI.getState().select(null);
           }
         }}

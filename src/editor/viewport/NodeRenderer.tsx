@@ -39,7 +39,7 @@ import { FONT_URL, GeometryElement } from "@/runtime/react/Geometry";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
 import { assetUrl } from "../store/assets";
-import { isGizmoActive, useRegistry } from "./objectRegistry";
+import { isClick, isGizmoActive, useRegistry } from "./objectRegistry";
 import { getSharedMaterial } from "./materials";
 
 const SELECTION_COLOR = "#4d8dff";
@@ -111,16 +111,24 @@ function useNodeRef<T extends Object3D>(id: string) {
   );
 }
 
+// Selecting on pointerdown alone would select whatever node is under the
+// cursor at the start of an orbit/pan drag; wait for pointerup and only
+// select if it stayed a click, not a camera drag.
 function useSelect(id: string) {
-  return useCallback(
+  const onPointerDown = useCallback((e: ThreeEvent<PointerEvent>) => {
+    // Gizmo handles are outside the R3F raycast; don't select through them.
+    if (isGizmoActive()) return;
+    e.stopPropagation();
+  }, []);
+  const onPointerUp = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
-      // Gizmo handles are outside the R3F raycast; don't select through them.
       if (isGizmoActive()) return;
       e.stopPropagation();
-      useUI.getState().select(id);
+      if (isClick(e.clientX, e.clientY)) useUI.getState().select(id);
     },
     [id],
   );
+  return { onPointerDown, onPointerUp };
 }
 
 function MeshView({ node }: { node: MeshNode }) {
@@ -130,7 +138,7 @@ function MeshView({ node }: { node: MeshNode }) {
       s.doc?.materials[DEFAULT_MATERIAL_ID],
   );
   const ref = useNodeRef<Mesh | Group>(node.id);
-  const onPointerDown = useSelect(node.id);
+  const selectHandlers = useSelect(node.id);
   const overrides = useOverrides(node.id);
   const materialOverrides = useOverrides(node.materialId);
   const effectiveDef =
@@ -155,7 +163,7 @@ function MeshView({ node }: { node: MeshNode }) {
         rotation={rotation}
         scale={scale}
         visible={visible}
-        onPointerDown={onPointerDown}
+        {...selectHandlers}
       >
         <Text3D
           font={FONT_URL}
@@ -188,7 +196,7 @@ function MeshView({ node }: { node: MeshNode }) {
       castShadow={node.castShadow}
       receiveShadow={node.receiveShadow}
       material={material}
-      onPointerDown={onPointerDown}
+      {...selectHandlers}
     >
       <GeometryElement kind={node.geometry.kind} params={params} />
       {node.children.map((cid) => (
@@ -217,7 +225,7 @@ class ModelBoundary extends Component<
 function ModelView({ node }: { node: ModelNode }) {
   const asset = useDoc((s) => s.doc?.assets[node.assetId]);
   const ref = useNodeRef<Group>(node.id);
-  const onPointerDown = useSelect(node.id);
+  const selectHandlers = useSelect(node.id);
   const { position, rotation, scale, visible } = effectiveView(
     node,
     useOverrides(node.id),
@@ -229,7 +237,7 @@ function ModelView({ node }: { node: ModelNode }) {
       rotation={rotation}
       scale={scale}
       visible={visible}
-      onPointerDown={onPointerDown}
+      {...selectHandlers}
     >
       {asset && (
         <ModelBoundary name={asset.name}>
