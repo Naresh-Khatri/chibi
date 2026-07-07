@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Palette,
   Plus,
@@ -210,7 +209,8 @@ export function Inspector() {
 
 function NodeInspector({ nodeId }: { nodeId: string }) {
   const node = useDoc((s) => s.doc?.nodes[nodeId]);
-  const [tab, setTab] = useState<"design" | "interactions">("design");
+  const tab = useUI((s) => s.inspectorTab);
+  const setTab = useUI((s) => s.setInspectorTab);
   const interactionCount = useDoc(
     (s) =>
       s.doc?.interactions.filter(

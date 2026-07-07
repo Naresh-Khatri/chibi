@@ -10,6 +10,7 @@ import {
 } from "react";
 import type { Object3D } from "three";
 import {
+  ArrowRight,
   ChevronDown,
   ChevronRight,
   Eye,
@@ -23,6 +24,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { BASE_STATE_ID, type Action, type ChibiDocument, type ChibiNode } from "@/runtime/schema";
+import { Button } from "@/components/ui/button";
 import {
   HoverCard,
   HoverCardContent,
@@ -120,6 +122,7 @@ export function Hierarchy() {
   const selectedId = useUI((s) => s.selectedId);
   const selectedIds = useUI((s) => s.selectedIds);
   const select = useUI((s) => s.select);
+  const openNodeInteractions = useUI((s) => s.openNodeInteractions);
   const activeStateId = useUI((s) => s.activeStateId);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const collapsedInitFor = useRef<string | null>(null);
@@ -449,17 +452,38 @@ export function Hierarchy() {
                         className="size-3 shrink-0 fill-amber-400/20 text-amber-400"
                       />
                     </HoverCardTrigger>
-                    <HoverCardContent side="right" className="w-auto max-w-xs">
-                      <div className="mb-1.5 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
-                        Interactions
+                    <HoverCardContent
+                      side="right"
+                      className="w-64 overflow-hidden p-0"
+                    >
+                      <div className="flex items-center gap-1.5 border-b border-border py-2 pr-2 pl-3">
+                        <Zap className="size-3 shrink-0 fill-amber-400/20 text-amber-400" />
+                        <span className="text-xs font-semibold text-foreground">
+                          Interactions
+                        </span>
+                        <span className="flex-1" />
+                        <Button
+                          variant="secondary"
+                          size="xs"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openNodeInteractions(id);
+                          }}
+                        >
+                          Edit
+                          <ArrowRight />
+                        </Button>
                       </div>
-                      <div className="flex flex-col gap-1.5">
+                      <div className="flex flex-col gap-1.5 p-3">
                         {interactionSummaries.get(id)!.map((row, i) => (
-                          <div key={i} className="flex flex-col gap-0.5">
-                            <span className="text-[10px] font-medium text-muted-foreground">
+                          <div
+                            key={i}
+                            className="flex items-start gap-1.5 rounded-md border border-border px-2 py-1.5"
+                          >
+                            <span className="mt-0.5 shrink-0 rounded-sm bg-muted px-1.5 py-0.5 text-[9px] font-medium tracking-wide text-muted-foreground uppercase">
                               {row.trigger}
                             </span>
-                            <span className="text-xs text-foreground">
+                            <span className="text-xs leading-snug text-foreground">
                               {row.action}
                             </span>
                           </div>

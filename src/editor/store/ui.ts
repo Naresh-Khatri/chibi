@@ -24,6 +24,7 @@ type UIState = {
   // which document state edits record into ("base" = edit the document)
   activeStateId: string;
   previewing: boolean;
+  inspectorTab: "design" | "interactions";
   setTool: (tool: Tool) => void;
   select: (id: string | null) => void;
   selectMany: (ids: string[]) => void;
@@ -39,6 +40,8 @@ type UIState = {
   setActiveState: (id: string) => void;
   setPreviewing: (on: boolean) => void;
   showToast: (message: string) => void;
+  setInspectorTab: (tab: "design" | "interactions") => void;
+  openNodeInteractions: (id: string) => void;
 };
 
 const TOAST_MS = 4000;
@@ -58,6 +61,7 @@ export const useUI = create<UIState>()((set, get) => ({
   playhead: 0,
   activeStateId: "base",
   previewing: false,
+  inspectorTab: "design",
   setTool: (tool) => set({ tool }),
   select: (selectedId) =>
     set({ selectedId, selectedIds: selectedId ? [selectedId] : [] }),
@@ -93,4 +97,12 @@ export const useUI = create<UIState>()((set, get) => ({
       if (get().toast === message) set({ toast: null });
     }, TOAST_MS);
   },
+  setInspectorTab: (inspectorTab) => set({ inspectorTab }),
+  openNodeInteractions: (id) =>
+    set({
+      selectedId: id,
+      selectedIds: [id],
+      inspectorOpen: true,
+      inspectorTab: "interactions",
+    }),
 }));
