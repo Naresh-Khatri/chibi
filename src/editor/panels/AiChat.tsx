@@ -16,6 +16,7 @@ import {
   Move3d,
   Palette,
   Pencil,
+  RotateCw,
   Search,
   Settings2,
   Sparkles,
@@ -531,7 +532,7 @@ export function AiChat() {
                 is undoable.
               </p>
             )}
-            {messages.map((msg) =>
+            {messages.map((msg, i) =>
               msg.role === "user" ? (
                 <Bubble key={msg.id}>
                   <span className="whitespace-pre-wrap">{msg.text}</span>
@@ -540,9 +541,21 @@ export function AiChat() {
                 <div key={msg.id} className="flex flex-col items-start">
                   <AssistantItems items={msg.items} />
                   {msg.error && (
-                    <p className="mt-1 rounded-md border border-destructive/40 bg-destructive/10 px-2 py-1 text-[11px] text-destructive">
-                      {msg.error}
-                    </p>
+                    <div className="mt-1 flex flex-col items-start gap-1">
+                      <p className="rounded-md border border-destructive/40 bg-destructive/10 px-2 py-1 text-[11px] text-destructive">
+                        {msg.error}
+                      </p>
+                      {i === messages.length - 1 && (
+                        <Button
+                          variant="secondary"
+                          size="xs"
+                          onClick={() => void sendChatMessage("Continue.")}
+                        >
+                          <RotateCw />
+                          Continue
+                        </Button>
+                      )}
+                    </div>
                   )}
                   <RevertRow
                     checkpoint={msg.checkpoint}
@@ -552,7 +565,10 @@ export function AiChat() {
               ),
             )}
             {status === "running" && (
-              <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <Loader2 className="size-3.5 animate-spin" />
+                Thinking…
+              </div>
             )}
           </div>
 
