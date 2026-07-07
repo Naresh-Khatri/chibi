@@ -32,5 +32,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "packages/*/dist"]
+  "exclude": ["node_modules", "packages/*/dist", "packages/rt-npm-test"]
 }

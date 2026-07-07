@@ -38,6 +38,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "packages/*/dist/**",
+    // standalone vite smoke-test app with its own lint setup (.oxlintrc.json)
+    "packages/rt-npm-test/**",
   ]),
 ]);
 
