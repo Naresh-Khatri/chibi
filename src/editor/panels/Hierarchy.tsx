@@ -22,7 +22,12 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
-import type { ChibiNode } from "@/runtime/schema";
+import { BASE_STATE_ID, type Action, type ChibiDocument, type ChibiNode } from "@/runtime/schema";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { GEOMETRY_ICONS } from "./Toolbar";
 import { getSceneObject, useRegistry } from "../viewport/objectRegistry";
 import { useDoc } from "../store/document";
@@ -35,6 +40,27 @@ import {
 } from "../store/commands";
 
 type DropPos = "before" | "inside" | "after";
+
+const TRIGGER_LABELS: Record<string, string> = {
+  start: "Start",
+  click: "Click",
+  hoverEnter: "Hover enter",
+  hoverExit: "Hover exit",
+};
+
+function describeAction(action: Action, doc: ChibiDocument): string {
+  const nodeName = (id: string) => doc.nodes[id]?.name ?? id;
+  const stateName = (id: string) =>
+    id === BASE_STATE_ID ? "Base" : (doc.states[id]?.name ?? id);
+  switch (action.type) {
+    case "transition":
+      return `Transition ${nodeName(action.nodeId)} → ${stateName(action.to)}`;
+    case "playAnimation":
+      return `Play ${doc.animations[action.animationId]?.name ?? "animation"}`;
+    case "toggleStates":
+      return `Toggle ${nodeName(action.nodeId)} ${stateName(action.a)} ↔ ${stateName(action.b)}`;
+  }
+}
 
 const TYPE_ICONS: Record<Exclude<ChibiNode["type"], "mesh">, LucideIcon> = {
   group: Group,
@@ -115,13 +141,22 @@ export function Hierarchy() {
     return map;
   }, [doc]);
 
-  const interactiveIds = useMemo(() => {
-    const ids = new Set<string>();
-    for (const ix of doc?.interactions ?? []) {
-      if (ix.trigger.type !== "start") ids.add(ix.trigger.nodeId);
+  const interactionSummaries = useMemo(() => {
+    const map = new Map<string, { trigger: string; action: string }[]>();
+    if (doc) {
+      for (const ix of doc.interactions) {
+        if (ix.trigger.type === "start") continue;
+        const row = {
+          trigger: TRIGGER_LABELS[ix.trigger.type],
+          action: describeAction(ix.action, doc),
+        };
+        const list = map.get(ix.trigger.nodeId) ?? [];
+        list.push(row);
+        map.set(ix.trigger.nodeId, list);
+      }
     }
-    return ids;
-  }, [doc?.interactions]);
+    return map;
+  }, [doc]);
 
   const rows = useMemo(() => {
     if (!doc) return [] as Row[];
@@ -284,7 +319,7 @@ export function Hierarchy() {
                 >
                   {!last && (
                     <span
-                      className="absolute top-0 bottom-0 w-px bg-border"
+                      className="absolute top-0 bottom-0 w-px bg-muted-foreground/40"
                       style={{ left: INDENT / 2 }}
                     />
                   )}
@@ -296,7 +331,7 @@ export function Hierarchy() {
                   style={{ width: INDENT }}
                 >
                   <span
-                    className="absolute rounded-bl-sm border-l border-b border-border"
+                    className="absolute border-l border-b border-muted-foreground/40"
                     style={{
                       left: INDENT / 2,
                       top: 0,
@@ -306,7 +341,7 @@ export function Hierarchy() {
                   />
                   {!isLast && (
                     <span
-                      className="absolute bottom-0 w-px bg-border"
+                      className="absolute bottom-0 w-px bg-muted-foreground/40"
                       style={{ left: INDENT / 2, top: INDENT }}
                     />
                   )}
@@ -372,12 +407,6 @@ export function Hierarchy() {
                   {node.name}
                 </span>
               )}
-              {interactiveIds.has(id) && (
-                <Zap
-                  aria-label="Has interactions"
-                  className="size-3 shrink-0 fill-amber-400/20 text-amber-400"
-                />
-              )}
               {overriddenIds[id] && (
                 <span
                   title="Overridden in the active state"
@@ -399,7 +428,7 @@ export function Hierarchy() {
               <button
                 type="button"
                 title={node.visible ? "Hide" : "Show"}
-                className={`${node.visible ? "text-muted-foreground" : "text-muted-foreground/50"} hover:text-foreground`}
+                className={`hidden group-hover:block ${node.visible ? "text-muted-foreground" : "text-muted-foreground/50"} hover:text-foreground`}
                 onClick={(e) => {
                   e.stopPropagation();
                   setNodeVisible(id, !node.visible);
@@ -411,6 +440,35 @@ export function Hierarchy() {
                   <EyeOff className="size-3" />
                 )}
               </button>
+              <span className="grid size-3 shrink-0 place-items-center">
+                {interactionSummaries.has(id) && (
+                  <HoverCard openDelay={0} closeDelay={0}>
+                    <HoverCardTrigger asChild>
+                      <Zap
+                        aria-label="Has interactions"
+                        className="size-3 shrink-0 fill-amber-400/20 text-amber-400"
+                      />
+                    </HoverCardTrigger>
+                    <HoverCardContent side="right" className="w-auto max-w-xs">
+                      <div className="mb-1.5 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
+                        Interactions
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        {interactionSummaries.get(id)!.map((row, i) => (
+                          <div key={i} className="flex flex-col gap-0.5">
+                            <span className="text-[10px] font-medium text-muted-foreground">
+                              {row.trigger}
+                            </span>
+                            <span className="text-xs text-foreground">
+                              {row.action}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </HoverCardContent>
+                  </HoverCard>
+                )}
+              </span>
             </div>
             {node.type === "model" && !collapsed.has(id) && (
               <ModelInternals nodeId={id} depth={depth + 1} />
