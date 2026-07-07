@@ -13,7 +13,7 @@ function downloadBlob(blob: Blob, filename: string) {
   setTimeout(() => URL.revokeObjectURL(url), 30_000);
 }
 
-function fileBase(name: string): string {
+export function fileBase(name: string): string {
   return name.trim().replace(/[^\w-]+/g, "-").toLowerCase() || "scene";
 }
 

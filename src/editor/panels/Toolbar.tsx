@@ -11,8 +11,6 @@ import {
   Cylinder,
   Flashlight,
   FolderOpen,
-  FileArchive,
-  FileJson,
   Group,
   Lightbulb,
   Magnet,
@@ -52,10 +50,11 @@ import { useDoc } from "../store/document";
 import { useUI, type Tool } from "../store/ui";
 import { addGroupNode, addLightNode, addMeshNode } from "../store/commands";
 import { setDocCamera } from "../store/materialCommands";
-import { exportCurrentDocument, importDocumentFromFile } from "../store/files";
+import { importDocumentFromFile } from "../store/files";
 import { saveImportedDocument } from "../store/persistence";
 import { getOrbitControls } from "../viewport/objectRegistry";
 import { Dropdown, type MenuItem } from "./controls";
+import { ExportDialog } from "./ExportDialog";
 
 export const GEOMETRY_ICONS: Record<GeometryKind, LucideIcon> = {
   box: Box,
@@ -114,25 +113,6 @@ export function Toolbar() {
   const canRedo = useDoc((s) => s.redoStack.length > 0);
   const undo = useDoc((s) => s.undo);
   const redo = useDoc((s) => s.redo);
-
-  const fileItems: MenuItem[] = [
-    {
-      label: "Export .chibi.zip",
-      icon: FileArchive,
-      onSelect: () => exportCurrentDocument("zip"),
-    },
-    {
-      label: "Export .chibi.json",
-      icon: FileJson,
-      onSelect: () => exportCurrentDocument("json"),
-    },
-    { divider: true },
-    {
-      label: "Open file…",
-      icon: FolderOpen,
-      onSelect: () => fileInputRef.current?.click(),
-    },
-  ];
 
   const addItems: MenuItem[] = [
     ...GEOMETRY_KINDS.map((kind) => ({
@@ -286,7 +266,16 @@ export function Toolbar() {
         <Play />
         Preview
       </Button>
-      <Dropdown button={<>File</>} items={fileItems} align="right" />
+      <ExportDialog />
+      <Button
+        variant="ghost"
+        size="xs"
+        title="Open a .chibi.json or .chibi.zip file"
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <FolderOpen />
+        Open file…
+      </Button>
       <input
         ref={fileInputRef}
         type="file"
