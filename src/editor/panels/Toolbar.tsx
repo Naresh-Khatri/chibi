@@ -250,7 +250,7 @@ export function Toolbar() {
         size="sm"
         pressed={aiChatOpen}
         onPressedChange={toggleAiChat}
-        title="AI copilot chat"
+        title="chibi AI chat"
         className="h-6 gap-1 px-2 text-xs data-[state=on]:bg-primary/20 data-[state=on]:text-primary"
       >
         <Sparkles className="size-3.5" />

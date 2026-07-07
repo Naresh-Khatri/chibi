@@ -7,6 +7,12 @@ const MODEL_STORAGE = "chibi.ai.model";
 
 /** default for the agent loop (tool calling + streaming) */
 export const AGENT_MODEL_ID = "mistral-large-latest";
+/** tool-capable Mistral models offered in the AI settings picker */
+export const AGENT_MODEL_OPTIONS: { id: string; label: string }[] = [
+  { id: "mistral-large-latest", label: "Mistral Large" },
+  { id: "mistral-medium-latest", label: "Mistral Medium" },
+  { id: "mistral-small-latest", label: "Mistral Small" },
+];
 /** reserved for cheap utility calls (M11 renaming etc.) */
 export const UTILITY_MODEL_ID = "mistral-small-latest";
 

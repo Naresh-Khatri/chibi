@@ -7,7 +7,7 @@ import { useUI } from "./store/ui";
 import { Toolbar } from "./panels/Toolbar";
 import { Hierarchy } from "./panels/Hierarchy";
 import { Inspector } from "./panels/Inspector";
-import { AiChat } from "./panels/AiChat";
+import { AiChat, AskAiButton } from "./panels/AiChat";
 import { Timeline } from "./panels/Timeline";
 import { Viewport } from "./viewport/Viewport";
 import { PreviewOverlay } from "./Preview";
@@ -92,6 +92,7 @@ export function EditorLayout() {
             <Inspector />
           </FloatingPanel>
           <AiChat />
+          <AskAiButton />
         </main>
         <footer>
           <Timeline />

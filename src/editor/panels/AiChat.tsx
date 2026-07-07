@@ -26,10 +26,17 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
 import {
-  AGENT_MODEL_ID,
+  AGENT_MODEL_OPTIONS,
   getApiKey,
   getModelId,
   setApiKey,
@@ -209,16 +216,28 @@ function SettingsPopover({
               <div className="text-[11px] font-medium text-muted-foreground">
                 Model
               </div>
-              <input
-                placeholder={AGENT_MODEL_ID}
+              <Select
                 value={model}
-                onChange={(e) => {
-                  setModelId(e.currentTarget.value);
-                  onModelChange(e.currentTarget.value || AGENT_MODEL_ID);
+                onValueChange={(v) => {
+                  setModelId(v);
+                  onModelChange(v);
                 }}
-                onKeyDown={(e) => e.stopPropagation()}
-                className="h-6 w-full rounded-md border border-input bg-input/30 px-1.5 text-xs outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
-              />
+              >
+                <SelectTrigger size="sm" className="h-6! w-full px-1.5 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {AGENT_MODEL_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.id} value={opt.id}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                  {/* a custom id stored before the picker existed still shows */}
+                  {!AGENT_MODEL_OPTIONS.some((opt) => opt.id === model) && (
+                    <SelectItem value={model}>{model}</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </PopoverPrimitive.Content>
@@ -233,7 +252,7 @@ function SetupCard({ onDone }: { onDone: () => void }) {
     <div className="m-3 flex flex-col gap-2 rounded-lg border bg-muted/20 p-3">
       <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
         <Sparkles className="size-3.5 text-primary" />
-        Set up the AI copilot
+        Set up chibi AI
       </div>
       <p className="text-[11px] leading-4 text-muted-foreground">
         Paste a Mistral API key to chat with your scene. The key stays in this
@@ -265,6 +284,28 @@ function SetupCard({ onDone }: { onDone: () => void }) {
         Save key
       </Button>
     </div>
+  );
+}
+
+// Floating entry point into chibi AI: shows while a node is selected and
+// the chat is closed.
+export function AskAiButton() {
+  const selectedId = useUI((s) => s.selectedId);
+  const chatOpen = useUI((s) => s.aiChatOpen);
+  const toggleAiChat = useUI((s) => s.toggleAiChat);
+  if (!selectedId || chatOpen) return null;
+
+  return (
+    <Button
+      variant="secondary"
+      size="xs"
+      title="Open the chibi AI chat"
+      onClick={toggleAiChat}
+      className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 shadow-lg"
+    >
+      <Sparkles className="text-primary" />
+      Ask AI
+    </Button>
   );
 }
 
@@ -313,9 +354,9 @@ export function AiChat() {
     >
       <div className="flex items-center gap-1.5 border-b px-3 py-2">
         <Sparkles className="size-3.5 text-primary" />
-        <span className="text-xs font-medium text-foreground">Copilot</span>
+        <span className="text-xs font-medium text-foreground">chibi AI</span>
         <span className="truncate text-[10px] text-muted-foreground">
-          {model}
+          {AGENT_MODEL_OPTIONS.find((o) => o.id === model)?.label ?? model}
         </span>
         <div className="flex-1" />
         <Button
