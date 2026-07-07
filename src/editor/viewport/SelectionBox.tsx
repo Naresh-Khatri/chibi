@@ -11,12 +11,9 @@ const SELECTION_COLOR = "#4d8dff";
 
 // Lights draw their own helpers when selected; a BoxHelper around a
 // geometry-less light group would collapse to a point.
-export function SelectionBox() {
-  const selectedId = useUI((s) => s.selectedId);
-  const isLight = useDoc((s) =>
-    selectedId ? s.doc?.nodes[selectedId]?.type === "light" : false,
-  );
-  const object = useSceneObject(selectedId);
+function NodeSelectionBox({ id }: { id: string }) {
+  const isLight = useDoc((s) => s.doc?.nodes[id]?.type === "light");
+  const object = useSceneObject(id);
   const ref = useRef<BoxHelper>(null);
 
   useFrame(() => ref.current?.update());
@@ -29,5 +26,17 @@ export function SelectionBox() {
       args={[object, SELECTION_COLOR]}
       raycast={() => null}
     />
+  );
+}
+
+// one box per selected node (the AI's select_nodes can select many)
+export function SelectionBox() {
+  const selectedIds = useUI((s) => s.selectedIds);
+  return (
+    <>
+      {selectedIds.map((id) => (
+        <NodeSelectionBox key={id} id={id} />
+      ))}
+    </>
   );
 }

@@ -92,6 +92,7 @@ export function Hierarchy() {
   const doc = useDoc((s) => s.doc);
   const docId = useDoc((s) => s.docId);
   const selectedId = useUI((s) => s.selectedId);
+  const selectedIds = useUI((s) => s.selectedIds);
   const select = useUI((s) => s.select);
   const activeStateId = useUI((s) => s.activeStateId);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
@@ -217,7 +218,7 @@ export function Hierarchy() {
       <div className="min-h-0 flex-1 overflow-y-auto py-1">
         {rows.map(({ id, depth, isLast, ancestorLast }) => {
           const node = doc.nodes[id];
-          const isSelected = id === selectedId;
+          const isSelected = selectedIds.includes(id);
           const isDrop = dropTarget?.id === id;
           const hasChildren = node.children.length > 0 || node.type === "model";
           return (

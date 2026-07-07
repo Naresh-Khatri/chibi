@@ -22,6 +22,7 @@ import {
   Redo2,
   Rotate3d,
   Scale3d,
+  Sparkles,
   Square,
   Sun,
   Torus,
@@ -104,6 +105,8 @@ export function Toolbar() {
   const setTool = useUI((s) => s.setTool);
   const snap = useUI((s) => s.snap);
   const toggleSnap = useUI((s) => s.toggleSnap);
+  const aiChatOpen = useUI((s) => s.aiChatOpen);
+  const toggleAiChat = useUI((s) => s.toggleAiChat);
   const docName = useDoc((s) => s.doc?.name ?? "");
   const canUndo = useDoc((s) => s.undoStack.length > 0);
   const canRedo = useDoc((s) => s.redoStack.length > 0);
@@ -243,6 +246,16 @@ export function Toolbar() {
       <div className="flex-1" />
 
       <ActiveStateChip />
+      <Toggle
+        size="sm"
+        pressed={aiChatOpen}
+        onPressedChange={toggleAiChat}
+        title="AI copilot chat"
+        className="h-6 gap-1 px-2 text-xs data-[state=on]:bg-primary/20 data-[state=on]:text-primary"
+      >
+        <Sparkles className="size-3.5" />
+        AI
+      </Toggle>
       <Button
         variant="ghost"
         size="xs"

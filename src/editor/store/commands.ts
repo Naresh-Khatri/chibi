@@ -84,8 +84,8 @@ function uniqueName(doc: ChibiDocument, base: string): string {
   return `${base} ${i}`;
 }
 
-export function addMeshNode(kind: GeometryKind) {
-  if (!requireBaseState("add objects")) return;
+export function addMeshNode(kind: GeometryKind): string | null {
+  if (!requireBaseState("add objects")) return null;
   const id = newId("nd");
   dispatch(`Add ${GEOMETRY_DEFS[kind].label}`, (d) => {
     const node: MeshNode = {
@@ -104,6 +104,7 @@ export function addMeshNode(kind: GeometryKind) {
     d.root.push(id);
   });
   useUI.getState().select(id);
+  return id;
 }
 
 const LIGHT_DEFAULTS: Record<
@@ -135,8 +136,8 @@ const LIGHT_DEFAULTS: Record<
   },
 };
 
-export function addLightNode(kind: LightKind) {
-  if (!requireBaseState("add lights")) return;
+export function addLightNode(kind: LightKind): string | null {
+  if (!requireBaseState("add lights")) return null;
   const id = newId("nd");
   const preset = LIGHT_DEFAULTS[kind];
   dispatch(`Add ${preset.name}`, (d) => {
@@ -153,10 +154,11 @@ export function addLightNode(kind: LightKind) {
     d.root.push(id);
   });
   useUI.getState().select(id);
+  return id;
 }
 
-export function addGroupNode() {
-  if (!requireBaseState("add groups")) return;
+export function addGroupNode(): string | null {
+  if (!requireBaseState("add groups")) return null;
   const id = newId("nd");
   dispatch("Add Group", (d) => {
     const node: GroupNode = {
@@ -171,6 +173,7 @@ export function addGroupNode() {
     d.root.push(id);
   });
   useUI.getState().select(id);
+  return id;
 }
 
 export function addModelNode(asset: ChibiAsset) {
@@ -377,11 +380,11 @@ export function setGeometryParam(
   );
 }
 
-export function duplicateNode(nodeId: string) {
-  if (!requireBaseState("duplicate objects")) return;
+export function duplicateNode(nodeId: string): string | null {
+  if (!requireBaseState("duplicate objects")) return null;
   const doc = useDoc.getState().doc;
   const src = doc?.nodes[nodeId];
-  if (!doc || !src) return;
+  if (!doc || !src) return null;
 
   const idMap = new Map<string, string>();
   for (const id of subtreeIds(doc, nodeId)) idMap.set(id, newId("nd"));
@@ -405,12 +408,13 @@ export function duplicateNode(nodeId: string) {
     siblings.splice(idx + 1, 0, newRootId);
   });
   useUI.getState().select(newRootId);
+  return newRootId;
 }
 
-export function groupNode(nodeId: string) {
-  if (!requireBaseState("group objects")) return;
+export function groupNode(nodeId: string): string | null {
+  if (!requireBaseState("group objects")) return null;
   const doc = useDoc.getState().doc;
-  if (!doc?.nodes[nodeId]) return;
+  if (!doc?.nodes[nodeId]) return null;
   const groupId = newId("nd");
   dispatch("Group", (d) => {
     const node = d.nodes[nodeId];
@@ -433,6 +437,7 @@ export function groupNode(nodeId: string) {
     siblings.splice(siblings.indexOf(nodeId), 1, groupId);
   });
   useUI.getState().select(groupId);
+  return groupId;
 }
 
 export function reparentNode(

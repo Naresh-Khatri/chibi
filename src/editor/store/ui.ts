@@ -9,10 +9,14 @@ export type Playback = "stopped" | "playing" | "paused";
 type UIState = {
   tool: Tool;
   selectedId: string | null;
+  // full selection (AI select_nodes can select many); selectedId is the
+  // primary — gizmo/inspector stay single-selection
+  selectedIds: string[];
   snap: boolean;
   timelineOpen: boolean;
   hierarchyOpen: boolean;
   inspectorOpen: boolean;
+  aiChatOpen: boolean;
   toast: string | null;
   activeClipId: string | null;
   playback: Playback;
@@ -22,10 +26,12 @@ type UIState = {
   previewing: boolean;
   setTool: (tool: Tool) => void;
   select: (id: string | null) => void;
+  selectMany: (ids: string[]) => void;
   toggleSnap: () => void;
   toggleTimeline: () => void;
   toggleHierarchy: () => void;
   toggleInspector: () => void;
+  toggleAiChat: () => void;
   setActiveClip: (id: string | null) => void;
   setPlayhead: (t: number) => void;
   togglePlay: () => void;
@@ -40,10 +46,12 @@ const TOAST_MS = 4000;
 export const useUI = create<UIState>()((set, get) => ({
   tool: "move",
   selectedId: null,
+  selectedIds: [],
   snap: false,
   timelineOpen: false,
   hierarchyOpen: true,
   inspectorOpen: true,
+  aiChatOpen: false,
   toast: null,
   activeClipId: null,
   playback: "stopped",
@@ -51,7 +59,9 @@ export const useUI = create<UIState>()((set, get) => ({
   activeStateId: "base",
   previewing: false,
   setTool: (tool) => set({ tool }),
-  select: (selectedId) => set({ selectedId }),
+  select: (selectedId) =>
+    set({ selectedId, selectedIds: selectedId ? [selectedId] : [] }),
+  selectMany: (ids) => set({ selectedIds: ids, selectedId: ids[0] ?? null }),
   toggleSnap: () => set((s) => ({ snap: !s.snap })),
   toggleTimeline: () =>
     set((s) =>
@@ -61,6 +71,7 @@ export const useUI = create<UIState>()((set, get) => ({
     ),
   toggleHierarchy: () => set((s) => ({ hierarchyOpen: !s.hierarchyOpen })),
   toggleInspector: () => set((s) => ({ inspectorOpen: !s.inspectorOpen })),
+  toggleAiChat: () => set((s) => ({ aiChatOpen: !s.aiChatOpen })),
   setActiveClip: (activeClipId) =>
     set({ activeClipId, playback: "stopped", playhead: 0 }),
   // Scrubbing pauses at the new playhead so the sampled pose stays visible.

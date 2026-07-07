@@ -37,6 +37,20 @@ type DocState = {
 const MERGE_WINDOW_MS = 300;
 const MAX_UNDO = 100;
 
+// Undo-label prefix for mutations made on the user's behalf (e.g. "AI: ").
+// Commands run synchronously, so a wrapper around a command call is enough.
+let labelPrefix = "";
+
+export function withLabelPrefix<T>(prefix: string, fn: () => T): T {
+  const prev = labelPrefix;
+  labelPrefix = prefix;
+  try {
+    return fn();
+  } finally {
+    labelPrefix = prev;
+  }
+}
+
 export const useDoc = create<DocState>()((set, get) => ({
   docId: null,
   doc: null,
@@ -49,6 +63,7 @@ export const useDoc = create<DocState>()((set, get) => ({
   dispatch: (label, recipe, opts) => {
     const { doc, undoStack } = get();
     if (!doc) return;
+    label = labelPrefix + label;
     const [next, patches, inversePatches] = produceWithPatches(doc, recipe);
     if (patches.length === 0) return;
     const now = Date.now();

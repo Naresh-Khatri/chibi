@@ -327,7 +327,7 @@ function GroupView({ node }: { node: GroupNode }) {
 
 function LightView({ node }: { node: LightNode }) {
   const ref = useNodeRef<Group>(node.id);
-  const selected = useUI((s) => s.selectedId === node.id);
+  const selected = useUI((s) => s.selectedIds.includes(node.id));
   const { position, rotation, scale, visible } = effectiveView(
     node,
     useOverrides(node.id),

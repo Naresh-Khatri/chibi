@@ -11,8 +11,10 @@
     "publish-renderer": "pnpm --filter @chibi3d/runtime build && cd packages/runtime && pnpm publish --access public --no-git-checks"
   },
   "dependencies": {
+    "@ai-sdk/mistral": "^4.0.5",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
+    "ai": "^7.0.15",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "idb-keyval": "^6.2.6",
