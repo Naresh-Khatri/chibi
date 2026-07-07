@@ -36,7 +36,7 @@ export const GENERATION_SYSTEM_PROMPT = `You generate complete scene documents f
   "nodes": { [id]: Node },                 // flat map; the tree comes from children arrays
   "materials": { [id]: Material },
   "assets": {}, "animations": {}, "states": {}, "interactions": [],   // leave empty
-  "environment": { "background": hex, "preset": "soft"|"studio"|"city"|"sunset"|"dawn"|"forest"|null, "fog": { "color": hex, "near": number, "far": number }|null, "shadows": boolean, "exposure": 1, "softShadows": boolean, "contactShadows": boolean },
+  "environment": { "background": hex, "backgroundGradient": hex|null (radial gradient: background center -> this at edges), "preset": "soft"|"studio"|"city"|"sunset"|"dawn"|"forest"|null, "fog": { "color": hex, "near": number, "far": number }|null, "shadows": boolean, "exposure": 1, "softShadows": boolean, "contactShadows": boolean, "toneMapping": "aces"|"neutral"|"agx" (neutral keeps pastels true), "ao": boolean (soft ambient occlusion), "bloom": boolean, "vignette": boolean },
   "camera": { "position": [x,y,z], "target": [x,y,z], "fov": number },
   "editor": { "grid": true }
 }
@@ -65,10 +65,10 @@ Material (all fields required): { "id", "name", "type": "standard", "color": hex
 - Directional and spot lights shine from their position toward the world origin. Intensity guides: directional 1.5-3, point 4-10, spot 8-20.
 - Node ids start with "nd_", material ids with "mt_". Always include the shared neutral material "mt_default" in the pool.
 - Glass looks: low roughness (~0.05), some metalness, "opacity" ~0.35 with "transparent": true. Glow looks: emissive color + emissiveIntensity 1-4.
-- Soft clay/toy look (Womp/claymation style): warm light background (e.g. "#ead9c4"), "preset": "soft", "softShadows": true, "contactShadows": true; materials with roughness 0.6-0.85, metalness 0, clearcoat 0.2-0.5, clearcoatRoughness 0.5-0.8; round every edge (box radius, cylinder/cone fillet, capsules for organic limbs).
+- Soft clay/toy look (Womp/claymation style): warm light background (e.g. "#ead9c4") with a slightly darker "backgroundGradient", "preset": "soft", "softShadows": true, "contactShadows": true, "ao": true, "toneMapping": "neutral"; materials with roughness 0.6-0.85, metalness 0, clearcoat 0.2-0.5, clearcoatRoughness 0.5-0.8; round every edge (box radius, cylinder/cone fillet, capsules for organic limbs).
 
 ## Composition rules — every scene
-- Environment: a background color that complements the scene, a fitting preset, "shadows": true. Fog only when it helps depth.
+- Environment: a background color that complements the scene, a fitting preset, "shadows": true, "ao": true, "toneMapping": "neutral". Fog only when it helps depth.
 - Lighting rig: a key light with "castShadow": true plus at least a fill; add a colored rim/accent when the prompt implies a mood. At most 4 lights.
 - Ground: a large floor plane ("receiveShadow": true) unless the prompt asks for a floating/abstract void.
 - Camera: target the focal point (usually [0, ~1, 0]) and pull back 2-3x the scene's bounding size, fov 35-50, positioned slightly above eye level.

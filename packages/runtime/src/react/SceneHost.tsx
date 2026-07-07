@@ -45,7 +45,12 @@ import {
 } from "../engine";
 import type { ResolveAssetUrl } from "../assets";
 import { FONT_URL, GeometryElement } from "./Geometry";
-import { BaseLights, EnvironmentFx, SceneEnvironment } from "./EnvironmentExtras";
+import {
+  BaseLights,
+  EnvironmentFx,
+  SceneBackground,
+  SceneEnvironment,
+} from "./EnvironmentExtras";
 
 export type { ResolveAssetUrl } from "../assets";
 
@@ -96,7 +101,10 @@ export function SceneHost({
         camera.lookAt(...doc.camera.target);
       }}
     >
-      <color attach="background" args={[doc.environment.background]} />
+      <SceneBackground
+        color={doc.environment.background}
+        gradient={doc.environment.backgroundGradient}
+      />
       {doc.environment.fog && (
         <fog
           attach="fog"

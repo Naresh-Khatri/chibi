@@ -5,6 +5,7 @@ import {
   GEOMETRY_KINDS,
   LIGHT_KINDS,
   ENVIRONMENT_PRESETS,
+  TONE_MAPPINGS,
   type ChibiDocument,
   type Transform,
   type Vec3,
@@ -435,9 +436,16 @@ export function buildTools(): ToolSet {
 
     set_environment: tool({
       description:
-        "Update scene environment (background, preset, fog, shadows, exposure). Preset 'soft' is a built-in soft studio rig — pair with softShadows+contactShadows and a warm background for a clay look.",
+        "Update scene environment (background, preset, fog, shadows, exposure, tone mapping, postprocessing). Preset 'soft' is a built-in soft studio rig — pair with softShadows+contactShadows+ao, toneMapping 'neutral' and a warm background for a clay look.",
       inputSchema: z.object({
         background: z.string().optional().describe("hex color"),
+        backgroundGradient: z
+          .string()
+          .nullable()
+          .optional()
+          .describe(
+            "hex color; when set the background becomes a radial gradient from `background` at the center to this at the edges",
+          ),
         preset: z.enum(ENVIRONMENT_PRESETS).nullable().optional(),
         fog: z
           .object({ color: z.string(), near: z.number(), far: z.number() })
@@ -450,6 +458,16 @@ export function buildTools(): ToolSet {
           .boolean()
           .optional()
           .describe("soft ambient shadow plane under the scene"),
+        toneMapping: z
+          .enum(TONE_MAPPINGS)
+          .optional()
+          .describe("aces (filmic), neutral (keeps pastel colors true), agx (softest)"),
+        ao: z
+          .boolean()
+          .optional()
+          .describe("screen-space ambient occlusion — darkens crevices and contacts"),
+        bloom: z.boolean().optional().describe("subtle glow on bright surfaces"),
+        vignette: z.boolean().optional().describe("subtle edge darkening"),
       }),
       execute: async (input) => {
         const updates = defined(input);

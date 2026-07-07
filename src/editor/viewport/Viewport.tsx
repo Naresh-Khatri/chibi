@@ -13,8 +13,10 @@ import { Color } from "three";
 import {
   BaseLights,
   EnvironmentFx,
+  SceneBackground,
   SceneEnvironment,
 } from "@/runtime/react/EnvironmentExtras";
+import { needsPostFx } from "@/runtime/react/PostFx";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
 import { SceneNodes } from "./NodeRenderer";
@@ -145,7 +147,10 @@ export function Viewport() {
           }
         }}
       >
-        <color attach="background" args={[background]} />
+        <SceneBackground
+          color={background}
+          gradient={environment?.backgroundGradient ?? null}
+        />
         {fog && <fog attach="fog" args={[fog.color, fog.near, fog.far]} />}
         <ShadowsManager enabled={shadows} />
         <BaseLights hasEnvironment={Boolean(preset)} />
@@ -192,6 +197,10 @@ export function Viewport() {
             inspectorOpen ? GIZMO_MARGIN + INSPECTOR_WIDTH : GIZMO_MARGIN,
             GIZMO_MARGIN,
           ]}
+          // at priority 1 the gizmo's Hud renders the main scene raw, which
+          // would overwrite the effect composer's output — bump it above the
+          // composer whenever postprocessing is active
+          renderPriority={environment && !previewing && needsPostFx(environment) ? 2 : 1}
         >
           <GizmoViewport
             axisColors={["#e56", "#8c4", "#48f"]}

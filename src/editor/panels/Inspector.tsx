@@ -8,12 +8,14 @@ import {
   Trash2,
   Zap,
 } from "lucide-react";
+import { Color } from "three";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   BASE_STATE_ID,
   DEFAULT_MATERIAL_ID,
   ENVIRONMENT_PRESETS,
   GEOMETRY_DEFS,
+  TONE_MAPPINGS,
   type ChibiMaterial,
   type LightNode,
   type MeshNode,
@@ -776,6 +778,14 @@ function LightSection({ node }: { node: LightNode }) {
   );
 }
 
+// starting edge color when the background gradient is switched on: a slightly
+// darker tint of the background so the toggle reads immediately
+function edgeTint(background: string): string {
+  const color = new Color(background);
+  color.offsetHSL(0, 0, -0.09);
+  return `#${color.getHexString()}`;
+}
+
 function SceneInspector() {
   const name = useDoc((s) => s.doc?.name ?? "");
   const env = useDoc((s) => s.doc?.environment);
@@ -814,8 +824,42 @@ function SceneInspector() {
             }
           />
         </LabeledRow>
+        <div className="pl-18">
+          <Checkbox
+            label="Gradient"
+            checked={env.backgroundGradient !== null}
+            onChange={(v) =>
+              setEnvironment({
+                backgroundGradient: v ? edgeTint(env.background) : null,
+              })
+            }
+          />
+        </div>
+        {env.backgroundGradient && (
+          <LabeledRow label="Edge color">
+            <ColorInput
+              value={env.backgroundGradient}
+              onCommit={(v, merge) =>
+                setEnvironment(
+                  { backgroundGradient: v },
+                  merge ? { mergeKey: "env:bggradient" } : undefined,
+                )
+              }
+            />
+          </LabeledRow>
+        )}
         <LabeledRow label="Preset">
           <Dropdown button={<>{env.preset ?? "None"}</>} items={presetItems} />
+        </LabeledRow>
+        <LabeledRow label="Tone map">
+          <Dropdown
+            button={<>{env.toneMapping}</>}
+            items={TONE_MAPPINGS.map((t) => ({
+              label: t,
+              checked: env.toneMapping === t,
+              onSelect: () => setEnvironment({ toneMapping: t }),
+            }))}
+          />
         </LabeledRow>
         <LabeledRow
           label="Exposure"
@@ -862,6 +906,23 @@ function SceneInspector() {
             label="Contact"
             checked={env.contactShadows}
             onChange={(v) => setEnvironment({ contactShadows: v })}
+          />
+        </div>
+        <div className="flex gap-4 pl-18">
+          <Checkbox
+            label="AO"
+            checked={env.ao}
+            onChange={(v) => setEnvironment({ ao: v })}
+          />
+          <Checkbox
+            label="Bloom"
+            checked={env.bloom}
+            onChange={(v) => setEnvironment({ bloom: v })}
+          />
+          <Checkbox
+            label="Vignette"
+            checked={env.vignette}
+            onChange={(v) => setEnvironment({ vignette: v })}
           />
         </div>
         <div className="pl-18">

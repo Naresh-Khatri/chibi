@@ -3,8 +3,22 @@
 import { useEffect } from "react";
 import { useThree } from "@react-three/fiber";
 import { ContactShadows, Environment, Lightformer } from "@react-three/drei";
-import { PCFShadowMap, PCFSoftShadowMap, type Material, type Mesh } from "three";
+import {
+  ACESFilmicToneMapping,
+  AgXToneMapping,
+  CanvasTexture,
+  Color,
+  NeutralToneMapping,
+  PCFShadowMap,
+  PCFSoftShadowMap,
+  SRGBColorSpace,
+  type Material,
+  type Mesh,
+  type Texture,
+  type ToneMapping,
+} from "three";
 import type { Environment as EnvironmentDef, ChibiDocument } from "../schema";
+import { needsPostFx, PostFx } from "./PostFx";
 
 type PresetName = NonNullable<EnvironmentDef["preset"]>;
 
@@ -16,6 +30,96 @@ export function Exposure({ value }: { value: number }) {
     gl.toneMappingExposure = value;
     invalidate();
   }, [value, get]);
+  return null;
+}
+
+const TONE_MAPPINGS: Record<EnvironmentDef["toneMapping"], ToneMapping> = {
+  aces: ACESFilmicToneMapping,
+  neutral: NeutralToneMapping,
+  agx: AgXToneMapping,
+};
+
+/**
+ * doc toneMapping -> renderer, used when the effect composer is NOT mounted
+ * (the composer forces NoToneMapping and tone-maps in its own final pass).
+ * three rebuilds programs on renderer.toneMapping change by itself.
+ */
+function ToneMappingControl({ mode }: { mode: EnvironmentDef["toneMapping"] }) {
+  const get = useThree((s) => s.get);
+  useEffect(() => {
+    const { gl, invalidate } = get();
+    const previous = gl.toneMapping;
+    gl.toneMapping = TONE_MAPPINGS[mode];
+    invalidate();
+    return () => {
+      gl.toneMapping = previous;
+    };
+  }, [mode, get]);
+  return null;
+}
+
+/**
+ * screen-space radial gradient baked into a small canvas texture, blue-noise
+ * dithered against banding. Spline-style: lighter center, darker edges.
+ */
+function gradientTexture(center: string, edge: string): CanvasTexture {
+  const size = 512;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  const gradient = ctx.createRadialGradient(
+    size / 2,
+    size / 2,
+    0,
+    size / 2,
+    size / 2,
+    size * 0.72,
+  );
+  gradient.addColorStop(0, center);
+  gradient.addColorStop(1, edge);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, size, size);
+  // ±1-step dither so the 8-bit ramp doesn't band on large screens
+  const image = ctx.getImageData(0, 0, size, size);
+  const px = image.data;
+  for (let i = 0; i < px.length; i += 4) {
+    const noise = Math.random() * 2 - 1;
+    px[i] += noise;
+    px[i + 1] += noise;
+    px[i + 2] += noise;
+  }
+  ctx.putImageData(image, 0, 0);
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  return texture;
+}
+
+/**
+ * doc background -> scene.background: flat color, or a radial gradient
+ * (background at the center -> backgroundGradient at the edges) when set.
+ * Replaces `<color attach="background">` in both hosts.
+ */
+export function SceneBackground({
+  color,
+  gradient,
+}: {
+  color: string;
+  gradient: string | null;
+}) {
+  const get = useThree((s) => s.get);
+  useEffect(() => {
+    const { scene, invalidate } = get();
+    const background: Color | Texture = gradient
+      ? gradientTexture(color, gradient)
+      : new Color(color);
+    scene.background = background;
+    invalidate();
+    return () => {
+      if (scene.background === background) scene.background = null;
+      if ("dispose" in background) background.dispose();
+    };
+  }, [color, gradient, get]);
   return null;
 }
 
@@ -120,18 +224,25 @@ function ShadowFilter({ soft }: { soft: boolean }) {
 }
 
 /**
- * per-document look flags: shadow filtering and a blurred contact-shadow
- * plane under the scene. Shared by editor viewport + runtime.
+ * per-document look flags: shadow filtering, tone mapping, postprocessing
+ * (AO/bloom/vignette) and a blurred contact-shadow plane under the scene.
+ * Shared by editor viewport + runtime.
  */
 export function EnvironmentFx({
   environment,
 }: {
   environment: ChibiDocument["environment"];
 }) {
+  const post = needsPostFx(environment);
   return (
     <>
       <Exposure value={environment.exposure} />
       <ShadowFilter soft={environment.softShadows} />
+      {post ? (
+        <PostFx environment={environment} />
+      ) : (
+        <ToneMappingControl mode={environment.toneMapping} />
+      )}
       {environment.contactShadows && (
         <ContactShadows
           position={[0, 0.001, 0]}

@@ -140,6 +140,11 @@ describe("document round-trip", () => {
     delete doc.environment.exposure;
     delete doc.environment.softShadows;
     delete doc.environment.contactShadows;
+    delete doc.environment.backgroundGradient;
+    delete doc.environment.toneMapping;
+    delete doc.environment.ao;
+    delete doc.environment.bloom;
+    delete doc.environment.vignette;
     const mat = doc.materials["mt_default"];
     delete mat.clearcoat;
     delete mat.clearcoatRoughness;
@@ -150,6 +155,12 @@ describe("document round-trip", () => {
     expect(parsed.environment.exposure).toBe(1);
     expect(parsed.environment.softShadows).toBe(false);
     expect(parsed.environment.contactShadows).toBe(false);
+    // legacy docs keep the pre-postprocessing look: aces + everything off
+    expect(parsed.environment.backgroundGradient).toBe(null);
+    expect(parsed.environment.toneMapping).toBe("aces");
+    expect(parsed.environment.ao).toBe(false);
+    expect(parsed.environment.bloom).toBe(false);
+    expect(parsed.environment.vignette).toBe(false);
     expect(parsed.materials["mt_default"].clearcoat).toBe(0);
     expect(parsed.materials["mt_default"].sheenColor).toBe("#ffffff");
   });

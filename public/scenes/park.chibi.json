@@ -4076,7 +4076,12 @@
     "shadows": true,
     "exposure": 1,
     "softShadows": true,
-    "contactShadows": true
+    "contactShadows": true,
+    "backgroundGradient": "#dcc3a5",
+    "toneMapping": "neutral",
+    "ao": true,
+    "bloom": false,
+    "vignette": true
   },
   "camera": {
     "position": [

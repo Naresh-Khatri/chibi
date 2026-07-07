@@ -79,6 +79,13 @@ export function createDocument(name = "Untitled"): ChibiDocument {
       exposure: 1,
       softShadows: false,
       contactShadows: false,
+      backgroundGradient: null,
+      // new docs get the polished defaults; old docs keep aces/no-AO via
+      // schema defaults so their look doesn't change under them
+      toneMapping: "neutral",
+      ao: true,
+      bloom: false,
+      vignette: false,
     },
     camera: { position: [4, 3, 6], target: [0, 0.5, 0], fov: 45 },
     editor: { grid: true },

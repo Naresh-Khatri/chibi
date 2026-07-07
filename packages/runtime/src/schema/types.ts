@@ -222,6 +222,9 @@ export const ENVIRONMENT_PRESETS = [
   "dawn",
   "forest",
 ] as const;
+// tone-mapping curves: aces = three's default filmic, neutral = Khronos
+// PBR-neutral (keeps pastel hex colors true), agx = softest highlight rolloff
+export const TONE_MAPPINGS = ["aces", "neutral", "agx"] as const;
 export const environmentSchema = z.object({
   background: z.string(),
   preset: z.enum(ENVIRONMENT_PRESETS).nullable(),
@@ -233,6 +236,14 @@ export const environmentSchema = z.object({
   exposure: z.number().default(1),
   softShadows: z.boolean().default(false),
   contactShadows: z.boolean().default(false),
+  // when set, the background becomes a screen-space radial gradient from
+  // `background` at the center to this color at the edges
+  backgroundGradient: z.string().nullable().default(null),
+  toneMapping: z.enum(TONE_MAPPINGS).default("aces"),
+  // postprocessing (any one of these mounts the effect composer)
+  ao: z.boolean().default(false),
+  bloom: z.boolean().default(false),
+  vignette: z.boolean().default(false),
 });
 export type Environment = z.infer<typeof environmentSchema>;
 
