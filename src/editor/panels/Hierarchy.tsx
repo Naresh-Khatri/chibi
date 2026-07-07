@@ -70,7 +70,7 @@ const TYPE_ICONS: Record<Exclude<ChibiNode["type"], "mesh">, LucideIcon> = {
   model: Package,
 };
 
-function nodeIcon(node: ChibiNode): LucideIcon {
+export function nodeIcon(node: ChibiNode): LucideIcon {
   if (node.type === "mesh") return GEOMETRY_ICONS[node.geometry.kind];
   return TYPE_ICONS[node.type];
 }

@@ -1,6 +1,13 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  Fragment,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { Popover as PopoverPrimitive } from "radix-ui";
 import {
   Box,
@@ -26,6 +33,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
+import type { ChibiNode } from "@/runtime/schema";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -34,6 +42,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { nodeIcon } from "./Hierarchy";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
 import {
@@ -398,6 +407,7 @@ function SetupCard({ onDone }: { onDone: () => void }) {
       </p>
       <input
         type="password"
+        autoFocus
         placeholder="Mistral API key"
         value={draft}
         onChange={(e) => setDraft(e.currentTarget.value)}
@@ -455,6 +465,104 @@ function Bubble({ children }: { children: ReactNode }) {
   );
 }
 
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// matches "@" + an exact current node name — built fresh from the live node
+// list so a rename or delete just makes the old mention plain text again.
+function buildMentionRegex(names: string[]): RegExp | null {
+  if (!names.length) return null;
+  const alt = names
+    .slice()
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegExp)
+    .join("|");
+  return new RegExp(`@(${alt})`, "g");
+}
+
+// user messages are shown verbatim (no markdown), so this only special-cases
+// "@Name" mentions, leaving the rest of the text untouched
+function renderMentions(
+  text: string,
+  key: string,
+  regex: RegExp | null,
+  onSelect: (name: string) => void,
+): ReactNode[] {
+  if (!regex) return [text];
+  const nodes: ReactNode[] = [];
+  let last = 0;
+  let i = 0;
+  for (const m of text.matchAll(regex)) {
+    if (m.index > last) nodes.push(text.slice(last, m.index));
+    const name = m[1];
+    nodes.push(
+      <button
+        key={`${key}-${i++}`}
+        type="button"
+        onClick={() => onSelect(name)}
+        className="rounded bg-primary/25 px-1 font-medium text-primary hover:bg-primary/40 hover:underline"
+      >
+        @{name}
+      </button>,
+    );
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) nodes.push(text.slice(last));
+  return nodes;
+}
+
+type MentionState = { start: number; query: string };
+
+function MentionMenu({
+  results,
+  query,
+  activeIndex,
+  onHover,
+  onPick,
+}: {
+  results: ChibiNode[];
+  query: string;
+  activeIndex: number;
+  onHover: (i: number) => void;
+  onPick: (node: ChibiNode) => void;
+}) {
+  if (results.length === 0) {
+    return (
+      <p className="px-2 py-1 text-[11px] text-muted-foreground">
+        No objects match &ldquo;{query}&rdquo;
+      </p>
+    );
+  }
+  return (
+    <>
+      {results.map((node, i) => {
+        const Icon = nodeIcon(node);
+        return (
+          <button
+            key={node.id}
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onMouseEnter={() => onHover(i)}
+            onClick={() => onPick(node)}
+            className={`flex w-full items-center gap-1.5 rounded px-2 py-1 text-left text-xs ${
+              i === activeIndex
+                ? "bg-accent text-accent-foreground"
+                : "text-foreground"
+            }`}
+          >
+            <Icon className="size-3.5 shrink-0 text-muted-foreground" />
+            <span className="truncate">{node.name}</span>
+            <span className="ml-auto shrink-0 text-[10px] text-muted-foreground">
+              {node.type}
+            </span>
+          </button>
+        );
+      })}
+    </>
+  );
+}
+
 export function AiChat() {
   const open = useUI((s) => s.aiChatOpen);
   const toggle = useUI((s) => s.toggleAiChat);
@@ -462,18 +570,53 @@ export function AiChat() {
   const messages = useAiChat((s) => s.messages);
   const status = useAiChat((s) => s.status);
   const clear = useAiChat((s) => s.clear);
+  const nodes = useDoc((s) => s.doc?.nodes);
 
   // lazy init is hydration-safe: the panel never renders during hydration
   // (aiChatOpen starts false), so localStorage is always available here
   const [hasKey, setHasKey] = useState(() => Boolean(getApiKey()));
   const [model, setModel] = useState(getModelId);
   const [draft, setDraft] = useState("");
+  const [mention, setMention] = useState<MentionState | null>(null);
+  const [mentionIndex, setMentionIndex] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     const el = listRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
+
+  // focus the composer whenever the panel opens (including right after key setup)
+  useEffect(() => {
+    if (open && hasKey) textareaRef.current?.focus();
+  }, [open, hasKey]);
+
+  const mentionResults = useMemo(() => {
+    if (!mention || !nodes) return [];
+    const q = mention.query.toLowerCase();
+    return Object.values(nodes)
+      .filter((n) => n.name.toLowerCase().includes(q))
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .slice(0, 8);
+  }, [mention, nodes]);
+
+  // ambiguous when names collide — first node with that name wins
+  const nodeByName = useMemo(() => {
+    const map = new Map<string, ChibiNode>();
+    for (const n of Object.values(nodes ?? {})) {
+      if (!map.has(n.name)) map.set(n.name, n);
+    }
+    return map;
+  }, [nodes]);
+  const mentionRegex = useMemo(
+    () => buildMentionRegex([...nodeByName.keys()]),
+    [nodeByName],
+  );
+  const selectMentionedNode = (name: string) => {
+    const node = nodeByName.get(name);
+    if (node) useUI.getState().select(node.id);
+  };
 
   if (!open) return null;
 
@@ -481,12 +624,50 @@ export function AiChat() {
     const text = draft.trim();
     if (!text || status === "running") return;
     setDraft("");
+    setMention(null);
     void sendChatMessage(text);
+  };
+
+  // "@" starts a mention only at the start of the draft or after whitespace,
+  // so emails/urls typed in the chat don't trigger it; the query can contain
+  // spaces since node names often do (e.g. "Key light").
+  const updateMention = (value: string, caret: number) => {
+    const upto = value.slice(0, caret);
+    const at = upto.lastIndexOf("@");
+    const precedingChar = at > 0 ? upto[at - 1] : "";
+    const query = at === -1 ? "" : upto.slice(at + 1);
+    if (
+      at === -1 ||
+      (precedingChar && !/\s/.test(precedingChar)) ||
+      query.includes("\n") ||
+      query.length > 40
+    ) {
+      setMention(null);
+      return;
+    }
+    setMention({ start: at, query });
+    setMentionIndex(0);
+  };
+
+  const pickMention = (node: ChibiNode) => {
+    if (!mention) return;
+    const before = draft.slice(0, mention.start);
+    const after = draft.slice(mention.start + 1 + mention.query.length);
+    const inserted = `@${node.name} `;
+    setDraft(before + inserted + after);
+    setMention(null);
+    requestAnimationFrame(() => {
+      const el = textareaRef.current;
+      if (!el) return;
+      const pos = before.length + inserted.length;
+      el.focus();
+      el.setSelectionRange(pos, pos);
+    });
   };
 
   return (
     <div
-      className={`absolute bottom-3 z-20 flex max-h-[min(480px,calc(100%-24px))] w-80 flex-col overflow-hidden rounded-xl border bg-card/95 shadow-xl backdrop-blur ${
+      className={`absolute bottom-3 z-20 flex max-h-[min(600px,calc(100%-24px))] w-80 flex-col overflow-hidden rounded-xl border bg-card/95 shadow-xl backdrop-blur ${
         inspectorOpen ? "right-[272px]" : "right-3"
       }`}
     >
@@ -535,7 +716,14 @@ export function AiChat() {
             {messages.map((msg, i) =>
               msg.role === "user" ? (
                 <Bubble key={msg.id}>
-                  <span className="whitespace-pre-wrap">{msg.text}</span>
+                  <span className="whitespace-pre-wrap">
+                    {renderMentions(
+                      msg.text,
+                      msg.id,
+                      mentionRegex,
+                      selectMentionedNode,
+                    )}
+                  </span>
                 </Bubble>
               ) : (
                 <div key={msg.id} className="flex flex-col items-start">
@@ -573,20 +761,82 @@ export function AiChat() {
           </div>
 
           <div className="flex items-end gap-1.5 border-t p-2">
-            <textarea
-              rows={2}
-              placeholder="Describe a change… (⏎ to send)"
-              value={draft}
-              onChange={(e) => setDraft(e.currentTarget.value)}
-              onKeyDown={(e) => {
-                e.stopPropagation();
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  send();
-                }
-              }}
-              className="max-h-32 w-full resize-none rounded-md border border-input bg-input/30 px-2 py-1.5 text-xs text-foreground outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/40"
-            />
+            <PopoverPrimitive.Root open={mention !== null}>
+              <PopoverPrimitive.Anchor asChild>
+                <textarea
+                  ref={textareaRef}
+                  rows={2}
+                  placeholder="Describe a change… (⏎ to send, @ to mention an object)"
+                  value={draft}
+                  onChange={(e) => {
+                    const value = e.currentTarget.value;
+                    setDraft(value);
+                    updateMention(
+                      value,
+                      e.currentTarget.selectionStart ?? value.length,
+                    );
+                  }}
+                  onSelect={(e) => {
+                    if (mention)
+                      updateMention(draft, e.currentTarget.selectionStart ?? 0);
+                  }}
+                  onBlur={() => setMention(null)}
+                  onKeyDown={(e) => {
+                    e.stopPropagation();
+                    if (mention) {
+                      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                        e.preventDefault();
+                        if (mentionResults.length === 0) return;
+                        const dir = e.key === "ArrowDown" ? 1 : -1;
+                        setMentionIndex(
+                          (i) =>
+                            (i + dir + mentionResults.length) %
+                            mentionResults.length,
+                        );
+                        return;
+                      }
+                      if (e.key === "Escape") {
+                        e.preventDefault();
+                        setMention(null);
+                        return;
+                      }
+                      if (
+                        (e.key === "Enter" || e.key === "Tab") &&
+                        mentionResults.length > 0
+                      ) {
+                        e.preventDefault();
+                        pickMention(mentionResults[mentionIndex]);
+                        return;
+                      }
+                    }
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      send();
+                    }
+                  }}
+                  className="max-h-32 w-full resize-none rounded-md border border-input bg-input/30 px-2 py-1.5 text-xs text-foreground outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/40"
+                />
+              </PopoverPrimitive.Anchor>
+              <PopoverPrimitive.Portal>
+                <PopoverPrimitive.Content
+                  side="top"
+                  align="start"
+                  sideOffset={4}
+                  collisionPadding={8}
+                  onOpenAutoFocus={(e) => e.preventDefault()}
+                  onCloseAutoFocus={(e) => e.preventDefault()}
+                  className="z-50 w-(--radix-popover-trigger-width) max-h-(--radix-popover-content-available-height) overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-xl outline-none"
+                >
+                  <MentionMenu
+                    results={mentionResults}
+                    query={mention?.query ?? ""}
+                    activeIndex={mentionIndex}
+                    onHover={setMentionIndex}
+                    onPick={pickMention}
+                  />
+                </PopoverPrimitive.Content>
+              </PopoverPrimitive.Portal>
+            </PopoverPrimitive.Root>
             {status === "running" ? (
               <Button
                 variant="secondary"
