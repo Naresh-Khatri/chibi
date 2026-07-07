@@ -19,6 +19,13 @@ import {
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { newId } from "@/runtime/schema";
 import {
   deleteDocument,
@@ -84,14 +91,94 @@ function timeAgo(ts: number): string {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
+// prompt-to-scene generation needs a Mistral key; gate the composer behind a
+// setup dialog rather than letting the user type into a field that can't submit.
+function AiSetupDialog({
+  open,
+  onOpenChange,
+  onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSaved: () => void;
+}) {
+  const [draft, setDraft] = useState("");
+
+  const save = () => {
+    if (!draft.trim()) return;
+    setApiKey(draft);
+    setDraft("");
+    onSaved();
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) setDraft("");
+        onOpenChange(next);
+      }}
+    >
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-1.5">
+            <Sparkles className="size-4 text-primary" />
+            Set up chibi AI
+          </DialogTitle>
+          <DialogDescription>
+            Prompt-to-scene generation runs on Mistral. Add a free API key to
+            get started — it stays in this browser (localStorage) and is
+            never written to documents or exports.
+          </DialogDescription>
+        </DialogHeader>
+        <ol className="list-decimal space-y-1 pl-4 text-xs text-muted-foreground">
+          <li>
+            Create a key at{" "}
+            <a
+              href="https://console.mistral.ai/api-keys"
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary underline underline-offset-2"
+            >
+              console.mistral.ai/api-keys
+            </a>
+          </li>
+          <li>Paste it below and save.</li>
+        </ol>
+        <div className="flex items-center gap-1.5">
+          <input
+            type="password"
+            autoFocus
+            placeholder="Mistral API key"
+            value={draft}
+            onChange={(e) => setDraft(e.currentTarget.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && draft.trim()) save();
+            }}
+            className="h-8 w-full rounded-md border border-input bg-input/30 px-2 text-xs outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
+          />
+          <Button
+            variant="secondary"
+            size="xs"
+            disabled={!draft.trim()}
+            onClick={save}
+          >
+            Save
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // M8: prompt-to-scene from the landing page — single-shot generation, then
 // the doc opens in the editor like any other document.
 function ScenePrompt() {
   const router = useRouter();
   const promptRef = useRef<HTMLTextAreaElement>(null);
   const [prompt, setPrompt] = useState("");
-  const [keyDraft, setKeyDraft] = useState("");
-  const [needsKey, setNeedsKey] = useState(false);
+  const [hasKey, setHasKey] = useState(() => Boolean(getApiKey()));
+  const [setupOpen, setSetupOpen] = useState(false);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rawText, setRawText] = useState<string | null>(null);
@@ -113,12 +200,13 @@ function ScenePrompt() {
   };
 
   const submit = () => {
-    const text = prompt.trim();
-    if (!text || running) return;
-    if (!getApiKey()) {
-      setNeedsKey(true);
+    if (running) return;
+    if (!hasKey) {
+      setSetupOpen(true);
       return;
     }
+    const text = prompt.trim();
+    if (!text) return;
     void run(text);
   };
 
@@ -159,6 +247,16 @@ function ScenePrompt() {
         </Button>
       </div>
 
+      <AiSetupDialog
+        open={setupOpen}
+        onOpenChange={setSetupOpen}
+        onSaved={() => {
+          setHasKey(true);
+          setSetupOpen(false);
+          promptRef.current?.focus();
+        }}
+      />
+
       <p className="px-0.5 pt-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
         Templates
       </p>
@@ -174,7 +272,7 @@ function ScenePrompt() {
             <button
               key={example.title}
               type="button"
-              disabled={running}
+              disabled={running || !hasKey}
               onClick={() => {
                 setPrompt(example.prompt);
                 promptRef.current?.focus();
@@ -187,49 +285,6 @@ function ScenePrompt() {
           );
         })}
       </div>
-
-      {needsKey && (
-        <div className="flex flex-col gap-2 rounded-lg border bg-muted/20 p-3 text-left">
-          <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-            <Sparkles className="size-3.5 text-primary" />
-            Set up chibi AI
-          </div>
-          <p className="text-[11px] leading-4 text-muted-foreground">
-            Generating scenes needs a Mistral API key. It stays in this browser
-            (localStorage) and is never written to documents or exports.
-          </p>
-          <div className="flex items-center gap-1.5">
-            <input
-              type="password"
-              placeholder="Mistral API key"
-              value={keyDraft}
-              onChange={(e) => setKeyDraft(e.currentTarget.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && keyDraft.trim()) {
-                  setApiKey(keyDraft);
-                  setKeyDraft("");
-                  setNeedsKey(false);
-                  submit();
-                }
-              }}
-              className="h-7 w-full rounded-md border border-input bg-input/30 px-2 text-xs outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
-            />
-            <Button
-              variant="secondary"
-              size="xs"
-              disabled={!keyDraft.trim()}
-              onClick={() => {
-                setApiKey(keyDraft);
-                setKeyDraft("");
-                setNeedsKey(false);
-                submit();
-              }}
-            >
-              Save
-            </Button>
-          </div>
-        </div>
-      )}
 
       {error && (
         <div className="flex flex-col gap-1.5 rounded-lg border border-destructive/40 bg-destructive/10 p-2.5 text-left">
