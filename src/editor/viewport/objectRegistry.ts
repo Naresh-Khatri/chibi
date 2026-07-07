@@ -32,18 +32,28 @@ export function getSceneObject(id: string): Object3D | null {
   return objects.get(id) ?? null;
 }
 
-// Original (uncloned) gltf.scene per loaded model node — the authoritative
-// graph for computing "Split into objects" child-index paths.
-const gltfScenes = new Map<string, Object3D>();
+// Original (uncloned) gltf.scene per loaded asset — the authoritative graph
+// for "Split into objects" paths and for part inspection (AI context hints).
+// Ref-counted: every mounted model node / split part sharing the asset
+// retains the same cached scene.
+const gltfScenes = new Map<string, { scene: Object3D; count: number }>();
 
-export function registerGltfScene(id: string, scene: Object3D | null) {
-  if (scene) gltfScenes.set(id, scene);
-  else gltfScenes.delete(id);
+export function retainGltfScene(assetId: string, scene: Object3D) {
+  const entry = gltfScenes.get(assetId);
+  if (entry && entry.scene === scene) entry.count++;
+  else gltfScenes.set(assetId, { scene, count: 1 });
   useRegistry.setState((s) => ({ version: s.version + 1 }));
 }
 
-export function getGltfScene(id: string): Object3D | null {
-  return gltfScenes.get(id) ?? null;
+export function releaseGltfScene(assetId: string) {
+  const entry = gltfScenes.get(assetId);
+  if (!entry) return;
+  if (--entry.count <= 0) gltfScenes.delete(assetId);
+  useRegistry.setState((s) => ({ version: s.version + 1 }));
+}
+
+export function getGltfScene(assetId: string): Object3D | null {
+  return gltfScenes.get(assetId)?.scene ?? null;
 }
 
 export type GizmoControlsLike = {

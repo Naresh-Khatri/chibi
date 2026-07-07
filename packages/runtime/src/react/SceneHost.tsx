@@ -536,6 +536,10 @@ function RModel({ node }: { node: ModelNode }) {
   const handlers = usePointerHandlers(ctx, node.id);
   const ref = useRegister(ctx, node.id);
   const { position, rotation, scale } = node.transform;
+  const material =
+    node.materialId !== undefined
+      ? runtimeMaterial(ctx, node.materialId)
+      : undefined;
   return (
     <group
       ref={ref}
@@ -551,6 +555,7 @@ function RModel({ node }: { node: ModelNode }) {
             <RGlb
               asset={asset}
               path={node.path}
+              material={material}
               resolveAsset={ctx.resolveAsset}
               castShadow={node.castShadow}
               receiveShadow={node.receiveShadow}
@@ -566,12 +571,14 @@ function RModel({ node }: { node: ModelNode }) {
 function RGlb({
   asset,
   path,
+  material,
   resolveAsset,
   castShadow,
   receiveShadow,
 }: {
   asset: ChibiAsset;
   path: string | undefined;
+  material: MeshPhysicalMaterial | undefined;
   resolveAsset: ResolveAssetUrl;
   castShadow: boolean;
   receiveShadow: boolean;
@@ -594,6 +601,7 @@ function RGlb({
       <GlbPart
         url={url}
         path={path}
+        material={material}
         castShadow={castShadow}
         receiveShadow={receiveShadow}
       />

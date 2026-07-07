@@ -225,7 +225,7 @@ function isIdentityTransform(t: Transform): boolean {
  * internal mesh (renders just that mesh) and one group per plain
  * transform, so every part can be selected, transformed, animated,
  * hidden, or deleted individually. `gltfScene` is the original loaded
- * gltf.scene for the node (see registerGltfScene).
+ * gltf.scene for the node's asset (see retainGltfScene).
  */
 export function splitModelNode(nodeId: string, gltfScene: Object3D): boolean {
   if (!requireBaseState("split models")) return false;

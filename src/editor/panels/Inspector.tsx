@@ -356,7 +356,10 @@ function NodeInspector({ nodeId }: { nodeId: string }) {
       </Section>
 
       {node.type === "mesh" && <GeometrySection node={node} />}
-      {node.type === "mesh" && <MaterialSection node={node} />}
+      {(node.type === "mesh" ||
+        (node.type === "model" && node.path !== undefined)) && (
+        <MaterialSection node={node} />
+      )}
       {node.type === "light" && <LightSection node={node} />}
       {node.type === "model" && <ModelSection node={node} />}
     </>
@@ -367,7 +370,7 @@ function ModelSection({ node }: { node: ModelNode }) {
   const asset = useDoc((s) => s.doc?.assets[node.assetId]);
   useRegistry((s) => s.version);
   const isPart = node.path !== undefined;
-  const gltfScene = isPart ? null : getGltfScene(node.id);
+  const gltfScene = isPart ? null : getGltfScene(node.assetId);
   return (
     <Section title={isPart ? "Model part" : "Model"}>
       <LabeledRow label="Asset">
@@ -379,7 +382,7 @@ function ModelSection({ node }: { node: ModelNode }) {
       </LabeledRow>
       {isPart ? (
         <div className="text-[11px] text-muted-foreground/70">
-          Geometry and material come from the source model; the transform is
+          Geometry comes from the source model; transform and material are
           yours to edit.
         </div>
       ) : (
@@ -466,16 +469,48 @@ function GeometrySection({ node }: { node: MeshNode }) {
   );
 }
 
-function MaterialSection({ node }: { node: MeshNode }) {
-  const material = useDoc(
-    (s) =>
-      s.doc?.materials[node.materialId] ??
-      s.doc?.materials[DEFAULT_MATERIAL_ID],
+function MaterialSection({ node }: { node: MeshNode | ModelNode }) {
+  // model parts have no chibi material until one is assigned — they render
+  // the GLB's embedded material; meshes always resolve to a material
+  const isPart = node.type === "model";
+  const material = useDoc((s) =>
+    node.type === "mesh"
+      ? (s.doc?.materials[node.materialId] ??
+        s.doc?.materials[DEFAULT_MATERIAL_ID])
+      : node.materialId !== undefined
+        ? s.doc?.materials[node.materialId]
+        : undefined,
   );
   const materialList = useDoc((s) => s.doc?.materials);
   const activeStateId = useUI((s) => s.activeStateId);
   const overrides = useOverrides(material?.id ?? "");
-  if (!material || !materialList) return null;
+  if (!materialList) return null;
+
+  if (!material) {
+    const assignItems: MenuItem[] = [
+      ...Object.values(materialList).map((m) => ({
+        label: m.name,
+        onSelect: () => assignMaterial(node.id, m.id),
+      })),
+      { divider: true },
+      {
+        label: "New material",
+        icon: Plus,
+        onSelect: () => addMaterial(node.id),
+      },
+    ];
+    return (
+      <Section title="Material">
+        <div className="flex items-center gap-1">
+          <Dropdown button={<>Embedded (GLB)</>} items={assignItems} />
+        </div>
+        <div className="text-[11px] text-muted-foreground/70">
+          This part renders the model&apos;s embedded material — assign a
+          material to restyle it.
+        </div>
+      </Section>
+    );
+  }
 
   const effColor = (overrides?.color as string | undefined) ?? material.color;
   const effOpacity =
@@ -505,6 +540,15 @@ function MaterialSection({ node }: { node: MeshNode }) {
   const commitSheen = (v: number, merge: boolean) =>
     setMaterialProp(material.id, { sheen: v }, merge ? mk("sheen") : undefined);
   const pickerItems: MenuItem[] = [
+    ...(isPart
+      ? ([
+          {
+            label: "Embedded (GLB)",
+            onSelect: () => assignMaterial(node.id, null),
+          },
+          { divider: true },
+        ] satisfies MenuItem[])
+      : []),
     ...Object.values(materialList).map((m) => ({
       label: m.name,
       checked: m.id === material.id,

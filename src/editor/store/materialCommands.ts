@@ -5,6 +5,7 @@ import {
   type CameraDef,
   type ChibiDocument,
   type ChibiMaterial,
+  type ChibiNode,
   type Environment,
   type LightNode,
   type PropertyValue,
@@ -34,7 +35,7 @@ export function addMaterial(assignToNodeId?: string): string {
     d.materials[id] = createMaterial(id, name);
     if (assignToNodeId) {
       const node = d.nodes[assignToNodeId];
-      if (node?.type === "mesh") node.materialId = id;
+      if (node?.type === "mesh" || isModelPart(node)) node.materialId = id;
     }
   });
   return id;
@@ -49,7 +50,11 @@ export function setMaterialProp(
   const owner = active ? useDoc.getState().doc?.nodes[active.nodeId] : undefined;
   // material edits record into the active state only when its owner node uses
   // this material; color/opacity are the overridable props, rest stays base
-  if (active && owner?.type === "mesh" && owner.materialId === materialId) {
+  if (
+    active &&
+    (owner?.type === "mesh" || owner?.type === "model") &&
+    owner.materialId === materialId
+  ) {
     const { color, opacity, ...rest } = updates;
     const entries: Record<string, PropertyValue> = {};
     if (color !== undefined) entries.color = color;
@@ -75,12 +80,23 @@ export function renameMaterial(materialId: string, name: string) {
   setMaterialProp(materialId, { name: name.trim() });
 }
 
-export function assignMaterial(nodeId: string, materialId: string) {
+// split model part: the only model nodes that take a chibi material override
+function isModelPart(
+  node: ChibiNode | undefined,
+): node is ChibiNode & { type: "model" } {
+  return node?.type === "model" && node.path !== undefined;
+}
+
+/** `materialId: null` clears a model part's override back to the GLB material. */
+export function assignMaterial(nodeId: string, materialId: string | null) {
   if (!requireBaseState("assign materials")) return;
   dispatch("Assign material", (d) => {
     const node = d.nodes[nodeId];
-    if (node?.type === "mesh" && d.materials[materialId]) {
+    if (node?.type === "mesh" && materialId && d.materials[materialId]) {
       node.materialId = materialId;
+    } else if (isModelPart(node)) {
+      if (materialId === null) delete node.materialId;
+      else if (d.materials[materialId]) node.materialId = materialId;
     }
   });
 }
@@ -89,11 +105,12 @@ export function materialUsageCount(materialId: string): number {
   const doc = useDoc.getState().doc;
   if (!doc) return 0;
   return Object.values(doc.nodes).filter(
-    (n) => n.type === "mesh" && n.materialId === materialId,
+    (n) =>
+      (n.type === "mesh" || n.type === "model") && n.materialId === materialId,
   ).length;
 }
 
-/** Deletes a material, reassigning any meshes that used it to the default. */
+/** Deletes a material; meshes fall back to default, model parts to embedded. */
 export function deleteMaterial(materialId: string) {
   if (materialId === DEFAULT_MATERIAL_ID) return;
   if (!requireBaseState("delete materials")) return;
@@ -102,6 +119,8 @@ export function deleteMaterial(materialId: string) {
     for (const node of Object.values(d.nodes)) {
       if (node.type === "mesh" && node.materialId === materialId) {
         node.materialId = DEFAULT_MATERIAL_ID;
+      } else if (node.type === "model" && node.materialId === materialId) {
+        delete node.materialId;
       }
     }
     delete d.materials[materialId];

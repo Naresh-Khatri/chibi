@@ -85,6 +85,9 @@ export const modelNodeSchema = z.object({
   // produced by "Split into objects": render only that internal mesh —
   // transform and children live on the chibi node. Absent = whole model.
   path: z.string().optional(),
+  // split parts only: replace the GLB's embedded material with this chibi
+  // material. Absent = render the embedded material as-is.
+  materialId: z.string().optional(),
   castShadow: z.boolean(),
   receiveShadow: z.boolean(),
 });

@@ -329,7 +329,9 @@ function AddTrackMenu({ clip }: { clip: AnimationClip }) {
   const selectedId = useUI((s) => s.selectedId);
   const node = useDoc((s) => (selectedId ? s.doc?.nodes[selectedId] : undefined));
   const material = useDoc((s) =>
-    node?.type === "mesh" ? s.doc?.materials[node.materialId] : undefined,
+    node?.type === "mesh" || node?.type === "model"
+      ? s.doc?.materials[node.materialId ?? ""]
+      : undefined,
   );
 
   const existing = new Set(clip.tracks.map(trackKey));

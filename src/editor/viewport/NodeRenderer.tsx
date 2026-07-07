@@ -10,7 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Group, Mesh, Object3D } from "three";
+import type { Group, Material, Mesh, Object3D } from "three";
 import {
   DirectionalLightHelper,
   PointLightHelper,
@@ -43,7 +43,8 @@ import { assetUrl } from "../store/assets";
 import {
   isClick,
   isGizmoActive,
-  registerGltfScene,
+  releaseGltfScene,
+  retainGltfScene,
   useRegistry,
 } from "./objectRegistry";
 import { getSharedMaterial } from "./materials";
@@ -236,6 +237,21 @@ function ModelView({ node }: { node: ModelNode }) {
     node,
     useOverrides(node.id),
   );
+  // split parts may override the embedded material with a chibi material
+  const materialDef = useDoc((s) =>
+    node.materialId !== undefined ? s.doc?.materials[node.materialId] : undefined,
+  );
+  const materialOverrides = useOverrides(node.materialId ?? "");
+  const effectiveDef =
+    materialDef && materialOverrides
+      ? {
+          ...materialDef,
+          color: (materialOverrides.color as string | undefined) ?? materialDef.color,
+          opacity:
+            (materialOverrides.opacity as number | undefined) ?? materialDef.opacity,
+        }
+      : materialDef;
+  const material = effectiveDef ? getSharedMaterial(effectiveDef) : undefined;
   return (
     <group
       ref={ref}
@@ -249,9 +265,9 @@ function ModelView({ node }: { node: ModelNode }) {
         <ModelBoundary name={asset.name}>
           <Suspense fallback={null}>
             <GlbContent
-              nodeId={node.id}
               asset={asset}
               path={node.path}
+              material={material}
               castShadow={node.castShadow}
               receiveShadow={node.receiveShadow}
             />
@@ -266,15 +282,15 @@ function ModelView({ node }: { node: ModelNode }) {
 }
 
 function GlbContent({
-  nodeId,
   asset,
   path,
+  material,
   castShadow,
   receiveShadow,
 }: {
-  nodeId: string;
   asset: ChibiAsset;
   path: string | undefined;
+  material: Material | undefined;
   castShadow: boolean;
   receiveShadow: boolean;
 }) {
@@ -293,9 +309,11 @@ function GlbContent({
   if (!url) return null;
   if (path !== undefined) {
     return (
-      <GlbPart
+      <GlbPartView
+        assetId={asset.id}
         url={url}
         path={path}
+        material={material}
         castShadow={castShadow}
         receiveShadow={receiveShadow}
       />
@@ -303,7 +321,7 @@ function GlbContent({
   }
   return (
     <GlbScene
-      nodeId={nodeId}
+      assetId={asset.id}
       url={url}
       castShadow={castShadow}
       receiveShadow={receiveShadow}
@@ -311,13 +329,50 @@ function GlbContent({
   );
 }
 
+// expose the original (uncloned) scene so "Split into objects" can walk it
+// and the AI context can read part hints (embedded materials, sizes)
+function useRetainGltfScene(assetId: string, scene: Object3D) {
+  useEffect(() => {
+    retainGltfScene(assetId, scene);
+    return () => releaseGltfScene(assetId);
+  }, [assetId, scene]);
+}
+
+function GlbPartView({
+  assetId,
+  url,
+  path,
+  material,
+  castShadow,
+  receiveShadow,
+}: {
+  assetId: string;
+  url: string;
+  path: string;
+  material: Material | undefined;
+  castShadow: boolean;
+  receiveShadow: boolean;
+}) {
+  const gltf = useGLTF(url);
+  useRetainGltfScene(assetId, gltf.scene);
+  return (
+    <GlbPart
+      url={url}
+      path={path}
+      material={material}
+      castShadow={castShadow}
+      receiveShadow={receiveShadow}
+    />
+  );
+}
+
 function GlbScene({
-  nodeId,
+  assetId,
   url,
   castShadow,
   receiveShadow,
 }: {
-  nodeId: string;
+  assetId: string;
   url: string;
   castShadow: boolean;
   receiveShadow: boolean;
@@ -334,11 +389,7 @@ function GlbScene({
     // let the hierarchy panel re-read this model's internal tree
     useRegistry.setState((s) => ({ version: s.version + 1 }));
   }, [gltf, castShadow, receiveShadow]);
-  // expose the original (uncloned) scene so "Split into objects" can walk it
-  useEffect(() => {
-    registerGltfScene(nodeId, gltf.scene);
-    return () => registerGltfScene(nodeId, null);
-  }, [nodeId, gltf]);
+  useRetainGltfScene(assetId, gltf.scene);
   return (
     <group ref={group}>
       <Clone object={gltf.scene} />

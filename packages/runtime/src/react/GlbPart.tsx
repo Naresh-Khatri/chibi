@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { Mesh, Object3D } from "three";
+import type { Material, Mesh, Object3D } from "three";
 import { useGLTF } from "@react-three/drei";
 
 /**
@@ -28,11 +28,14 @@ export function getObjectAtPath(root: Object3D, path: string): Object3D | null {
 export function GlbPart({
   url,
   path,
+  material,
   castShadow,
   receiveShadow,
 }: {
   url: string;
   path: string;
+  /** chibi material override; undefined renders the GLB's embedded one */
+  material?: Material;
   castShadow: boolean;
   receiveShadow: boolean;
 }) {
@@ -45,7 +48,7 @@ export function GlbPart({
   return (
     <mesh
       geometry={mesh.geometry}
-      material={mesh.material}
+      material={material ?? mesh.material}
       castShadow={castShadow}
       receiveShadow={receiveShadow}
     />
