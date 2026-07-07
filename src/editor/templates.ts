@@ -105,15 +105,15 @@ type HoverPeek = { state: ObjectState; interactions: Interaction[] };
 
 // hover -> scale pop. scale untouched by clips so it layers over the bob
 // (clips win same-key vs state). hover bubbles child->group, so nodeId =
-// group. duration 0 = snap.
+// group. eased tween, not a snap, so the pop reads as a soft squash-in.
 function hoverPeek(nodeId: string, base: Vec3 = [1, 1, 1], factor = 1.14): HoverPeek {
   const sid = `st_${nodeId}_peek`;
-  const snap = (to: string): Interaction["action"] => ({
+  const tween = (to: string): Interaction["action"] => ({
     type: "transition",
     nodeId,
     to,
-    duration: 0,
-    ease: "linear",
+    duration: 0.18,
+    ease: "easeOut",
   });
   return {
     state: {
@@ -127,8 +127,8 @@ function hoverPeek(nodeId: string, base: Vec3 = [1, 1, 1], factor = 1.14): Hover
       },
     },
     interactions: [
-      { id: `ix_${nodeId}_hi`, trigger: { type: "hoverEnter", nodeId }, action: snap(sid) },
-      { id: `ix_${nodeId}_ho`, trigger: { type: "hoverExit", nodeId }, action: snap(BASE_STATE_ID) },
+      { id: `ix_${nodeId}_hi`, trigger: { type: "hoverEnter", nodeId }, action: tween(sid) },
+      { id: `ix_${nodeId}_ho`, trigger: { type: "hoverExit", nodeId }, action: tween(BASE_STATE_ID) },
     ],
   };
 }
