@@ -75,6 +75,12 @@ function nodeIcon(node: ChibiNode): LucideIcon {
   return TYPE_ICONS[node.type];
 }
 
+// an unsplit model node — shows the GLB's internal tree as read-only rows;
+// split parts (path set) are ordinary nodes with real children
+function isWholeModel(node: ChibiNode): boolean {
+  return node.type === "model" && node.path === undefined;
+}
+
 // Read-only view of a GLB's internal object tree (informational only).
 function ModelInternals({ nodeId, depth }: { nodeId: string; depth: number }) {
   useRegistry((s) => s.version);
@@ -212,7 +218,7 @@ export function Hierarchy() {
     collapsedInitFor.current = docId;
     const all = new Set<string>();
     for (const node of Object.values(doc.nodes)) {
-      if (node.children.length > 0 || node.type === "model") all.add(node.id);
+      if (node.children.length > 0 || isWholeModel(node)) all.add(node.id);
     }
     setCollapsed(all);
   }, [doc, docId]);
@@ -262,7 +268,7 @@ export function Hierarchy() {
           const node = doc.nodes[id];
           const isSelected = selectedIds.includes(id);
           const isDrop = dropTarget?.id === id;
-          const hasChildren = node.children.length > 0 || node.type === "model";
+          const hasChildren = node.children.length > 0 || isWholeModel(node);
           return (
             <Fragment key={id}>
             <div
@@ -494,7 +500,7 @@ export function Hierarchy() {
                 )}
               </span>
             </div>
-            {node.type === "model" && !collapsed.has(id) && (
+            {isWholeModel(node) && !collapsed.has(id) && (
               <ModelInternals nodeId={id} depth={depth + 1} />
             )}
             </Fragment>

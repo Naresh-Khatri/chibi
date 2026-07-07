@@ -45,6 +45,7 @@ import {
 } from "../engine";
 import type { ResolveAssetUrl } from "../assets";
 import { FONT_URL, GeometryElement } from "./Geometry";
+import { GlbPart } from "./GlbPart";
 import {
   BaseLights,
   EnvironmentFx,
@@ -549,6 +550,7 @@ function RModel({ node }: { node: ModelNode }) {
           <Suspense fallback={null}>
             <RGlb
               asset={asset}
+              path={node.path}
               resolveAsset={ctx.resolveAsset}
               castShadow={node.castShadow}
               receiveShadow={node.receiveShadow}
@@ -563,11 +565,13 @@ function RModel({ node }: { node: ModelNode }) {
 
 function RGlb({
   asset,
+  path,
   resolveAsset,
   castShadow,
   receiveShadow,
 }: {
   asset: ChibiAsset;
+  path: string | undefined;
   resolveAsset: ResolveAssetUrl;
   castShadow: boolean;
   receiveShadow: boolean;
@@ -585,6 +589,16 @@ function RGlb({
     };
   }, [asset, resolveAsset]);
   if (!url) return null;
+  if (path !== undefined) {
+    return (
+      <GlbPart
+        url={url}
+        path={path}
+        castShadow={castShadow}
+        receiveShadow={receiveShadow}
+      />
+    );
+  }
   return <RGlbScene url={url} castShadow={castShadow} receiveShadow={receiveShadow} />;
 }
 

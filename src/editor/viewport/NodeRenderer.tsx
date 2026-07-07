@@ -36,10 +36,16 @@ import {
   type Vec3,
 } from "@/runtime/schema";
 import { FONT_URL, GeometryElement } from "@/runtime/react/Geometry";
+import { GlbPart } from "@/runtime/react/GlbPart";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
 import { assetUrl } from "../store/assets";
-import { isClick, isGizmoActive, useRegistry } from "./objectRegistry";
+import {
+  isClick,
+  isGizmoActive,
+  registerGltfScene,
+  useRegistry,
+} from "./objectRegistry";
 import { getSharedMaterial } from "./materials";
 
 const SELECTION_COLOR = "#4d8dff";
@@ -243,7 +249,9 @@ function ModelView({ node }: { node: ModelNode }) {
         <ModelBoundary name={asset.name}>
           <Suspense fallback={null}>
             <GlbContent
+              nodeId={node.id}
               asset={asset}
+              path={node.path}
               castShadow={node.castShadow}
               receiveShadow={node.receiveShadow}
             />
@@ -258,11 +266,15 @@ function ModelView({ node }: { node: ModelNode }) {
 }
 
 function GlbContent({
+  nodeId,
   asset,
+  path,
   castShadow,
   receiveShadow,
 }: {
+  nodeId: string;
   asset: ChibiAsset;
+  path: string | undefined;
   castShadow: boolean;
   receiveShadow: boolean;
 }) {
@@ -279,16 +291,33 @@ function GlbContent({
     };
   }, [asset]);
   if (!url) return null;
+  if (path !== undefined) {
+    return (
+      <GlbPart
+        url={url}
+        path={path}
+        castShadow={castShadow}
+        receiveShadow={receiveShadow}
+      />
+    );
+  }
   return (
-    <GlbScene url={url} castShadow={castShadow} receiveShadow={receiveShadow} />
+    <GlbScene
+      nodeId={nodeId}
+      url={url}
+      castShadow={castShadow}
+      receiveShadow={receiveShadow}
+    />
   );
 }
 
 function GlbScene({
+  nodeId,
   url,
   castShadow,
   receiveShadow,
 }: {
+  nodeId: string;
   url: string;
   castShadow: boolean;
   receiveShadow: boolean;
@@ -305,6 +334,11 @@ function GlbScene({
     // let the hierarchy panel re-read this model's internal tree
     useRegistry.setState((s) => ({ version: s.version + 1 }));
   }, [gltf, castShadow, receiveShadow]);
+  // expose the original (uncloned) scene so "Split into objects" can walk it
+  useEffect(() => {
+    registerGltfScene(nodeId, gltf.scene);
+    return () => registerGltfScene(nodeId, null);
+  }, [nodeId, gltf]);
   return (
     <group ref={group}>
       <Clone object={gltf.scene} />

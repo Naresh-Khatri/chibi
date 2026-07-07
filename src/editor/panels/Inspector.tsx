@@ -6,9 +6,11 @@ import {
   RotateCcw,
   SlidersHorizontal,
   Trash2,
+  Ungroup,
   Zap,
 } from "lucide-react";
 import { Color } from "three";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   BASE_STATE_ID,
@@ -31,7 +33,9 @@ import {
   setNodeShadow,
   setNodeVisible,
   setTransformComponent,
+  splitModelNode,
 } from "../store/commands";
+import { getGltfScene, useRegistry } from "../viewport/objectRegistry";
 import { clearOverride } from "../store/stateCommands";
 import {
   addMaterial,
@@ -361,8 +365,11 @@ function NodeInspector({ nodeId }: { nodeId: string }) {
 
 function ModelSection({ node }: { node: ModelNode }) {
   const asset = useDoc((s) => s.doc?.assets[node.assetId]);
+  useRegistry((s) => s.version);
+  const isPart = node.path !== undefined;
+  const gltfScene = isPart ? null : getGltfScene(node.id);
   return (
-    <Section title="Model">
+    <Section title={isPart ? "Model part" : "Model"}>
       <LabeledRow label="Asset">
         <span className="truncate text-xs text-foreground">
           {asset
@@ -370,9 +377,30 @@ function ModelSection({ node }: { node: ModelNode }) {
             : "missing asset"}
         </span>
       </LabeledRow>
-      <div className="text-[11px] text-muted-foreground/70">
-        Embedded materials render as-is; internal hierarchy is read-only.
-      </div>
+      {isPart ? (
+        <div className="text-[11px] text-muted-foreground/70">
+          Geometry and material come from the source model; the transform is
+          yours to edit.
+        </div>
+      ) : (
+        <>
+          <Button
+            variant="secondary"
+            size="xs"
+            className="w-full"
+            disabled={!gltfScene}
+            onClick={() => gltfScene && splitModelNode(node.id, gltfScene)}
+          >
+            <Ungroup />
+            Split into objects
+          </Button>
+          <div className="text-[11px] text-muted-foreground/70">
+            {gltfScene
+              ? "Turns the internal hierarchy into editable objects — move, animate, hide, or delete each part."
+              : "Embedded materials render as-is; internal hierarchy is read-only."}
+          </div>
+        </>
+      )}
     </Section>
   );
 }

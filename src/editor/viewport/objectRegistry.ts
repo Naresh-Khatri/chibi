@@ -32,6 +32,20 @@ export function getSceneObject(id: string): Object3D | null {
   return objects.get(id) ?? null;
 }
 
+// Original (uncloned) gltf.scene per loaded model node — the authoritative
+// graph for computing "Split into objects" child-index paths.
+const gltfScenes = new Map<string, Object3D>();
+
+export function registerGltfScene(id: string, scene: Object3D | null) {
+  if (scene) gltfScenes.set(id, scene);
+  else gltfScenes.delete(id);
+  useRegistry.setState((s) => ({ version: s.version + 1 }));
+}
+
+export function getGltfScene(id: string): Object3D | null {
+  return gltfScenes.get(id) ?? null;
+}
+
 export type GizmoControlsLike = {
   axis: string | null;
   dragging: boolean;

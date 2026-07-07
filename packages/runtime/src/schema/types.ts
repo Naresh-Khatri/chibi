@@ -81,6 +81,10 @@ export const modelNodeSchema = z.object({
   ...nodeBase,
   type: z.literal("model"),
   assetId: z.string(),
+  // child-index path into the GLB scene graph (e.g. "0/2"), set on nodes
+  // produced by "Split into objects": render only that internal mesh —
+  // transform and children live on the chibi node. Absent = whole model.
+  path: z.string().optional(),
   castShadow: z.boolean(),
   receiveShadow: z.boolean(),
 });

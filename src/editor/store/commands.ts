@@ -1,3 +1,4 @@
+import { Euler, type Mesh, type Object3D } from "three";
 import {
   BASE_STATE_ID,
   DEFAULT_MATERIAL_ID,
@@ -196,6 +197,114 @@ export function addModelNode(asset: ChibiAsset) {
     d.root.push(id);
   });
   useUI.getState().select(id);
+}
+
+const MAX_SPLIT_PARTS = 500;
+
+function objectTransform(obj: Object3D): Transform {
+  // read rotation via the quaternion so any Euler order maps to chibi's XYZ
+  const rot = new Euler().setFromQuaternion(obj.quaternion, "XYZ");
+  return {
+    position: [obj.position.x, obj.position.y, obj.position.z],
+    rotation: [rot.x, rot.y, rot.z],
+    scale: [obj.scale.x, obj.scale.y, obj.scale.z],
+  };
+}
+
+function isIdentityTransform(t: Transform): boolean {
+  return (
+    vec3Equal(t.position, [0, 0, 0]) &&
+    vec3Equal(t.rotation, [0, 0, 0]) &&
+    vec3Equal(t.scale, [1, 1, 1])
+  );
+}
+
+/**
+ * Converts a model node into a group whose children mirror the GLB's
+ * internal scene graph: one model node with a child-index `path` per
+ * internal mesh (renders just that mesh) and one group per plain
+ * transform, so every part can be selected, transformed, animated,
+ * hidden, or deleted individually. `gltfScene` is the original loaded
+ * gltf.scene for the node (see registerGltfScene).
+ */
+export function splitModelNode(nodeId: string, gltfScene: Object3D): boolean {
+  if (!requireBaseState("split models")) return false;
+  const doc = useDoc.getState().doc;
+  const src = doc?.nodes[nodeId];
+  if (!doc || src?.type !== "model" || src.path !== undefined) return false;
+  const { showToast } = useUI.getState();
+  if (gltfScene.children.length === 0) {
+    showToast("Model has no internal objects to split");
+    return false;
+  }
+  let count = 0;
+  gltfScene.traverse(() => count++);
+  if (count - 1 > MAX_SPLIT_PARTS) {
+    showToast(`Model has over ${MAX_SPLIT_PARTS} internal objects — not split`);
+    return false;
+  }
+
+  const parts: ChibiNode[] = [];
+  const build = (obj: Object3D, path: string): string => {
+    const id = newId("nd");
+    const isMesh = (obj as Mesh).isMesh === true;
+    const base = {
+      id,
+      name: obj.name || (isMesh ? "Mesh" : "Group"),
+      visible: true,
+      transform: objectTransform(obj),
+      children: obj.children.map((c, i) => build(c, `${path}/${i}`)),
+    };
+    parts.push(
+      isMesh
+        ? {
+            ...base,
+            type: "model",
+            assetId: src.assetId,
+            path,
+            castShadow: src.castShadow,
+            receiveShadow: src.receiveShadow,
+          }
+        : { ...base, type: "group" },
+    );
+    return id;
+  };
+  let childIds = gltfScene.children.map((c, i) => build(c, String(i)));
+
+  // gltf.scene itself can carry a transform (rare) — preserve it in a wrapper
+  const sceneTransform = objectTransform(gltfScene);
+  if (!isIdentityTransform(sceneTransform)) {
+    const wrapperId = newId("nd");
+    parts.push({
+      id: wrapperId,
+      name: gltfScene.name || "Scene",
+      type: "group",
+      visible: true,
+      transform: sceneTransform,
+      children: childIds,
+    });
+    childIds = [wrapperId];
+  }
+
+  dispatch("Split model", (d) => {
+    for (const part of parts) d.nodes[part.id] = part;
+    const old = d.nodes[nodeId];
+    // same id keeps states/interactions/animation tracks on the node valid
+    const group: GroupNode = {
+      id: nodeId,
+      name: old.name,
+      type: "group",
+      transform: {
+        position: [...old.transform.position],
+        rotation: [...old.transform.rotation],
+        scale: [...old.transform.scale],
+      },
+      visible: old.visible,
+      children: [...childIds, ...old.children],
+    };
+    d.nodes[nodeId] = group;
+  });
+  return true;
 }
 
 export function removeNode(nodeId: string) {
