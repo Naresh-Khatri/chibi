@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows, Environment, Lightformer } from "@react-three/drei";
 import {
   ACESFilmicToneMapping,
@@ -224,6 +224,26 @@ function ShadowFilter({ soft }: { soft: boolean }) {
 }
 
 /**
+ * the postprocessing EffectComposer (mounted whenever AO/bloom/vignette is
+ * on) permanently flips renderer.autoClear to false as a side effect of its
+ * own multi-pass compositing (see the `postprocessing` package's internal
+ * setup), and @react-three/postprocessing's wrapper re-persists that same
+ * false value every frame instead of restoring the pre-composer default.
+ * ContactShadows renders its offscreen depth pass at the default useFrame
+ * priority (0) with no clear of its own, so with autoClear stuck false, old
+ * geometry never gets erased from its shadow texture — moving an object
+ * leaves its old silhouette shadowed forever. Force autoClear back on before
+ * anything else runs each frame (priority -1 sorts first).
+ */
+function ContactShadowAutoClearFix() {
+  const gl = useThree((s) => s.gl);
+  useFrame(() => {
+    gl.autoClear = true;
+  }, -1);
+  return null;
+}
+
+/**
  * per-document look flags: shadow filtering, tone mapping, postprocessing
  * (AO/bloom/vignette) and a blurred contact-shadow plane under the scene.
  * Shared by editor viewport + runtime.
@@ -244,14 +264,17 @@ export function EnvironmentFx({
         <ToneMappingControl mode={environment.toneMapping} />
       )}
       {environment.contactShadows && (
-        <ContactShadows
-          position={[0, 0.001, 0]}
-          opacity={0.6}
-          scale={14}
-          blur={2.5}
-          far={10}
-          resolution={512}
-        />
+        <>
+          <ContactShadowAutoClearFix />
+          <ContactShadows
+            position={[0, 0.001, 0]}
+            opacity={0.6}
+            scale={14}
+            blur={2.5}
+            far={10}
+            resolution={512}
+          />
+        </>
       )}
     </>
   );

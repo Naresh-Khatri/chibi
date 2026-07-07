@@ -222,13 +222,21 @@ function InteractiveScene({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctx]);
 
+  const wasActiveRef = useRef(false);
   useFrame((_, delta) => {
     // demand frames after an idle stretch arrive with a huge delta — clamp
     // so a transition doesn't jump straight to its end
     for (const [key, value] of ctx.runtime.advance(Math.min(delta, 0.1))) {
       applyValue(ctx, key, value);
     }
-    if (ctx.runtime.isActive()) ctx.invalidate();
+    const active = ctx.runtime.isActive();
+    // one extra settle frame once motion stops: siblings mounted earlier in
+    // the tree (e.g. ContactShadows) bake from scene state *before* this
+    // frame's applyValue mutations, so the frame a transition completes on
+    // renders their effect one tick stale. Without a follow-up frame under
+    // frameloop="demand" that staleness never gets a chance to clear.
+    if (active || wasActiveRef.current) ctx.invalidate();
+    wasActiveRef.current = active;
   });
 
   return (
