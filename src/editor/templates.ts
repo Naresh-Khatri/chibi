@@ -308,7 +308,10 @@ function buildTerminalScene(): ChibiDocument {
   const sparkRays = [0, 0.7854, 1.5708, 2.3562].map((rz, i) =>
     mesh(`nd_ray${i}`, "Ray", "capsule", cap(0.035, 0.16), "mt_glow", T([0, 0, 0], [0, 0, rz])),
   );
+  // thin rug so its top face lands at y=0, flush with the desk/Clawd feet already tuned to that height
+  const floor = mesh("nd_floor", "Floor", "box", box(4.6, 0.12, 3.2, 0.5), "mt_floor", T([0, -0.06, 0.1]));
   const roots = [
+    floor,
     group("nd_desk", "Desk", T([0.65, 0, 0]), deskKids.map((n) => n.id)),
     group("nd_spark", "Claude spark", T([0.62, 2.1, -0.08]), sparkRays.map((n) => n.id)),
     light("nd_key", "Key light", "directional", "#fff3e4", 2, [4, 7, 4], true),
@@ -357,6 +360,7 @@ function buildTerminalScene(): ChibiDocument {
       mt_wood: clay("mt_wood", "Warm wood", "#d99a62"),
       mt_terracotta: clay("mt_terracotta", "Terracotta", "#cd7a52"),
       mt_leaf: clay("mt_leaf", "Leaf green", "#6fbf5a"),
+      mt_floor: clay("mt_floor", "Floor rug", "#c9ad86", { roughness: 0.85, clearcoat: 0.15 }),
     },
     assets: {},
     ...interactivity(clips, [hoverPeek("nd_clawd")]),
