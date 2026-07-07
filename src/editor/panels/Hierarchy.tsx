@@ -141,21 +141,25 @@ export function Hierarchy() {
     return out;
   }, [doc, collapsed]);
 
-  useEffect(() => {
-    if (!selectedId) return;
-    const ancestors: string[] = [];
-    let cur = parentOf.get(selectedId);
-    while (cur) {
-      ancestors.push(cur);
-      cur = parentOf.get(cur);
+  // expand collapsed ancestors when selection lands on a hidden nested node —
+  // adjusted during render (not an effect) so the row is visible immediately
+  const [expandedFor, setExpandedFor] = useState<string | null>(null);
+  if (selectedId !== expandedFor) {
+    setExpandedFor(selectedId);
+    if (selectedId) {
+      const ancestors: string[] = [];
+      let cur = parentOf.get(selectedId);
+      while (cur) {
+        ancestors.push(cur);
+        cur = parentOf.get(cur);
+      }
+      if (ancestors.some((id) => collapsed.has(id))) {
+        const next = new Set(collapsed);
+        for (const id of ancestors) next.delete(id);
+        setCollapsed(next);
+      }
     }
-    setCollapsed((prev) => {
-      if (!ancestors.some((id) => prev.has(id))) return prev;
-      const next = new Set(prev);
-      for (const id of ancestors) next.delete(id);
-      return next;
-    });
-  }, [selectedId, parentOf]);
+  }
 
   useEffect(() => {
     if (selectedId) {
