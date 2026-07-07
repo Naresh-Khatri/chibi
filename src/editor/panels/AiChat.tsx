@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 import { Popover as PopoverPrimitive } from "radix-ui";
 import {
   Box,
@@ -76,6 +76,140 @@ const TOOL_ICONS: Record<string, LucideIcon> = {
   set_document_name: Pencil,
 };
 
+// Minimal markdown-lite renderer for assistant text: bold, italic, inline
+// code, links and lists. The model is asked to keep replies plain (see
+// SYSTEM_PROMPT) but still leans on markdown for emphasis/lists, so render
+// it instead of dropping it — no markdown dependency, this stays tiny.
+const INLINE_MD =
+  /`([^`]+)`|\*\*([^*]+)\*\*|__([^_]+)__|\*([^*]+)\*|_([^_]+)_|\[([^\]]+)\]\(([^)]+)\)/g;
+
+function renderInlineMarkdown(text: string, key: string): ReactNode[] {
+  const nodes: ReactNode[] = [];
+  let last = 0;
+  let i = 0;
+  for (const m of text.matchAll(INLINE_MD)) {
+    if (m.index > last) nodes.push(text.slice(last, m.index));
+    const k = `${key}-${i++}`;
+    if (m[1] !== undefined) {
+      nodes.push(
+        <code key={k} className="rounded bg-muted px-1 py-0.5 text-[11px]">
+          {m[1]}
+        </code>,
+      );
+    } else if (m[2] !== undefined || m[3] !== undefined) {
+      nodes.push(<strong key={k}>{m[2] ?? m[3]}</strong>);
+    } else if (m[4] !== undefined || m[5] !== undefined) {
+      nodes.push(<em key={k}>{m[4] ?? m[5]}</em>);
+    } else if (m[6] !== undefined) {
+      nodes.push(
+        <a
+          key={k}
+          href={m[7]}
+          target="_blank"
+          rel="noreferrer"
+          className="underline underline-offset-2"
+        >
+          {m[6]}
+        </a>,
+      );
+    }
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) nodes.push(text.slice(last));
+  return nodes;
+}
+
+const LIST_ITEM = /^\s*[-*]\s+(.*)$/;
+const ORDERED_ITEM = /^\s*\d+\.\s+(.*)$/;
+const HEADING = /^\s{0,3}#{1,6}\s+(.*)$/;
+
+function renderMarkdown(text: string): ReactNode {
+  const lines = text.split("\n");
+  const blocks: ReactNode[] = [];
+  let i = 0;
+  let key = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    if (line.trim() === "") {
+      i++;
+      continue;
+    }
+
+    if (LIST_ITEM.test(line)) {
+      const items: string[] = [];
+      while (i < lines.length && LIST_ITEM.test(lines[i])) {
+        items.push(lines[i].match(LIST_ITEM)![1]);
+        i++;
+      }
+      const k = key++;
+      blocks.push(
+        <ul key={`ul-${k}`} className="list-disc space-y-0.5 pl-4">
+          {items.map((it, idx) => (
+            <li key={idx}>{renderInlineMarkdown(it, `ul-${k}-${idx}`)}</li>
+          ))}
+        </ul>,
+      );
+      continue;
+    }
+
+    if (ORDERED_ITEM.test(line)) {
+      const items: string[] = [];
+      while (i < lines.length && ORDERED_ITEM.test(lines[i])) {
+        items.push(lines[i].match(ORDERED_ITEM)![1]);
+        i++;
+      }
+      const k = key++;
+      blocks.push(
+        <ol key={`ol-${k}`} className="list-decimal space-y-0.5 pl-4">
+          {items.map((it, idx) => (
+            <li key={idx}>{renderInlineMarkdown(it, `ol-${k}-${idx}`)}</li>
+          ))}
+        </ol>,
+      );
+      continue;
+    }
+
+    const heading = line.match(HEADING);
+    if (heading) {
+      const k = key++;
+      blocks.push(
+        <p key={`h-${k}`} className="font-medium text-foreground">
+          {renderInlineMarkdown(heading[1], `h-${k}`)}
+        </p>,
+      );
+      i++;
+      continue;
+    }
+
+    const paraLines: string[] = [];
+    while (
+      i < lines.length &&
+      lines[i].trim() !== "" &&
+      !LIST_ITEM.test(lines[i]) &&
+      !ORDERED_ITEM.test(lines[i]) &&
+      !HEADING.test(lines[i])
+    ) {
+      paraLines.push(lines[i]);
+      i++;
+    }
+    const k = key++;
+    blocks.push(
+      <p key={`p-${k}`}>
+        {paraLines.map((l, idx) => (
+          <Fragment key={idx}>
+            {idx > 0 && <br />}
+            {renderInlineMarkdown(l, `p-${k}-${idx}`)}
+          </Fragment>
+        ))}
+      </p>,
+    );
+  }
+
+  return blocks;
+}
+
 function ChipView({ chip }: { chip: ToolChip }) {
   const Icon = TOOL_ICONS[chip.name] ?? Settings2;
   return (
@@ -105,9 +239,12 @@ function AssistantItems({ items }: { items: AssistantItem[] }) {
     <>
       {items.map((item, i) =>
         item.kind === "text" ? (
-          <p key={i} className="whitespace-pre-wrap text-xs text-foreground">
-            {item.text}
-          </p>
+          <div
+            key={i}
+            className="space-y-1.5 text-xs text-foreground [&_a]:text-primary [&_ol]:text-foreground [&_ul]:text-foreground"
+          >
+            {renderMarkdown(item.text)}
+          </div>
         ) : (
           <ChipView key={item.chip.id} chip={item.chip} />
         ),
