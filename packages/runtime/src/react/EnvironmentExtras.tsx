@@ -2,12 +2,8 @@
 
 import { useEffect } from "react";
 import { useThree } from "@react-three/fiber";
-import {
-  ContactShadows,
-  Environment,
-  Lightformer,
-  SoftShadows,
-} from "@react-three/drei";
+import { ContactShadows, Environment, Lightformer } from "@react-three/drei";
+import { PCFShadowMap, PCFSoftShadowMap, type Material, type Mesh } from "three";
 import type { Environment as EnvironmentDef, ChibiDocument } from "../schema";
 
 type PresetName = NonNullable<EnvironmentDef["preset"]>;
@@ -98,8 +94,34 @@ export function BaseLights({ hasEnvironment }: { hasEnvironment: boolean }) {
 }
 
 /**
- * per-document look flags: PCSS soft shadow filtering and a blurred
- * contact-shadow plane under the scene. Shared by editor viewport + runtime.
+ * doc softShadows flag -> renderer shadow filtering. Built-in PCF filtering
+ * only: drei's <SoftShadows> PCSS injection is incompatible with three r168+
+ * (shadow maps are sampler2DShadow now, no RGBA-packed depth) and mutates the
+ * global ShaderChunk, which breaks when two canvases mount it.
+ */
+function ShadowFilter({ soft }: { soft: boolean }) {
+  const get = useThree((s) => s.get);
+  useEffect(() => {
+    const { gl, scene, invalidate } = get();
+    const type = soft ? PCFSoftShadowMap : PCFShadowMap;
+    if (gl.shadowMap.type === type) return;
+    gl.shadowMap.type = type;
+    // shadowmap type is compiled into programs — force a rebuild
+    scene.traverse((obj) => {
+      const material = (obj as Mesh).material as Material | Material[] | undefined;
+      if (!material) return;
+      for (const m of Array.isArray(material) ? material : [material]) {
+        m.needsUpdate = true;
+      }
+    });
+    invalidate();
+  }, [soft, get]);
+  return null;
+}
+
+/**
+ * per-document look flags: shadow filtering and a blurred contact-shadow
+ * plane under the scene. Shared by editor viewport + runtime.
  */
 export function EnvironmentFx({
   environment,
@@ -109,9 +131,7 @@ export function EnvironmentFx({
   return (
     <>
       <Exposure value={environment.exposure} />
-      {environment.softShadows && environment.shadows && (
-        <SoftShadows size={30} samples={12} focus={0.4} />
-      )}
+      <ShadowFilter soft={environment.softShadows} />
       {environment.contactShadows && (
         <ContactShadows
           position={[0, 0.001, 0]}

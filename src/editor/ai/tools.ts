@@ -445,7 +445,7 @@ export function buildTools(): ToolSet {
           .optional(),
         shadows: z.boolean().optional(),
         exposure: z.number().min(0.1).max(2.5).optional(),
-        softShadows: z.boolean().optional().describe("PCSS blurry shadow edges"),
+        softShadows: z.boolean().optional().describe("softer filtered shadow edges"),
         contactShadows: z
           .boolean()
           .optional()
