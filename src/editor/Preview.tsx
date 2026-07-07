@@ -14,7 +14,7 @@ export function PreviewOverlay() {
   if (!doc) return null;
   return (
     <div className="fixed inset-0 z-40 bg-black">
-      <SceneHost doc={doc} resolveAsset={assetUrl} />
+      <SceneHost doc={doc} resolveAsset={assetUrl} orbit />
       <button
         type="button"
         title="Exit preview (Esc)"

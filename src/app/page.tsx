@@ -5,10 +5,17 @@ import { useRouter } from "next/navigation";
 import {
   Box,
   Clock,
+  CookingPot,
   FolderOpen,
   Loader2,
+  Palette,
   Plus,
+  Rocket,
+  Smile,
   Sparkles,
+  Tent,
+  Terminal,
+  TrafficCone,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +29,51 @@ import {
 import { importDocumentFromFile } from "@/editor/store/files";
 import { getApiKey, setApiKey } from "@/editor/ai/client";
 import { GenerationError, generateDocument } from "@/editor/ai/generate";
+import { EXAMPLE_PROMPTS } from "@/editor/ai/examplePrompts";
+import { SCENE_TEMPLATES } from "@/editor/templates";
+
+// paired by index with EXAMPLE_PROMPTS / SCENE_TEMPLATES (icons are a UI
+// concern, the data stays pure)
+const EXAMPLE_ICONS = [CookingPot, TrafficCone, Palette, Tent];
+const TEMPLATE_ICONS = [Terminal, Rocket, Smile];
+
+// hand-built scene documents that open in the editor without any AI call
+function TemplateCards() {
+  const router = useRouter();
+  const [opening, setOpening] = useState<string | null>(null);
+  return (
+    <div className="grid grid-cols-2 gap-1.5">
+      {SCENE_TEMPLATES.map((template, i) => {
+        const Icon = TEMPLATE_ICONS[i % TEMPLATE_ICONS.length];
+        return (
+          <button
+            key={template.title}
+            type="button"
+            disabled={opening !== null}
+            onClick={async () => {
+              setOpening(template.title);
+              try {
+                const docId = await saveImportedDocument(template.build());
+                router.push(`/editor/${docId}`);
+              } catch (err) {
+                console.error("chibi: template failed to open", err);
+                setOpening(null);
+              }
+            }}
+            className="flex items-center gap-1.5 rounded-lg border bg-card px-2.5 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:border-ring/50 hover:bg-muted/40 hover:text-foreground disabled:opacity-60"
+          >
+            {opening === template.title ? (
+              <Loader2 className="size-3.5 shrink-0 animate-spin text-primary" />
+            ) : (
+              <Icon className="size-3.5 shrink-0 text-primary" />
+            )}
+            {template.title}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 function timeAgo(ts: number): string {
   const mins = Math.floor((Date.now() - ts) / 60_000);
@@ -36,6 +88,7 @@ function timeAgo(ts: number): string {
 // the doc opens in the editor like any other document.
 function ScenePrompt() {
   const router = useRouter();
+  const promptRef = useRef<HTMLTextAreaElement>(null);
   const [prompt, setPrompt] = useState("");
   const [keyDraft, setKeyDraft] = useState("");
   const [needsKey, setNeedsKey] = useState(false);
@@ -72,25 +125,29 @@ function ScenePrompt() {
   return (
     <div className="flex flex-col gap-2">
       <div
-        className={`flex items-center gap-1.5 rounded-lg border bg-card px-2.5 py-1.5 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40 ${
+        className={`flex items-start gap-1.5 rounded-lg border bg-card px-2.5 py-1.5 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40 ${
           running ? "animate-pulse" : ""
         }`}
       >
         {running ? (
-          <Loader2 className="size-4 shrink-0 animate-spin text-primary" />
+          <Loader2 className="mt-0.5 size-4 shrink-0 animate-spin text-primary" />
         ) : (
-          <Sparkles className="size-4 shrink-0 text-primary" />
+          <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" />
         )}
-        <input
-          type="text"
+        <textarea
+          ref={promptRef}
+          rows={1}
           placeholder="Describe a scene…"
           value={prompt}
           disabled={running}
           onChange={(e) => setPrompt(e.currentTarget.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") submit();
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              submit();
+            }
           }}
-          className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground disabled:opacity-60"
+          className="max-h-40 w-full resize-none bg-transparent text-sm text-foreground outline-none [field-sizing:content] placeholder:text-muted-foreground disabled:opacity-60"
         />
         <Button
           variant="secondary"
@@ -100,6 +157,35 @@ function ScenePrompt() {
         >
           {running ? "Generating…" : "Generate"}
         </Button>
+      </div>
+
+      <p className="px-0.5 pt-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Templates
+      </p>
+      <TemplateCards />
+
+      <p className="px-0.5 pt-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Prompt ideas
+      </p>
+      <div className="grid grid-cols-2 gap-1.5">
+        {EXAMPLE_PROMPTS.map((example, i) => {
+          const Icon = EXAMPLE_ICONS[i % EXAMPLE_ICONS.length];
+          return (
+            <button
+              key={example.title}
+              type="button"
+              disabled={running}
+              onClick={() => {
+                setPrompt(example.prompt);
+                promptRef.current?.focus();
+              }}
+              className="flex items-center gap-1.5 rounded-lg border bg-card px-2.5 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:border-ring/50 hover:bg-muted/40 hover:text-foreground disabled:opacity-60"
+            >
+              <Icon className="size-3.5 shrink-0 text-primary" />
+              {example.title}
+            </button>
+          );
+        })}
       </div>
 
       {needsKey && (
