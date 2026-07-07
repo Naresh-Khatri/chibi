@@ -464,6 +464,16 @@ function MaterialSection({ node }: { node: MeshNode }) {
       { emissiveIntensity: v },
       merge ? mk("emissiveIntensity") : undefined,
     );
+  const commitClearcoat = (v: number, merge: boolean) =>
+    setMaterialProp(material.id, { clearcoat: v }, merge ? mk("clearcoat") : undefined);
+  const commitClearcoatRoughness = (v: number, merge: boolean) =>
+    setMaterialProp(
+      material.id,
+      { clearcoatRoughness: v },
+      merge ? mk("clearcoatRoughness") : undefined,
+    );
+  const commitSheen = (v: number, merge: boolean) =>
+    setMaterialProp(material.id, { sheen: v }, merge ? mk("sheen") : undefined);
   const pickerItems: MenuItem[] = [
     ...Object.values(materialList).map((m) => ({
       label: m.name,
@@ -543,6 +553,38 @@ function MaterialSection({ node }: { node: MeshNode }) {
       >
         <Slider value={material.roughness} onCommit={commitRoughness} />
       </LabeledRow>
+      <LabeledRow
+        label="Clearcoat"
+        scrub={{ value: material.clearcoat, onCommit: commitClearcoat, step: 0.01, min: 0, max: 1 }}
+      >
+        <Slider value={material.clearcoat} onCommit={commitClearcoat} />
+      </LabeledRow>
+      <LabeledRow
+        label="Coat rough"
+        scrub={{ value: material.clearcoatRoughness, onCommit: commitClearcoatRoughness, step: 0.01, min: 0, max: 1 }}
+      >
+        <Slider value={material.clearcoatRoughness} onCommit={commitClearcoatRoughness} />
+      </LabeledRow>
+      <LabeledRow
+        label="Sheen"
+        scrub={{ value: material.sheen, onCommit: commitSheen, step: 0.01, min: 0, max: 1 }}
+      >
+        <Slider value={material.sheen} onCommit={commitSheen} />
+      </LabeledRow>
+      {material.sheen > 0 && (
+        <LabeledRow label="Sheen tint">
+          <ColorInput
+            value={material.sheenColor}
+            onCommit={(v, merge) =>
+              setMaterialProp(
+                material.id,
+                { sheenColor: v },
+                merge ? mk("sheenColor") : undefined,
+              )
+            }
+          />
+        </LabeledRow>
+      )}
       <LabeledRow
         label="Opacity"
         overridden={overrides?.opacity !== undefined}
@@ -775,6 +817,33 @@ function SceneInspector() {
         <LabeledRow label="Preset">
           <Dropdown button={<>{env.preset ?? "None"}</>} items={presetItems} />
         </LabeledRow>
+        <LabeledRow
+          label="Exposure"
+          scrub={{
+            value: env.exposure,
+            onCommit: (v, merge) =>
+              setEnvironment(
+                { exposure: v },
+                merge ? { mergeKey: "env:exposure" } : undefined,
+              ),
+            step: 0.05,
+            min: 0.1,
+            max: 2.5,
+          }}
+        >
+          <Slider
+            value={env.exposure}
+            min={0.1}
+            max={2.5}
+            step={0.05}
+            onCommit={(v, merge) =>
+              setEnvironment(
+                { exposure: v },
+                merge ? { mergeKey: "env:exposure" } : undefined,
+              )
+            }
+          />
+        </LabeledRow>
         <div className="flex gap-4 pl-18">
           <Checkbox
             label="Shadows"
@@ -782,6 +851,18 @@ function SceneInspector() {
             onChange={(v) => setEnvironment({ shadows: v })}
           />
           <Checkbox label="Grid" checked={grid} onChange={setGridVisible} />
+        </div>
+        <div className="flex gap-4 pl-18">
+          <Checkbox
+            label="Soft shadows"
+            checked={env.softShadows}
+            onChange={(v) => setEnvironment({ softShadows: v })}
+          />
+          <Checkbox
+            label="Contact"
+            checked={env.contactShadows}
+            onChange={(v) => setEnvironment({ contactShadows: v })}
+          />
         </div>
         <div className="pl-18">
           <Checkbox

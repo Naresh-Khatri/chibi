@@ -3,13 +3,18 @@
 import { Component, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import {
-  Environment,
   GizmoHelper,
   GizmoViewport,
   Grid,
   OrbitControls,
 } from "@react-three/drei";
 import type { Material, Mesh } from "three";
+import { Color } from "three";
+import {
+  BaseLights,
+  EnvironmentFx,
+  SceneEnvironment,
+} from "@/runtime/react/EnvironmentExtras";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
 import { SceneNodes } from "./NodeRenderer";
@@ -64,8 +69,23 @@ function ShadowsManager({ enabled }: { enabled: boolean }) {
   return null;
 }
 
+// grid lines legible on any background: darkened tints of a light background,
+// lightened tints of a dark one
+function gridColors(background: string): { cell: string; section: string } {
+  const bg = new Color(background);
+  const luminance = bg.r * 0.2126 + bg.g * 0.7152 + bg.b * 0.0722;
+  const shift = luminance > 0.3 ? -1 : 1;
+  const cell = bg.clone().offsetHSL(0, 0, shift * 0.07);
+  const section = bg.clone().offsetHSL(0, 0, shift * 0.13);
+  return {
+    cell: `#${cell.getHexString()}`,
+    section: `#${section.getHexString()}`,
+  };
+}
+
 export function Viewport() {
   const background = useDoc((s) => s.doc?.environment.background ?? "#0b0b0f");
+  const environment = useDoc((s) => s.doc?.environment);
   const preset = useDoc((s) => s.doc?.environment.preset ?? null);
   const fog = useDoc((s) => s.doc?.environment.fog ?? null);
   const shadows = useDoc((s) => s.doc?.environment.shadows ?? true);
@@ -77,6 +97,7 @@ export function Viewport() {
     );
   });
   const inspectorOpen = useUI((s) => s.inspectorOpen);
+  const previewing = useUI((s) => s.previewing);
   const dragDepth = useRef(0);
   const [dropping, setDropping] = useState(false);
 
@@ -127,12 +148,12 @@ export function Viewport() {
         <color attach="background" args={[background]} />
         {fog && <fog attach="fog" args={[fog.color, fog.near, fog.far]} />}
         <ShadowsManager enabled={shadows} />
-        <hemisphereLight intensity={0.5} color="#c8d4ff" groundColor="#3a3230" />
-        <ambientLight intensity={0.15} />
+        <BaseLights hasEnvironment={Boolean(preset)} />
+        {environment && !previewing && <EnvironmentFx environment={environment} />}
         {preset && (
           <EnvironmentBoundary key={preset}>
             <Suspense fallback={null}>
-              <Environment preset={preset} />
+              <SceneEnvironment preset={preset} />
             </Suspense>
           </EnvironmentBoundary>
         )}
@@ -149,8 +170,8 @@ export function Viewport() {
             sectionSize={2.5}
             fadeDistance={45}
             fadeStrength={1.5}
-            cellColor="#2a2a32"
-            sectionColor="#3d3d48"
+            cellColor={gridColors(background).cell}
+            sectionColor={gridColors(background).section}
             position={[0, -0.002, 0]}
             raycast={() => null}
           />

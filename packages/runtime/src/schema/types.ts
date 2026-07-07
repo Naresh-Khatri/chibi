@@ -17,6 +17,7 @@ export const GEOMETRY_KINDS = [
   "sphere",
   "cylinder",
   "cone",
+  "capsule",
   "torus",
   "plane",
   "text3d",
@@ -105,6 +106,11 @@ export const materialSchema = z.object({
   opacity: z.number(),
   transparent: z.boolean(),
   flatShading: z.boolean(),
+  // soft-plastic / clay extras (MeshPhysicalMaterial); defaults keep old docs valid
+  clearcoat: z.number().default(0),
+  clearcoatRoughness: z.number().default(0.5),
+  sheen: z.number().default(0),
+  sheenColor: z.string().default("#ffffff"),
   maps: z.object({
     map: z.string().nullable(),
     normalMap: z.string().nullable(),
@@ -207,7 +213,9 @@ export const interactionSchema = z.object({
 });
 export type Interaction = z.infer<typeof interactionSchema>;
 
+// "soft" is chibi's built-in studio rig (no CDN fetch); the rest are drei HDRIs
 export const ENVIRONMENT_PRESETS = [
+  "soft",
   "city",
   "studio",
   "sunset",
@@ -221,6 +229,10 @@ export const environmentSchema = z.object({
     .object({ color: z.string(), near: z.number(), far: z.number() })
     .nullable(),
   shadows: z.boolean(),
+  // look controls (defaults keep old docs valid)
+  exposure: z.number().default(1),
+  softShadows: z.boolean().default(false),
+  contactShadows: z.boolean().default(false),
 });
 export type Environment = z.infer<typeof environmentSchema>;
 

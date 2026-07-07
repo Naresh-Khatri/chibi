@@ -13,16 +13,10 @@ import {
   type ReactNode,
 } from "react";
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
-import {
-  Clone,
-  Environment,
-  OrbitControls,
-  Text3D,
-  useGLTF,
-} from "@react-three/drei";
+import { Clone, OrbitControls, Text3D, useGLTF } from "@react-three/drei";
 import {
   DoubleSide,
-  MeshStandardMaterial,
+  MeshPhysicalMaterial,
   NoColorSpace,
   SRGBColorSpace,
   TextureLoader,
@@ -51,6 +45,7 @@ import {
 } from "../engine";
 import type { ResolveAssetUrl } from "../assets";
 import { FONT_URL, GeometryElement } from "./Geometry";
+import { BaseLights, EnvironmentFx, SceneEnvironment } from "./EnvironmentExtras";
 
 export type { ResolveAssetUrl } from "../assets";
 
@@ -112,12 +107,12 @@ export function SceneHost({
           ]}
         />
       )}
-      <hemisphereLight intensity={0.5} color="#c8d4ff" groundColor="#3a3230" />
-      <ambientLight intensity={0.15} />
+      <BaseLights hasEnvironment={Boolean(doc.environment.preset)} />
+      <EnvironmentFx environment={doc.environment} />
       {doc.environment.preset && (
         <PresetBoundary key={doc.environment.preset}>
           <Suspense fallback={null}>
-            <Environment preset={doc.environment.preset} />
+            <SceneEnvironment preset={doc.environment.preset} />
           </Suspense>
         </PresetBoundary>
       )}
@@ -154,7 +149,7 @@ type SceneCtx = {
   doc: ChibiDocument;
   runtime: InteractionRuntime;
   registry: Map<string, Object3D>;
-  materials: Map<string, MeshStandardMaterial>;
+  materials: Map<string, MeshPhysicalMaterial>;
   interactive: { click: Set<string>; hover: Set<string> };
   resolveAsset?: ResolveAssetUrl;
   /** re-render request for out-of-band loads (textures) under frameloop="demand" */
@@ -278,13 +273,13 @@ const MAP_SLOTS = [
 function runtimeMaterial(
   ctx: SceneCtx,
   materialId: string,
-): MeshStandardMaterial | undefined {
+): MeshPhysicalMaterial | undefined {
   const def =
     ctx.doc.materials[materialId] ?? ctx.doc.materials[DEFAULT_MATERIAL_ID];
   if (!def) return undefined;
   let mat = ctx.materials.get(def.id);
   if (!mat) {
-    mat = new MeshStandardMaterial();
+    mat = new MeshPhysicalMaterial();
     mat.side = DoubleSide;
     mat.color.set(def.color);
     mat.metalness = def.metalness;
@@ -294,13 +289,17 @@ function runtimeMaterial(
     mat.opacity = def.opacity;
     mat.transparent = def.transparent || def.opacity < 1;
     mat.flatShading = def.flatShading;
+    mat.clearcoat = def.clearcoat;
+    mat.clearcoatRoughness = def.clearcoatRoughness;
+    mat.sheen = def.sheen;
+    mat.sheenColor.set(def.sheenColor);
     loadMaps(ctx, def, mat);
     ctx.materials.set(def.id, mat);
   }
   return mat;
 }
 
-function loadMaps(ctx: SceneCtx, def: ChibiMaterial, mat: MeshStandardMaterial) {
+function loadMaps(ctx: SceneCtx, def: ChibiMaterial, mat: MeshPhysicalMaterial) {
   const resolveAsset = ctx.resolveAsset;
   if (!resolveAsset) return;
   const loader = new TextureLoader();

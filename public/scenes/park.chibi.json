@@ -1,0 +1,4097 @@
+{
+  "chibi": 1,
+  "name": "Clay park",
+  "root": [
+    "nd_grass_patch_0",
+    "nd_bench_4",
+    "nd_lamp_post_20",
+    "nd_trash_can_28",
+    "nd_fence_32",
+    "nd_cardboard_box_41",
+    "nd_stepping_stones_47",
+    "nd_cactus_planter_53",
+    "nd_sign_post_64",
+    "nd_flowers_75",
+    "nd_key_light_86",
+    "nd_fill_light_87"
+  ],
+  "nodes": {
+    "nd_grass_patch_0": {
+      "id": "nd_grass_patch_0",
+      "visible": true,
+      "children": [
+        "nd_grass_disc_a_1",
+        "nd_grass_disc_b_2",
+        "nd_grass_disc_c_3",
+        "nd_grass_disc_d_89",
+        "nd_grass_disc_e_90",
+        "nd_grass_disc_f_91"
+      ],
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Grass patch",
+      "type": "group"
+    },
+    "nd_grass_disc_a_1": {
+      "id": "nd_grass_disc_a_1",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.02,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Grass disc A",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 2.6,
+          "radiusBottom": 2.6,
+          "height": 0.04,
+          "radialSegments": 28,
+          "fillet": 0
+        }
+      },
+      "materialId": "mt_grass",
+      "castShadow": false,
+      "receiveShadow": true
+    },
+    "nd_grass_disc_b_2": {
+      "id": "nd_grass_disc_b_2",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          2.1,
+          0.02,
+          1.1
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Grass disc B",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 1.7,
+          "radiusBottom": 1.7,
+          "height": 0.04,
+          "radialSegments": 26,
+          "fillet": 0
+        }
+      },
+      "materialId": "mt_grass",
+      "castShadow": false,
+      "receiveShadow": true
+    },
+    "nd_grass_disc_c_3": {
+      "id": "nd_grass_disc_c_3",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -1.8,
+          0.02,
+          1.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Grass disc C",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 1.3,
+          "radiusBottom": 1.3,
+          "height": 0.04,
+          "radialSegments": 24,
+          "fillet": 0
+        }
+      },
+      "materialId": "mt_grass",
+      "castShadow": false,
+      "receiveShadow": true
+    },
+    "nd_bench_4": {
+      "id": "nd_bench_4",
+      "visible": true,
+      "children": [
+        "nd_front_leg_l_5",
+        "nd_back_leg_l_6",
+        "nd_arm_l_7",
+        "nd_back_post_l_8",
+        "nd_hub_l_9",
+        "nd_front_leg_r_10",
+        "nd_back_leg_r_11",
+        "nd_arm_r_12",
+        "nd_back_post_r_13",
+        "nd_hub_r_14",
+        "nd_seat_slat_1_15",
+        "nd_seat_slat_2_16",
+        "nd_seat_slat_3_17",
+        "nd_back_slat_1_18",
+        "nd_back_slat_2_19"
+      ],
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0.12,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Bench",
+      "type": "group"
+    },
+    "nd_front_leg_l_5": {
+      "id": "nd_front_leg_l_5",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.95,
+          0.46,
+          0.32
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Front leg L",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.18,
+          "height": 0.92,
+          "depth": 0.2,
+          "radius": 0.07,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_frame",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_back_leg_l_6": {
+      "id": "nd_back_leg_l_6",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.95,
+          0.34,
+          -0.36
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Back leg L",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.18,
+          "height": 0.68,
+          "depth": 0.2,
+          "radius": 0.07,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_frame",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_arm_l_7": {
+      "id": "nd_arm_l_7",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.95,
+          0.9,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Arm L",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.16,
+          "height": 0.14,
+          "depth": 0.82,
+          "radius": 0.06,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_frame",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_back_post_l_8": {
+      "id": "nd_back_post_l_8",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.95,
+          0.99,
+          -0.44
+        ],
+        "rotation": [
+          -0.18,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Back post L",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.16,
+          "height": 0.95,
+          "depth": 0.16,
+          "radius": 0.06,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_frame",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_hub_l_9": {
+      "id": "nd_hub_l_9",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -1.04,
+          0.45,
+          -0.02
+        ],
+        "rotation": [
+          0,
+          0,
+          1.5708
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Hub L",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.13,
+          "radiusBottom": 0.13,
+          "height": 0.08,
+          "radialSegments": 20,
+          "fillet": 0.03
+        }
+      },
+      "materialId": "mt_frame",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_front_leg_r_10": {
+      "id": "nd_front_leg_r_10",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.95,
+          0.46,
+          0.32
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Front leg R",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.18,
+          "height": 0.92,
+          "depth": 0.2,
+          "radius": 0.07,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_frame",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_back_leg_r_11": {
+      "id": "nd_back_leg_r_11",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.95,
+          0.34,
+          -0.36
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Back leg R",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.18,
+          "height": 0.68,
+          "depth": 0.2,
+          "radius": 0.07,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_frame",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_arm_r_12": {
+      "id": "nd_arm_r_12",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.95,
+          0.9,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Arm R",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.16,
+          "height": 0.14,
+          "depth": 0.82,
+          "radius": 0.06,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_frame",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_back_post_r_13": {
+      "id": "nd_back_post_r_13",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.95,
+          0.99,
+          -0.44
+        ],
+        "rotation": [
+          -0.18,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Back post R",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.16,
+          "height": 0.95,
+          "depth": 0.16,
+          "radius": 0.06,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_frame",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_hub_r_14": {
+      "id": "nd_hub_r_14",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          1.04,
+          0.45,
+          -0.02
+        ],
+        "rotation": [
+          0,
+          0,
+          1.5708
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Hub R",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.13,
+          "radiusBottom": 0.13,
+          "height": 0.08,
+          "radialSegments": 20,
+          "fillet": 0.03
+        }
+      },
+      "materialId": "mt_frame",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_seat_slat_1_15": {
+      "id": "nd_seat_slat_1_15",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.6,
+          0.24
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Seat slat 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 1.85,
+          "height": 0.07,
+          "depth": 0.26,
+          "radius": 0.03,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_wood",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_seat_slat_2_16": {
+      "id": "nd_seat_slat_2_16",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.6,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Seat slat 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 1.85,
+          "height": 0.07,
+          "depth": 0.26,
+          "radius": 0.03,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_wood",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_seat_slat_3_17": {
+      "id": "nd_seat_slat_3_17",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.6,
+          -0.24
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Seat slat 3",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 1.85,
+          "height": 0.07,
+          "depth": 0.26,
+          "radius": 0.03,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_wood",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_back_slat_1_18": {
+      "id": "nd_back_slat_1_18",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.92,
+          -0.44
+        ],
+        "rotation": [
+          -0.18,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Back slat 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 1.85,
+          "height": 0.2,
+          "depth": 0.07,
+          "radius": 0.03,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_wood",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_back_slat_2_19": {
+      "id": "nd_back_slat_2_19",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          1.2,
+          -0.49
+        ],
+        "rotation": [
+          -0.18,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Back slat 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 1.85,
+          "height": 0.2,
+          "depth": 0.07,
+          "radius": 0.03,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_wood",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_lamp_post_20": {
+      "id": "nd_lamp_post_20",
+      "visible": true,
+      "children": [
+        "nd_lamp_base_21",
+        "nd_lamp_base_neck_22",
+        "nd_lamp_pole_23",
+        "nd_lamp_collar_24",
+        "nd_lamp_globe_25",
+        "nd_lamp_cap_26",
+        "nd_lamp_light_27"
+      ],
+      "transform": {
+        "position": [
+          2.1,
+          0,
+          -1.1
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Lamp post",
+      "type": "group"
+    },
+    "nd_lamp_base_21": {
+      "id": "nd_lamp_base_21",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.14,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Lamp base",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.2,
+          "radiusBottom": 0.32,
+          "height": 0.28,
+          "radialSegments": 28,
+          "fillet": 0.07
+        }
+      },
+      "materialId": "mt_lamp",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_lamp_base_neck_22": {
+      "id": "nd_lamp_base_neck_22",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.42,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Lamp base neck",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.1,
+          "radiusBottom": 0.18,
+          "height": 0.35,
+          "radialSegments": 24,
+          "fillet": 0.05
+        }
+      },
+      "materialId": "mt_lamp",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_lamp_pole_23": {
+      "id": "nd_lamp_pole_23",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          1.5,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Lamp pole",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.055,
+          "radiusBottom": 0.075,
+          "height": 1.9,
+          "radialSegments": 20,
+          "fillet": 0.02
+        }
+      },
+      "materialId": "mt_lamp",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_lamp_collar_24": {
+      "id": "nd_lamp_collar_24",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          2.5,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Lamp collar",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.13,
+          "radiusBottom": 0.1,
+          "height": 0.14,
+          "radialSegments": 20,
+          "fillet": 0.04
+        }
+      },
+      "materialId": "mt_lamp",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_lamp_globe_25": {
+      "id": "nd_lamp_globe_25",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          2.86,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1.15,
+          1
+        ]
+      },
+      "name": "Lamp globe",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.3,
+          "widthSegments": 32,
+          "heightSegments": 16
+        }
+      },
+      "materialId": "mt_glow",
+      "castShadow": false,
+      "receiveShadow": true
+    },
+    "nd_lamp_cap_26": {
+      "id": "nd_lamp_cap_26",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          3.24,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Lamp cap",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.14,
+          "radiusBottom": 0.22,
+          "height": 0.1,
+          "radialSegments": 20,
+          "fillet": 0.04
+        }
+      },
+      "materialId": "mt_lamp",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_lamp_light_27": {
+      "id": "nd_lamp_light_27",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          2.86,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Lamp light",
+      "type": "light",
+      "light": {
+        "kind": "point",
+        "color": "#ffe9c4",
+        "intensity": 6,
+        "distance": 7,
+        "castShadow": false
+      }
+    },
+    "nd_trash_can_28": {
+      "id": "nd_trash_can_28",
+      "visible": true,
+      "children": [
+        "nd_can_body_29",
+        "nd_can_lid_30",
+        "nd_can_handle_31"
+      ],
+      "transform": {
+        "position": [
+          2.95,
+          0,
+          -1.35
+        ],
+        "rotation": [
+          0,
+          -0.4,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Trash can",
+      "type": "group"
+    },
+    "nd_can_body_29": {
+      "id": "nd_can_body_29",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.39,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Can body",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.33,
+          "radiusBottom": 0.26,
+          "height": 0.78,
+          "radialSegments": 28,
+          "fillet": 0.06
+        }
+      },
+      "materialId": "mt_trash",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_can_lid_30": {
+      "id": "nd_can_lid_30",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.84,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Can lid",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.28,
+          "radiusBottom": 0.37,
+          "height": 0.14,
+          "radialSegments": 28,
+          "fillet": 0.05
+        }
+      },
+      "materialId": "mt_trash",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_can_handle_31": {
+      "id": "nd_can_handle_31",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.94,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          1.5708
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Can handle",
+      "type": "mesh",
+      "geometry": {
+        "kind": "capsule",
+        "params": {
+          "radius": 0.035,
+          "length": 0.16,
+          "capSegments": 8,
+          "radialSegments": 16
+        }
+      },
+      "materialId": "mt_trash",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_fence_32": {
+      "id": "nd_fence_32",
+      "visible": true,
+      "children": [
+        "nd_picket_1_33",
+        "nd_picket_2_34",
+        "nd_picket_3_35",
+        "nd_picket_4_36",
+        "nd_rail_top_37",
+        "nd_rail_bottom_38",
+        "nd_fence_footing_l_39",
+        "nd_fence_footing_r_40"
+      ],
+      "transform": {
+        "position": [
+          -1.9,
+          0,
+          0.6
+        ],
+        "rotation": [
+          0,
+          0.35,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Fence",
+      "type": "group"
+    },
+    "nd_picket_1_33": {
+      "id": "nd_picket_1_33",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.63,
+          0.42,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Picket 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.17,
+          "height": 0.72,
+          "depth": 0.06,
+          "radius": 0.08,
+          "smoothness": 5
+        }
+      },
+      "materialId": "mt_fence",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_picket_2_34": {
+      "id": "nd_picket_2_34",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.21000000000000002,
+          0.42,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Picket 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.17,
+          "height": 0.72,
+          "depth": 0.06,
+          "radius": 0.08,
+          "smoothness": 5
+        }
+      },
+      "materialId": "mt_fence",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_picket_3_35": {
+      "id": "nd_picket_3_35",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.20999999999999996,
+          0.42,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Picket 3",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.17,
+          "height": 0.72,
+          "depth": 0.06,
+          "radius": 0.08,
+          "smoothness": 5
+        }
+      },
+      "materialId": "mt_fence",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_picket_4_36": {
+      "id": "nd_picket_4_36",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.63,
+          0.42,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Picket 4",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.17,
+          "height": 0.72,
+          "depth": 0.06,
+          "radius": 0.08,
+          "smoothness": 5
+        }
+      },
+      "materialId": "mt_fence",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_rail_top_37": {
+      "id": "nd_rail_top_37",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.56,
+          0.05
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Rail top",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 1.7,
+          "height": 0.11,
+          "depth": 0.05,
+          "radius": 0.05,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_fence",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_rail_bottom_38": {
+      "id": "nd_rail_bottom_38",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.24,
+          0.05
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Rail bottom",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 1.7,
+          "height": 0.11,
+          "depth": 0.05,
+          "radius": 0.05,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_fence",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_fence_footing_l_39": {
+      "id": "nd_fence_footing_l_39",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.95,
+          0.07,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Fence footing L",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.44,
+          "height": 0.26,
+          "depth": 0.3,
+          "radius": 0.05,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_footing",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_fence_footing_r_40": {
+      "id": "nd_fence_footing_r_40",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.95,
+          0.07,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Fence footing R",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.44,
+          "height": 0.26,
+          "depth": 0.3,
+          "radius": 0.05,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_footing",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_cardboard_box_41": {
+      "id": "nd_cardboard_box_41",
+      "visible": true,
+      "children": [
+        "nd_box_body_42",
+        "nd_box_tape_43",
+        "nd_box_tape_front_44",
+        "nd_box_label_1_45",
+        "nd_box_label_2_46",
+        "nd_box_tape_back_88"
+      ],
+      "transform": {
+        "position": [
+          -1.7,
+          0,
+          2.25
+        ],
+        "rotation": [
+          0,
+          -0.25,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Cardboard box",
+      "type": "group"
+    },
+    "nd_box_body_42": {
+      "id": "nd_box_body_42",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.46,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Box body",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.92,
+          "height": 0.92,
+          "depth": 0.92,
+          "radius": 0.07,
+          "smoothness": 5
+        }
+      },
+      "materialId": "mt_cardboard",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_box_tape_43": {
+      "id": "nd_box_tape_43",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.925,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Box tape",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.2,
+          "height": 0.035,
+          "depth": 0.96,
+          "radius": 0.015,
+          "smoothness": 3
+        }
+      },
+      "materialId": "mt_tape",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_box_tape_front_44": {
+      "id": "nd_box_tape_front_44",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.8,
+          0.465
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Box tape front",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.2,
+          "height": 0.3,
+          "depth": 0.035,
+          "radius": 0.015,
+          "smoothness": 3
+        }
+      },
+      "materialId": "mt_tape",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_box_label_1_45": {
+      "id": "nd_box_label_1_45",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.22,
+          0.35,
+          0.465
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Box label 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.22,
+          "height": 0.26,
+          "depth": 0.02,
+          "radius": 0.01,
+          "smoothness": 3
+        }
+      },
+      "materialId": "mt_tape",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_box_label_2_46": {
+      "id": "nd_box_label_2_46",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.18,
+          0.28,
+          0.465
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Box label 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.2,
+          "height": 0.1,
+          "depth": 0.02,
+          "radius": 0.01,
+          "smoothness": 3
+        }
+      },
+      "materialId": "mt_label",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_stepping_stones_47": {
+      "id": "nd_stepping_stones_47",
+      "visible": true,
+      "children": [
+        "nd_stone_1_48",
+        "nd_stone_2_49",
+        "nd_stone_3_50",
+        "nd_stone_4_51",
+        "nd_stone_5_52"
+      ],
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Stepping stones",
+      "type": "group"
+    },
+    "nd_stone_1_48": {
+      "id": "nd_stone_1_48",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          1.1,
+          0.07,
+          1.4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Stone 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.41,
+          "radiusBottom": 0.5,
+          "height": 0.14,
+          "radialSegments": 7,
+          "fillet": 0.035
+        }
+      },
+      "materialId": "mt_stone",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_stone_2_49": {
+      "id": "nd_stone_2_49",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.2,
+          0.07,
+          2.1
+        ],
+        "rotation": [
+          0,
+          0.9,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Stone 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.3444,
+          "radiusBottom": 0.42,
+          "height": 0.14,
+          "radialSegments": 6,
+          "fillet": 0.035
+        }
+      },
+      "materialId": "mt_stone_light",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_stone_3_50": {
+      "id": "nd_stone_3_50",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          2.3,
+          0.07,
+          2
+        ],
+        "rotation": [
+          0,
+          1.8,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Stone 3",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.451,
+          "radiusBottom": 0.55,
+          "height": 0.14,
+          "radialSegments": 7,
+          "fillet": 0.035
+        }
+      },
+      "materialId": "mt_stone",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_stone_4_51": {
+      "id": "nd_stone_4_51",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.9,
+          0.07,
+          2.6
+        ],
+        "rotation": [
+          0,
+          2.7,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Stone 4",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.287,
+          "radiusBottom": 0.35,
+          "height": 0.14,
+          "radialSegments": 6,
+          "fillet": 0.035
+        }
+      },
+      "materialId": "mt_stone_light",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_stone_5_52": {
+      "id": "nd_stone_5_52",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          3.4,
+          0.07,
+          1.1
+        ],
+        "rotation": [
+          0,
+          0.5,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Stone 5",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.328,
+          "radiusBottom": 0.4,
+          "height": 0.14,
+          "radialSegments": 6,
+          "fillet": 0.035
+        }
+      },
+      "materialId": "mt_stone",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_cactus_planter_53": {
+      "id": "nd_cactus_planter_53",
+      "visible": true,
+      "children": [
+        "nd_planter_rim_54",
+        "nd_planter_soil_55",
+        "nd_saguaro_trunk_56",
+        "nd_saguaro_arm_l_57",
+        "nd_saguaro_arm_l_up_58",
+        "nd_saguaro_arm_r_59",
+        "nd_barrel_cactus_60",
+        "nd_paddle_1_61",
+        "nd_paddle_2_62",
+        "nd_paddle_3_63"
+      ],
+      "transform": {
+        "position": [
+          -2.5,
+          0,
+          -1.7
+        ],
+        "rotation": [
+          0,
+          0.5,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Cactus planter",
+      "type": "group"
+    },
+    "nd_planter_rim_54": {
+      "id": "nd_planter_rim_54",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.15,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Planter rim",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.85,
+          "radiusBottom": 0.95,
+          "height": 0.3,
+          "radialSegments": 7,
+          "fillet": 0.09
+        }
+      },
+      "materialId": "mt_stone_light",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_planter_soil_55": {
+      "id": "nd_planter_soil_55",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.18,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Planter soil",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.75,
+          "radiusBottom": 0.75,
+          "height": 0.26,
+          "radialSegments": 7,
+          "fillet": 0
+        }
+      },
+      "materialId": "mt_soil",
+      "castShadow": false,
+      "receiveShadow": true
+    },
+    "nd_saguaro_trunk_56": {
+      "id": "nd_saguaro_trunk_56",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          1.25,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Saguaro trunk",
+      "type": "mesh",
+      "geometry": {
+        "kind": "capsule",
+        "params": {
+          "radius": 0.2,
+          "length": 1.7,
+          "capSegments": 12,
+          "radialSegments": 24
+        }
+      },
+      "materialId": "mt_cactus",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_saguaro_arm_l_57": {
+      "id": "nd_saguaro_arm_l_57",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.36,
+          1.45,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0.5
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Saguaro arm L",
+      "type": "mesh",
+      "geometry": {
+        "kind": "capsule",
+        "params": {
+          "radius": 0.12,
+          "length": 0.45,
+          "capSegments": 10,
+          "radialSegments": 20
+        }
+      },
+      "materialId": "mt_cactus",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_saguaro_arm_l_up_58": {
+      "id": "nd_saguaro_arm_l_up_58",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.52,
+          1.75,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0.08
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Saguaro arm L up",
+      "type": "mesh",
+      "geometry": {
+        "kind": "capsule",
+        "params": {
+          "radius": 0.11,
+          "length": 0.35,
+          "capSegments": 10,
+          "radialSegments": 20
+        }
+      },
+      "materialId": "mt_cactus",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_saguaro_arm_r_59": {
+      "id": "nd_saguaro_arm_r_59",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.34,
+          1.05,
+          0.05
+        ],
+        "rotation": [
+          0,
+          0,
+          -0.55
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Saguaro arm R",
+      "type": "mesh",
+      "geometry": {
+        "kind": "capsule",
+        "params": {
+          "radius": 0.11,
+          "length": 0.3,
+          "capSegments": 10,
+          "radialSegments": 20
+        }
+      },
+      "materialId": "mt_cactus",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_barrel_cactus_60": {
+      "id": "nd_barrel_cactus_60",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.42,
+          0.42,
+          0.3
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          0.85,
+          1
+        ]
+      },
+      "name": "Barrel cactus",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.26,
+          "widthSegments": 24,
+          "heightSegments": 16
+        }
+      },
+      "materialId": "mt_cactus_light",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_paddle_1_61": {
+      "id": "nd_paddle_1_61",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.42,
+          0.45,
+          0.35
+        ],
+        "rotation": [
+          0.2,
+          0,
+          0.3
+        ],
+        "scale": [
+          1,
+          1,
+          0.45
+        ]
+      },
+      "name": "Paddle 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "capsule",
+        "params": {
+          "radius": 0.11,
+          "length": 0.12,
+          "capSegments": 8,
+          "radialSegments": 16
+        }
+      },
+      "materialId": "mt_cactus_light",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_paddle_2_62": {
+      "id": "nd_paddle_2_62",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.55,
+          0.62,
+          0.42
+        ],
+        "rotation": [
+          0.1,
+          0,
+          -0.4
+        ],
+        "scale": [
+          1,
+          1,
+          0.45
+        ]
+      },
+      "name": "Paddle 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "capsule",
+        "params": {
+          "radius": 0.09,
+          "length": 0.1,
+          "capSegments": 8,
+          "radialSegments": 16
+        }
+      },
+      "materialId": "mt_cactus_light",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_paddle_3_63": {
+      "id": "nd_paddle_3_63",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.2,
+          0.5,
+          0.5
+        ],
+        "rotation": [
+          0.3,
+          0,
+          0.1
+        ],
+        "scale": [
+          1,
+          1,
+          0.45
+        ]
+      },
+      "name": "Paddle 3",
+      "type": "mesh",
+      "geometry": {
+        "kind": "capsule",
+        "params": {
+          "radius": 0.1,
+          "length": 0.1,
+          "capSegments": 8,
+          "radialSegments": 16
+        }
+      },
+      "materialId": "mt_cactus_light",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_sign_post_64": {
+      "id": "nd_sign_post_64",
+      "visible": true,
+      "children": [
+        "nd_sign_base_65",
+        "nd_sign_pole_66",
+        "nd_sign_board_1_67",
+        "nd_sign_plate_1_68",
+        "nd_sign_arrow_1_69",
+        "nd_sign_arrow_head_1_70",
+        "nd_sign_board_2_71",
+        "nd_sign_plate_2_72",
+        "nd_sign_arrow_2_73",
+        "nd_sign_arrow_head_2_74"
+      ],
+      "transform": {
+        "position": [
+          3.6,
+          0,
+          1.9
+        ],
+        "rotation": [
+          0,
+          -0.6,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Sign post",
+      "type": "group"
+    },
+    "nd_sign_base_65": {
+      "id": "nd_sign_base_65",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.225,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Sign base",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.13,
+          "radiusBottom": 0.3,
+          "height": 0.45,
+          "radialSegments": 24,
+          "fillet": 0.08
+        }
+      },
+      "materialId": "mt_steel",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_sign_pole_66": {
+      "id": "nd_sign_pole_66",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          1.35,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Sign pole",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.05,
+          "radiusBottom": 0.07,
+          "height": 1.9,
+          "radialSegments": 20,
+          "fillet": 0.02
+        }
+      },
+      "materialId": "mt_steel",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_sign_board_1_67": {
+      "id": "nd_sign_board_1_67",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          2.15,
+          0.02
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Sign board 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.95,
+          "height": 0.42,
+          "depth": 0.07,
+          "radius": 0.1,
+          "smoothness": 5
+        }
+      },
+      "materialId": "mt_sign_white",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_sign_plate_1_68": {
+      "id": "nd_sign_plate_1_68",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          2.15,
+          0.055
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Sign plate 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.85,
+          "height": 0.32,
+          "depth": 0.03,
+          "radius": 0.08,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_sign_blue",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_sign_arrow_1_69": {
+      "id": "nd_sign_arrow_1_69",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.05,
+          2.15,
+          0.075
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Sign arrow 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.5,
+          "height": 0.12,
+          "depth": 0.025,
+          "radius": 0.05,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_sign_white",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_sign_arrow_head_1_70": {
+      "id": "nd_sign_arrow_head_1_70",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.28,
+          2.15,
+          0.075
+        ],
+        "rotation": [
+          1.5708,
+          1.5708,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Sign arrow head 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.11,
+          "radiusBottom": 0.11,
+          "height": 0.035,
+          "radialSegments": 5,
+          "fillet": 0.01
+        }
+      },
+      "materialId": "mt_sign_white",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_sign_board_2_71": {
+      "id": "nd_sign_board_2_71",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          1.7,
+          0.02
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Sign board 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.95,
+          "height": 0.42,
+          "depth": 0.07,
+          "radius": 0.1,
+          "smoothness": 5
+        }
+      },
+      "materialId": "mt_sign_white",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_sign_plate_2_72": {
+      "id": "nd_sign_plate_2_72",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          1.7,
+          0.055
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Sign plate 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.85,
+          "height": 0.32,
+          "depth": 0.03,
+          "radius": 0.08,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_sign_blue",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_sign_arrow_2_73": {
+      "id": "nd_sign_arrow_2_73",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.05,
+          1.7,
+          0.075
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Sign arrow 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.5,
+          "height": 0.12,
+          "depth": 0.025,
+          "radius": 0.05,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_sign_white",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_sign_arrow_head_2_74": {
+      "id": "nd_sign_arrow_head_2_74",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.28,
+          1.7,
+          0.075
+        ],
+        "rotation": [
+          1.5708,
+          -1.5708,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Sign arrow head 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.11,
+          "radiusBottom": 0.11,
+          "height": 0.035,
+          "radialSegments": 5,
+          "fillet": 0.01
+        }
+      },
+      "materialId": "mt_sign_white",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_flowers_75": {
+      "id": "nd_flowers_75",
+      "visible": true,
+      "children": [
+        "nd_flower_1_76",
+        "nd_flower_2_81"
+      ],
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Flowers",
+      "type": "group"
+    },
+    "nd_flower_1_76": {
+      "id": "nd_flower_1_76",
+      "visible": true,
+      "children": [
+        "nd_stem_1_77",
+        "nd_leaf_1_78",
+        "nd_bloom_1_79",
+        "nd_bloom_center_1_80",
+        "nd_petal_1a_92",
+        "nd_petal_1b_93",
+        "nd_petal_1c_94",
+        "nd_petal_1d_95"
+      ],
+      "transform": {
+        "position": [
+          0.9,
+          0,
+          0.55
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Flower 1",
+      "type": "group"
+    },
+    "nd_stem_1_77": {
+      "id": "nd_stem_1_77",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.12,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Stem 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "capsule",
+        "params": {
+          "radius": 0.02,
+          "length": 0.18,
+          "capSegments": 6,
+          "radialSegments": 10
+        }
+      },
+      "materialId": "mt_cactus",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_leaf_1_78": {
+      "id": "nd_leaf_1_78",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.08,
+          0.1,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -0.9
+        ],
+        "scale": [
+          1,
+          1,
+          0.35
+        ]
+      },
+      "name": "Leaf 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "capsule",
+        "params": {
+          "radius": 0.05,
+          "length": 0.1,
+          "capSegments": 6,
+          "radialSegments": 10
+        }
+      },
+      "materialId": "mt_cactus",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_bloom_1_79": {
+      "id": "nd_bloom_1_79",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.25,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          0.55,
+          1
+        ]
+      },
+      "name": "Bloom 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.075,
+          "widthSegments": 16,
+          "heightSegments": 10
+        }
+      },
+      "materialId": "mt_flower",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_bloom_center_1_80": {
+      "id": "nd_bloom_center_1_80",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.28,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Bloom center 1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.03,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_soil",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_flower_2_81": {
+      "id": "nd_flower_2_81",
+      "visible": true,
+      "children": [
+        "nd_stem_2_82",
+        "nd_leaf_2_83",
+        "nd_bloom_2_84",
+        "nd_bloom_center_2_85",
+        "nd_petal_2a_96",
+        "nd_petal_2b_97",
+        "nd_petal_2c_98",
+        "nd_petal_2d_99"
+      ],
+      "transform": {
+        "position": [
+          -0.5,
+          0,
+          0.9
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Flower 2",
+      "type": "group"
+    },
+    "nd_stem_2_82": {
+      "id": "nd_stem_2_82",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.12,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Stem 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "capsule",
+        "params": {
+          "radius": 0.02,
+          "length": 0.18,
+          "capSegments": 6,
+          "radialSegments": 10
+        }
+      },
+      "materialId": "mt_cactus",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_leaf_2_83": {
+      "id": "nd_leaf_2_83",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.08,
+          0.1,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -0.9
+        ],
+        "scale": [
+          1,
+          1,
+          0.35
+        ]
+      },
+      "name": "Leaf 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "capsule",
+        "params": {
+          "radius": 0.05,
+          "length": 0.1,
+          "capSegments": 6,
+          "radialSegments": 10
+        }
+      },
+      "materialId": "mt_cactus",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_bloom_2_84": {
+      "id": "nd_bloom_2_84",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.25,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          0.55,
+          1
+        ]
+      },
+      "name": "Bloom 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.075,
+          "widthSegments": 16,
+          "heightSegments": 10
+        }
+      },
+      "materialId": "mt_flower",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_bloom_center_2_85": {
+      "id": "nd_bloom_center_2_85",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.28,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Bloom center 2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.03,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_soil",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_key_light_86": {
+      "id": "nd_key_light_86",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          4.5,
+          6.5,
+          3.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Key light",
+      "type": "light",
+      "light": {
+        "kind": "directional",
+        "color": "#fff3df",
+        "intensity": 2.6,
+        "castShadow": true
+      }
+    },
+    "nd_fill_light_87": {
+      "id": "nd_fill_light_87",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -5,
+          3.5,
+          -2
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Fill light",
+      "type": "light",
+      "light": {
+        "kind": "directional",
+        "color": "#dfe8ff",
+        "intensity": 0.5,
+        "castShadow": false
+      }
+    },
+    "nd_grass_disc_d_89": {
+      "id": "nd_grass_disc_d_89",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          2.8,
+          0.02,
+          -0.8
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Grass disc D",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 1.6,
+          "radiusBottom": 1.6,
+          "height": 0.04,
+          "radialSegments": 26,
+          "fillet": 0
+        }
+      },
+      "materialId": "mt_grass",
+      "castShadow": false,
+      "receiveShadow": true
+    },
+    "nd_grass_disc_e_90": {
+      "id": "nd_grass_disc_e_90",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -2.4,
+          0.02,
+          -1.3
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Grass disc E",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 1.5,
+          "radiusBottom": 1.5,
+          "height": 0.04,
+          "radialSegments": 26,
+          "fillet": 0
+        }
+      },
+      "materialId": "mt_grass",
+      "castShadow": false,
+      "receiveShadow": true
+    },
+    "nd_grass_disc_f_91": {
+      "id": "nd_grass_disc_f_91",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          3.2,
+          0.02,
+          1.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Grass disc F",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 1.3,
+          "radiusBottom": 1.3,
+          "height": 0.04,
+          "radialSegments": 24,
+          "fillet": 0
+        }
+      },
+      "materialId": "mt_grass",
+      "castShadow": false,
+      "receiveShadow": true
+    },
+    "nd_box_tape_back_88": {
+      "id": "nd_box_tape_back_88",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.8,
+          -0.465
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "name": "Box tape back",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.2,
+          "height": 0.3,
+          "depth": 0.035,
+          "radius": 0.015,
+          "smoothness": 3
+        }
+      },
+      "materialId": "mt_tape",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_petal_1a_92": {
+      "id": "nd_petal_1a_92",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.06,
+          0.24,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          0.5,
+          1
+        ]
+      },
+      "name": "Petal 1a",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_flower",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_petal_1b_93": {
+      "id": "nd_petal_1b_93",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.06,
+          0.24,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          0.5,
+          1
+        ]
+      },
+      "name": "Petal 1b",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_flower",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_petal_1c_94": {
+      "id": "nd_petal_1c_94",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.24,
+          0.06
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          0.5,
+          1
+        ]
+      },
+      "name": "Petal 1c",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_flower",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_petal_1d_95": {
+      "id": "nd_petal_1d_95",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.24,
+          -0.06
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          0.5,
+          1
+        ]
+      },
+      "name": "Petal 1d",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_flower",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_petal_2a_96": {
+      "id": "nd_petal_2a_96",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0.06,
+          0.24,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          0.5,
+          1
+        ]
+      },
+      "name": "Petal 2a",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_flower",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_petal_2b_97": {
+      "id": "nd_petal_2b_97",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          -0.06,
+          0.24,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          0.5,
+          1
+        ]
+      },
+      "name": "Petal 2b",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_flower",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_petal_2c_98": {
+      "id": "nd_petal_2c_98",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.24,
+          0.06
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          0.5,
+          1
+        ]
+      },
+      "name": "Petal 2c",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_flower",
+      "castShadow": true,
+      "receiveShadow": true
+    },
+    "nd_petal_2d_99": {
+      "id": "nd_petal_2d_99",
+      "visible": true,
+      "children": [],
+      "transform": {
+        "position": [
+          0,
+          0.24,
+          -0.06
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          0.5,
+          1
+        ]
+      },
+      "name": "Petal 2d",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.05,
+          "widthSegments": 12,
+          "heightSegments": 8
+        }
+      },
+      "materialId": "mt_flower",
+      "castShadow": true,
+      "receiveShadow": true
+    }
+  },
+  "materials": {
+    "mt_default": {
+      "id": "mt_default",
+      "name": "Default",
+      "type": "standard",
+      "color": "#b8b8c4",
+      "metalness": 0.1,
+      "roughness": 0.45,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0,
+      "clearcoatRoughness": 0.5,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_grass": {
+      "id": "mt_grass",
+      "name": "Grass",
+      "type": "standard",
+      "color": "#3ca336",
+      "metalness": 0,
+      "roughness": 0.85,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_stone": {
+      "id": "mt_stone",
+      "name": "Stone",
+      "type": "standard",
+      "color": "#c05f2e",
+      "metalness": 0,
+      "roughness": 0.7,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "clearcoat": 0.15,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_stone_light": {
+      "id": "mt_stone_light",
+      "name": "Stone light",
+      "type": "standard",
+      "color": "#d68a55",
+      "metalness": 0,
+      "roughness": 0.7,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "clearcoat": 0.15,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_wood": {
+      "id": "mt_wood",
+      "name": "Bench wood",
+      "type": "standard",
+      "color": "#d96b1d",
+      "metalness": 0,
+      "roughness": 0.55,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0.25,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_frame": {
+      "id": "mt_frame",
+      "name": "Bench frame",
+      "type": "standard",
+      "color": "#5f6068",
+      "metalness": 0.1,
+      "roughness": 0.5,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0.3,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_lamp": {
+      "id": "mt_lamp",
+      "name": "Lamp green",
+      "type": "standard",
+      "color": "#3c7350",
+      "metalness": 0.05,
+      "roughness": 0.45,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0.3,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_glow": {
+      "id": "mt_glow",
+      "name": "Lamp glow",
+      "type": "standard",
+      "color": "#fff1d8",
+      "metalness": 0,
+      "roughness": 0.4,
+      "emissive": "#ffc98a",
+      "emissiveIntensity": 1.1,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0.15,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_trash": {
+      "id": "mt_trash",
+      "name": "Trash blue",
+      "type": "standard",
+      "color": "#5c6aa6",
+      "metalness": 0,
+      "roughness": 0.6,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0.2,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_fence": {
+      "id": "mt_fence",
+      "name": "Fence white",
+      "type": "standard",
+      "color": "#e6e1d3",
+      "metalness": 0,
+      "roughness": 0.7,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0.15,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_cardboard": {
+      "id": "mt_cardboard",
+      "name": "Cardboard",
+      "type": "standard",
+      "color": "#d89a63",
+      "metalness": 0,
+      "roughness": 0.8,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_tape": {
+      "id": "mt_tape",
+      "name": "Tape",
+      "type": "standard",
+      "color": "#dd9838",
+      "metalness": 0,
+      "roughness": 0.7,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0.15,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_label": {
+      "id": "mt_label",
+      "name": "Label",
+      "type": "standard",
+      "color": "#c25a3c",
+      "metalness": 0,
+      "roughness": 0.7,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0.15,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_cactus": {
+      "id": "mt_cactus",
+      "name": "Cactus",
+      "type": "standard",
+      "color": "#4f9c2c",
+      "metalness": 0,
+      "roughness": 0.6,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0.3,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_cactus_light": {
+      "id": "mt_cactus_light",
+      "name": "Cactus light",
+      "type": "standard",
+      "color": "#7ab63a",
+      "metalness": 0,
+      "roughness": 0.6,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0.3,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_soil": {
+      "id": "mt_soil",
+      "name": "Soil",
+      "type": "standard",
+      "color": "#b97f2f",
+      "metalness": 0,
+      "roughness": 0.9,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_sign_blue": {
+      "id": "mt_sign_blue",
+      "name": "Sign blue",
+      "type": "standard",
+      "color": "#3ba3d0",
+      "metalness": 0,
+      "roughness": 0.5,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0.3,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_sign_white": {
+      "id": "mt_sign_white",
+      "name": "Sign white",
+      "type": "standard",
+      "color": "#f4f1ea",
+      "metalness": 0,
+      "roughness": 0.5,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0.3,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_steel": {
+      "id": "mt_steel",
+      "name": "Steel blue",
+      "type": "standard",
+      "color": "#7d93ab",
+      "metalness": 0.15,
+      "roughness": 0.45,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0.3,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_flower": {
+      "id": "mt_flower",
+      "name": "Flower pink",
+      "type": "standard",
+      "color": "#eb8f7a",
+      "metalness": 0,
+      "roughness": 0.6,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "clearcoat": 0.2,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_footing": {
+      "id": "mt_footing",
+      "name": "Footing stone",
+      "type": "standard",
+      "color": "#9d8894",
+      "metalness": 0,
+      "roughness": 0.8,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": true,
+      "clearcoat": 0,
+      "clearcoatRoughness": 0.6,
+      "sheen": 0,
+      "sheenColor": "#ffffff",
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    }
+  },
+  "assets": {},
+  "animations": {},
+  "states": {},
+  "interactions": [],
+  "environment": {
+    "background": "#ead9c4",
+    "preset": "soft",
+    "fog": null,
+    "shadows": true,
+    "exposure": 1,
+    "softShadows": true,
+    "contactShadows": true
+  },
+  "camera": {
+    "position": [
+      4.6,
+      3.4,
+      6.2
+    ],
+    "target": [
+      0.2,
+      0.9,
+      0
+    ],
+    "fov": 40
+  },
+  "editor": {
+    "grid": true
+  }
+}

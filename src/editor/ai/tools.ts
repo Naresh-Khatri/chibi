@@ -103,6 +103,15 @@ const materialProps = z.object({
   opacity: z.number().min(0).max(1).optional(),
   transparent: z.boolean().optional(),
   flatShading: z.boolean().optional(),
+  clearcoat: z
+    .number()
+    .min(0)
+    .max(1)
+    .optional()
+    .describe("soft plastic/clay sheen layer"),
+  clearcoatRoughness: z.number().min(0).max(1).optional(),
+  sheen: z.number().min(0).max(1).optional().describe("fabric-like rim softness"),
+  sheenColor: z.string().optional().describe("hex sheen tint"),
 });
 
 /** strip zod-undefined keys so partial updates stay partial */
@@ -425,7 +434,8 @@ export function buildTools(): ToolSet {
     }),
 
     set_environment: tool({
-      description: "Update scene environment (background, preset, fog, shadows).",
+      description:
+        "Update scene environment (background, preset, fog, shadows, exposure). Preset 'soft' is a built-in soft studio rig — pair with softShadows+contactShadows and a warm background for a clay look.",
       inputSchema: z.object({
         background: z.string().optional().describe("hex color"),
         preset: z.enum(ENVIRONMENT_PRESETS).nullable().optional(),
@@ -434,6 +444,12 @@ export function buildTools(): ToolSet {
           .nullable()
           .optional(),
         shadows: z.boolean().optional(),
+        exposure: z.number().min(0.1).max(2.5).optional(),
+        softShadows: z.boolean().optional().describe("PCSS blurry shadow edges"),
+        contactShadows: z
+          .boolean()
+          .optional()
+          .describe("soft ambient shadow plane under the scene"),
       }),
       execute: async (input) => {
         const updates = defined(input);

@@ -36,7 +36,7 @@ export const GENERATION_SYSTEM_PROMPT = `You generate complete scene documents f
   "nodes": { [id]: Node },                 // flat map; the tree comes from children arrays
   "materials": { [id]: Material },
   "assets": {}, "animations": {}, "states": {}, "interactions": [],   // leave empty
-  "environment": { "background": hex, "preset": "studio"|"city"|"sunset"|"dawn"|"forest"|null, "fog": { "color": hex, "near": number, "far": number }|null, "shadows": boolean },
+  "environment": { "background": hex, "preset": "soft"|"studio"|"city"|"sunset"|"dawn"|"forest"|null, "fog": { "color": hex, "near": number, "far": number }|null, "shadows": boolean, "exposure": 1, "softShadows": boolean, "contactShadows": boolean },
   "camera": { "position": [x,y,z], "target": [x,y,z], "fov": number },
   "editor": { "grid": true }
 }
@@ -49,13 +49,14 @@ Every Node has: "id", "name", "visible": true, "children": string[], "transform"
 Geometry kinds and their required params:
 - box { "width", "height", "depth", "radius": 0-0.5 corner rounding, "smoothness": 4 }
 - sphere { "radius", "widthSegments": 32, "heightSegments": 16 }
-- cylinder { "radiusTop", "radiusBottom", "height", "radialSegments": 32 }
-- cone { "radius", "height", "radialSegments": 32 }
+- cylinder { "radiusTop", "radiusBottom", "height", "radialSegments": 32, "fillet": 0-0.5 rim edge rounding }
+- cone { "radius", "height", "radialSegments": 32, "fillet": 0-0.5 base edge rounding }
+- capsule { "radius", "length" (of the straight middle), "capSegments": 8, "radialSegments": 24 }
 - torus { "radius", "tube", "radialSegments": 16, "tubularSegments": 48 }
 - plane { "width", "height", "cornerRadius": 0 }
 - text3d { "text", "size", "depth", "bevel" }
 
-Material (all fields required): { "id", "name", "type": "standard", "color": hex, "metalness": 0-1, "roughness": 0-1, "emissive": hex, "emissiveIntensity": number, "opacity": 0-1, "transparent": boolean, "flatShading": false, "maps": { "map": null, "normalMap": null, "roughnessMap": null } }
+Material (all fields required): { "id", "name", "type": "standard", "color": hex, "metalness": 0-1, "roughness": 0-1, "emissive": hex, "emissiveIntensity": number, "opacity": 0-1, "transparent": boolean, "flatShading": false, "clearcoat": 0-1, "clearcoatRoughness": 0-1, "sheen": 0-1, "sheenColor": hex, "maps": { "map": null, "normalMap": null, "roughnessMap": null } }
 
 ## Conventions
 - +Y is up; the ground is the XZ plane at y=0. Rest objects on it (a 1-unit-tall box sits at y=0.5). "Floating" objects hover 1-3 units up.
@@ -64,6 +65,7 @@ Material (all fields required): { "id", "name", "type": "standard", "color": hex
 - Directional and spot lights shine from their position toward the world origin. Intensity guides: directional 1.5-3, point 4-10, spot 8-20.
 - Node ids start with "nd_", material ids with "mt_". Always include the shared neutral material "mt_default" in the pool.
 - Glass looks: low roughness (~0.05), some metalness, "opacity" ~0.35 with "transparent": true. Glow looks: emissive color + emissiveIntensity 1-4.
+- Soft clay/toy look (Womp/claymation style): warm light background (e.g. "#ead9c4"), "preset": "soft", "softShadows": true, "contactShadows": true; materials with roughness 0.6-0.85, metalness 0, clearcoat 0.2-0.5, clearcoatRoughness 0.5-0.8; round every edge (box radius, cylinder/cone fillet, capsules for organic limbs).
 
 ## Composition rules — every scene
 - Environment: a background color that complements the scene, a fitting preset, "shadows": true. Fog only when it helps depth.

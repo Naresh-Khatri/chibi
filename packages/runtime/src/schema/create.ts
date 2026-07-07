@@ -29,6 +29,10 @@ export function createMaterial(id: string, name: string): ChibiMaterial {
     opacity: 1,
     transparent: false,
     flatShading: false,
+    clearcoat: 0,
+    clearcoatRoughness: 0.5,
+    sheen: 0,
+    sheenColor: "#ffffff",
     maps: { map: null, normalMap: null, roughnessMap: null },
   };
 }
@@ -67,7 +71,15 @@ export function createDocument(name = "Untitled"): ChibiDocument {
     animations: {},
     states: {},
     interactions: [],
-    environment: { background: "#0b0b0f", preset: "city", fog: null, shadows: true },
+    environment: {
+      background: "#0b0b0f",
+      preset: "city",
+      fog: null,
+      shadows: true,
+      exposure: 1,
+      softShadows: false,
+      contactShadows: false,
+    },
     camera: { position: [4, 3, 6], target: [0, 0.5, 0], fov: 45 },
     editor: { grid: true },
   };

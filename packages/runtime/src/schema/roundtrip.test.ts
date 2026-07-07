@@ -46,6 +46,10 @@ describe("document round-trip", () => {
       opacity: 0.8,
       transparent: true,
       flatShading: false,
+      clearcoat: 0.3,
+      clearcoatRoughness: 0.6,
+      sheen: 0.2,
+      sheenColor: "#ffeedd",
       maps: { map: "as_tex", normalMap: null, roughnessMap: null },
     };
 
@@ -129,6 +133,25 @@ describe("document round-trip", () => {
 
     const parsed = validateDocument(JSON.parse(JSON.stringify(doc)));
     expect(parsed).toEqual(doc);
+  });
+
+  it("fills look defaults for documents predating clearcoat/exposure fields", () => {
+    const doc = JSON.parse(JSON.stringify(createDocument("legacy")));
+    delete doc.environment.exposure;
+    delete doc.environment.softShadows;
+    delete doc.environment.contactShadows;
+    const mat = doc.materials["mt_default"];
+    delete mat.clearcoat;
+    delete mat.clearcoatRoughness;
+    delete mat.sheen;
+    delete mat.sheenColor;
+
+    const parsed = validateDocument(doc);
+    expect(parsed.environment.exposure).toBe(1);
+    expect(parsed.environment.softShadows).toBe(false);
+    expect(parsed.environment.contactShadows).toBe(false);
+    expect(parsed.materials["mt_default"].clearcoat).toBe(0);
+    expect(parsed.materials["mt_default"].sheenColor).toBe("#ffffff");
   });
 
   it("rejects unknown format versions with a clear error", () => {

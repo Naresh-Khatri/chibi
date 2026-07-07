@@ -39,6 +39,7 @@ export const GEOMETRY_DEFS: Record<
       { key: "radiusBottom", label: "Radius bottom", type: "number", default: 0.5, min: 0, step: 0.1 },
       { key: "height", label: "Height", type: "number", default: 1, min: 0.01, step: 0.1 },
       { key: "radialSegments", label: "Segments", type: "number", default: 32, min: 3, max: 128, step: 1 },
+      { key: "fillet", label: "Edge fillet", type: "number", default: 0, min: 0, max: 0.5, step: 0.01 },
     ],
   },
   cone: {
@@ -47,6 +48,16 @@ export const GEOMETRY_DEFS: Record<
       { key: "radius", label: "Radius", type: "number", default: 0.5, min: 0.01, step: 0.1 },
       { key: "height", label: "Height", type: "number", default: 1, min: 0.01, step: 0.1 },
       { key: "radialSegments", label: "Segments", type: "number", default: 32, min: 3, max: 128, step: 1 },
+      { key: "fillet", label: "Base fillet", type: "number", default: 0, min: 0, max: 0.5, step: 0.01 },
+    ],
+  },
+  capsule: {
+    label: "Capsule",
+    params: [
+      { key: "radius", label: "Radius", type: "number", default: 0.3, min: 0.01, step: 0.05 },
+      { key: "length", label: "Length", type: "number", default: 0.8, min: 0, step: 0.1 },
+      { key: "capSegments", label: "Cap segments", type: "number", default: 8, min: 1, max: 32, step: 1 },
+      { key: "radialSegments", label: "Segments", type: "number", default: 24, min: 3, max: 64, step: 1 },
     ],
   },
   torus: {

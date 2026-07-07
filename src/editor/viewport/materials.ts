@@ -1,11 +1,12 @@
-import { DoubleSide, MeshStandardMaterial } from "three";
+import { DoubleSide, MeshPhysicalMaterial } from "three";
 import type { ChibiMaterial } from "@/runtime/schema";
 import { useDoc } from "../store/document";
 import { loadTexture } from "./textures";
 
 // One three material instance per document material id, mutated in place so
-// every mesh referencing it updates without re-rendering.
-const cache = new Map<string, MeshStandardMaterial>();
+// every mesh referencing it updates without re-rendering. Physical (not
+// standard) so clay-look props (clearcoat/sheen) are available.
+const cache = new Map<string, MeshPhysicalMaterial>();
 
 const MAP_SLOTS = [
   ["map", true],
@@ -13,10 +14,10 @@ const MAP_SLOTS = [
   ["roughnessMap", false],
 ] as const;
 
-export function getSharedMaterial(def: ChibiMaterial): MeshStandardMaterial {
+export function getSharedMaterial(def: ChibiMaterial): MeshPhysicalMaterial {
   let mat = cache.get(def.id);
   if (!mat) {
-    mat = new MeshStandardMaterial();
+    mat = new MeshPhysicalMaterial();
     mat.side = DoubleSide;
     cache.set(def.id, mat);
   }
@@ -27,6 +28,10 @@ export function getSharedMaterial(def: ChibiMaterial): MeshStandardMaterial {
   mat.emissiveIntensity = def.emissiveIntensity;
   mat.opacity = def.opacity;
   mat.transparent = def.transparent || def.opacity < 1;
+  mat.clearcoat = def.clearcoat;
+  mat.clearcoatRoughness = def.clearcoatRoughness;
+  mat.sheen = def.sheen;
+  mat.sheenColor.set(def.sheenColor);
   if (mat.flatShading !== def.flatShading) {
     mat.flatShading = def.flatShading;
     mat.needsUpdate = true;
@@ -35,7 +40,7 @@ export function getSharedMaterial(def: ChibiMaterial): MeshStandardMaterial {
   return mat;
 }
 
-function syncMaps(mat: MeshStandardMaterial, def: ChibiMaterial) {
+function syncMaps(mat: MeshPhysicalMaterial, def: ChibiMaterial) {
   const doc = useDoc.getState().doc;
   for (const [slot, srgb] of MAP_SLOTS) {
     const assetId = def.maps[slot];
@@ -71,7 +76,7 @@ function syncMaps(mat: MeshStandardMaterial, def: ChibiMaterial) {
 }
 
 /** Cached three material for a document material id (for animation playback). */
-export function getCachedMaterial(id: string): MeshStandardMaterial | null {
+export function getCachedMaterial(id: string): MeshPhysicalMaterial | null {
   return cache.get(id) ?? null;
 }
 
