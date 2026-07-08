@@ -4,6 +4,16 @@ Web-native 3D design tool (Spline alternative): designers build interactive 3D s
 
 **Read first:** `PRD.md` (product + domain model + scene format) and `specs/00-overview.md` (roadmap + conventions). Each `specs/NN-*.md` file is one milestone with acceptance criteria — the spec for the milestone you're working on is the source of truth for that work.
 
+## Design philosophy
+
+chibi is early but built to grow — features will keep landing for a long time, and no future one should be boxed in by a shortcut or wrong assumption made now. A few principles keep the codebase reshapeable:
+
+- **Evolvability comes from sharp seams, not from guessing the future.** Don't pre-build flexibility for features that don't exist yet — speculative abstraction is itself a wrong assumption, and it ages worse than the problem it was meant to solve. Instead keep the seams this repo already has clean: the single write path, the runtime↔editor import boundary, the UI-state vs document split, normalized id-keyed maps. Well-bounded code with honest names is cheap to reshape; favor code that's easy to *delete* over code that's "configurable."
+- **The scene format is the load-bearing contract — change it deliberately.** It's consumed by the editor, the published `<ChibiScene>` runtime, and third-party developers, and it persists (IndexedDB) and exports. So it's the most expensive thing to change: every existing document must keep opening via `schema/migrate.ts`. Format/schema changes are never a casual add — they're versioned, migrated, and worth raising first. (The scene-level → per-object states revision is the model: a core assumption changed cleanly *because* it went through migration, not despite it.)
+- **Refactor-first over monkeypatch.** When a feature would be better served by reshaping existing code than by bolting onto a shape that no longer fits, stop and say so — name the refactor, why it's warranted, and rough scope/risk — and let me choose *before* the workaround gets written. Paying for the right foundation now beats compounding interest on a shaky one.
+- **Small hacks are fine; substantial ones are a conversation.** A localized, low-cost shortcut that doesn't spread or lock anything in is fine — just flag it in the code/PR. But anything touching the scene format, a store/command boundary, the runtime import boundary, cross-cutting architecture, or anything hard to reverse → raise it first. When you can't tell which side of the line it's on, ask: the cost of asking is a sentence, the cost of an entrenched wrong guess is a rewrite.
+- **Write the decision down.** When we settle on a refactor or a deliberate shortcut, record it in the relevant spec (or PRD open questions) per the Workflow rule below — future sessions start from the files, not this chat.
+
 ## Status
 
 <!-- Update this section whenever a milestone lands or work moves to a new spec. Trust the spec checklists and git log over this summary if they disagree. -->
