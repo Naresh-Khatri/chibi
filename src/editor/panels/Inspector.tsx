@@ -53,6 +53,7 @@ import {
 import { importAssetFile } from "../store/assets";
 import { disposeMaterial } from "../viewport/materials";
 import { InteractionList } from "./InteractionList";
+import { ScrollBindingList } from "./ScrollBindingList";
 import { StatesSection } from "./StatesSection";
 import {
   Checkbox,
@@ -220,7 +221,10 @@ function NodeInspector({ nodeId }: { nodeId: string }) {
   const interactionCount = useDoc(
     (s) =>
       s.doc?.interactions.filter(
-        (ix) => ix.trigger.type !== "start" && ix.trigger.nodeId === nodeId,
+        (ix) =>
+          ix.trigger.type !== "start" &&
+          ix.trigger.type !== "scroll" &&
+          ix.trigger.nodeId === nodeId,
       ).length ?? 0,
   );
   const overrides = useOverrides(nodeId);
@@ -1074,8 +1078,11 @@ function SceneInspector() {
           </>
         )}
       </Section>
-      <Section title="Interactions · on start">
+      <Section title="Interactions · scene">
         <InteractionList scope={{ kind: "start" }} />
+      </Section>
+      <Section title="Scroll bindings">
+        <ScrollBindingList />
       </Section>
       <div className="px-3 py-4 text-xs text-muted-foreground/70">
         Select an object to edit its transform, geometry and material.

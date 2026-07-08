@@ -57,6 +57,16 @@ describe("scene templates", () => {
         }
       });
 
+      it("scroll bindings reference real clips/states", () => {
+        for (const binding of doc.scrollBindings) {
+          if (binding.target.type === "animation") {
+            expect(doc.animations[binding.target.animationId]).toBeDefined();
+          } else {
+            expect(doc.states[binding.target.stateId]?.nodeId).toBe(binding.target.nodeId);
+          }
+        }
+      });
+
       it("builds a fresh copy each time", () => {
         expect(template.build()).not.toBe(doc);
         expect(template.build()).toEqual(doc);

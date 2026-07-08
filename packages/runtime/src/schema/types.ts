@@ -189,6 +189,9 @@ export const triggerSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("click"), nodeId: z.string() }),
   z.object({ type: z.literal("hoverEnter"), nodeId: z.string() }),
   z.object({ type: z.literal("hoverExit"), nodeId: z.string() }),
+  // scene-level like `start`: fires once whenever scroll progress crosses
+  // `progress`, in either scroll direction (see engine/scroll.ts)
+  z.object({ type: z.literal("scroll"), progress: z.number() }),
 ]);
 export type Trigger = z.infer<typeof triggerSchema>;
 
@@ -219,6 +222,23 @@ export const interactionSchema = z.object({
   action: actionSchema,
 });
 export type Interaction = z.infer<typeof interactionSchema>;
+
+// continuous scroll-scrub: global progress -> [start,end] -> eased -> samples a
+// clip playhead or base→state blend. position-driven sibling of `scroll` trigger
+export const scrollBindingTargetSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("animation"), animationId: z.string() }),
+  z.object({ type: z.literal("state"), nodeId: z.string(), stateId: z.string() }),
+]);
+export type ScrollBindingTarget = z.infer<typeof scrollBindingTargetSchema>;
+
+export const scrollBindingSchema = z.object({
+  id: z.string(),
+  target: scrollBindingTargetSchema,
+  start: z.number().default(0),
+  end: z.number().default(1),
+  ease: easingSchema.default("linear"),
+});
+export type ScrollBinding = z.infer<typeof scrollBindingSchema>;
 
 // "soft" is chibi's built-in studio rig (no CDN fetch); the rest are drei HDRIs
 export const ENVIRONMENT_PRESETS = [
@@ -271,6 +291,8 @@ export const documentSchema = z.object({
   animations: z.record(z.string(), animationClipSchema),
   states: z.record(z.string(), objectStateSchema),
   interactions: z.array(interactionSchema),
+  // purely additive: no migrate.ts entry needed, zod default keeps old docs valid
+  scrollBindings: z.array(scrollBindingSchema).default([]),
   environment: environmentSchema,
   camera: cameraSchema,
   editor: z.object({ grid: z.boolean() }),

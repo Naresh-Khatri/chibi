@@ -38,6 +38,8 @@ import {
   type PropertyValue,
 } from "../schema";
 import {
+  docUsesScroll,
+  elementScrollProgress,
   InteractionRuntime,
   interactiveNodeIds,
   parseTargetKey,
@@ -63,8 +65,15 @@ export type SceneHostProps = {
   interactive?: boolean;
   /** user orbit around the scene camera (default false) */
   orbit?: boolean;
+  /** wheel-zoom on `orbit`'s OrbitControls (default true). false frees the
+   * wheel (rotate/pan stay) — Preview scrubs scroll with it instead of zoom */
+  enableZoom?: boolean;
   /** fire `start` triggers on mount (default true) */
   autoStart?: boolean;
+  /** explicit scroll progress [0,1] for `scroll` triggers + bindings; bypasses
+   * auto-tracking. use when host owns scroll or none exists (e.g. Preview's
+   * scrubber). omit -> auto-track this canvas vs viewport on scroll/resize */
+  scrollProgress?: number;
   /** engine events + "ready" surface here */
   onEvent?: (event: RuntimeEvent) => void;
   /** the live engine instance — <ChibiScene> binds its api ref to it */
@@ -83,7 +92,9 @@ export function SceneHost({
   resolveAsset,
   interactive = true,
   orbit = false,
+  enableZoom = true,
   autoStart = true,
+  scrollProgress,
   onEvent,
   onRuntime,
 }: SceneHostProps) {
@@ -125,13 +136,20 @@ export function SceneHost({
           </Suspense>
         </PresetBoundary>
       )}
-      {orbit && <OrbitControls target={doc.camera.target} makeDefault />}
+      {orbit && (
+        <OrbitControls
+          target={doc.camera.target}
+          enableZoom={enableZoom}
+          makeDefault
+        />
+      )}
       <Suspense fallback={null}>
         <InteractiveScene
           doc={doc}
           resolveAsset={resolveAsset}
           interactive={interactive}
           autoStart={autoStart}
+          scrollProgress={scrollProgress}
           onEvent={onEvent}
           onRuntime={onRuntime}
         />
@@ -178,10 +196,12 @@ function InteractiveScene({
   resolveAsset,
   interactive = true,
   autoStart = true,
+  scrollProgress,
   onEvent,
   onRuntime,
 }: SceneHostProps) {
   const invalidate = useThree((s) => s.invalidate);
+  const domElement = useThree((s) => s.gl.domElement);
   // latest-callback ref so a new onEvent identity doesn't remount the engine
   const onEventRef = useRef(onEvent);
   useEffect(() => {
@@ -221,6 +241,38 @@ function InteractiveScene({
     // autoStart/onRuntime are mount-time concerns; ctx is the real dependency
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctx]);
+
+  // scroll wiring: explicit prop (controlled) always wins. Otherwise, only
+  // attach a window scroll listener when the doc actually uses scroll —
+  // ambient page scrolling must not wake scenes that don't (frameloop="demand"
+  // idle-renders-zero-frames guarantee; see packages/runtime/README.md)
+  useEffect(() => {
+    if (scrollProgress !== undefined) {
+      ctx.runtime.scroll(scrollProgress);
+      return;
+    }
+    if (!docUsesScroll(ctx.doc)) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const rect = domElement.getBoundingClientRect();
+      ctx.runtime.scroll(
+        elementScrollProgress(rect.top, rect.height, window.innerHeight),
+      );
+    };
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(update);
+    };
+    update(); // establish progress from the current scroll position at mount
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [ctx, domElement, scrollProgress]);
 
   const wasActiveRef = useRef(false);
   useFrame((_, delta) => {

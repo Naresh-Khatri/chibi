@@ -327,11 +327,20 @@ export function removeNode(nodeId: string) {
       for (const id of removed) delete state.overrides[id];
     }
     d.interactions = d.interactions.filter((ix) => {
-      if (ix.trigger.type !== "start" && removed.has(ix.trigger.nodeId)) {
+      if (
+        ix.trigger.type !== "start" &&
+        ix.trigger.type !== "scroll" &&
+        removed.has(ix.trigger.nodeId)
+      ) {
         return false;
       }
       // state actions on a removed owner (covers refs to its deleted states)
       return ix.action.type === "playAnimation" || !removed.has(ix.action.nodeId);
+    });
+    // scroll bindings targeting a removed node's (now-deleted) state
+    d.scrollBindings = d.scrollBindings.filter((b) => {
+      if (b.target.type !== "state") return true;
+      return !removed.has(b.target.nodeId) && Boolean(d.states[b.target.stateId]);
     });
   });
   const ui = useUI.getState();

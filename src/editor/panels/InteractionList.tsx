@@ -18,7 +18,7 @@ import {
   setInteractionAction,
   setInteractionTrigger,
 } from "../store/stateCommands";
-import { DragNumber, Dropdown, type MenuItem } from "./controls";
+import { DragNumber, Dropdown, Slider, type MenuItem } from "./controls";
 
 const EASE_OPTIONS: Easing[] = ["linear", "easeIn", "easeOut", "easeInOut"];
 
@@ -27,6 +27,7 @@ const TRIGGER_LABELS: Record<string, string> = {
   click: "Click",
   hoverEnter: "Hover enter",
   hoverExit: "Hover exit",
+  scroll: "Scroll",
 };
 
 const ACTION_LABELS: Record<Action["type"], string> = {
@@ -66,10 +67,13 @@ export function InteractionList({ scope }: { scope: InteractionScope }) {
   const nodes = useDoc((s) => s.doc?.nodes);
   if (!interactions || !states || !animations || !nodes) return null;
 
+  // scroll triggers are scene-level (no nodeId), same as start
   const rows = interactions.filter((ix) =>
     scope.kind === "start"
-      ? ix.trigger.type === "start"
-      : ix.trigger.type !== "start" && ix.trigger.nodeId === scope.nodeId,
+      ? ix.trigger.type === "start" || ix.trigger.type === "scroll"
+      : ix.trigger.type !== "start" &&
+        ix.trigger.type !== "scroll" &&
+        ix.trigger.nodeId === scope.nodeId,
   );
 
   const add = () => {
@@ -152,7 +156,15 @@ function InteractionRow({
           onSelect: () =>
             setInteractionTrigger(ix.id, { type, nodeId: scope.nodeId }),
         }))
-      : [];
+      : (["start", "scroll"] as const).map((type) => ({
+          label: TRIGGER_LABELS[type],
+          checked: type === ix.trigger.type,
+          onSelect: () =>
+            setInteractionTrigger(
+              ix.id,
+              type === "start" ? { type: "start" } : { type: "scroll", progress: 0.5 },
+            ),
+        }));
 
   const target = defaultStateTarget(scope, states);
   const actionTypeItems: MenuItem[] = [
@@ -275,14 +287,10 @@ function InteractionRow({
   return (
     <div className="flex flex-col gap-1 rounded border border-border bg-muted/30 p-1.5">
       <div className="flex items-center gap-1">
-        {scope.kind === "start" ? (
-          <span className="px-1 text-xs text-foreground">Start</span>
-        ) : (
-          <Dropdown
-            button={<>{TRIGGER_LABELS[ix.trigger.type]}</>}
-            items={triggerItems}
-          />
-        )}
+        <Dropdown
+          button={<>{TRIGGER_LABELS[ix.trigger.type]}</>}
+          items={triggerItems}
+        />
         <ArrowRight className="size-3 shrink-0 text-muted-foreground" />
         <Dropdown
           button={<>{ACTION_LABELS[action.type]}</>}
@@ -298,6 +306,24 @@ function InteractionRow({
           <Trash2 className="size-3" />
         </button>
       </div>
+
+      {ix.trigger.type === "scroll" && (
+        <ParamRow label="At">
+          <Slider
+            value={ix.trigger.progress}
+            min={0}
+            max={1}
+            step={0.01}
+            onCommit={(v, merge) =>
+              setInteractionTrigger(
+                ix.id,
+                { type: "scroll", progress: v },
+                merge ? { mergeKey: `ix:${ix.id}:scrollAt` } : undefined,
+              )
+            }
+          />
+        </ParamRow>
+      )}
 
       {action.type === "transition" && (
         <>

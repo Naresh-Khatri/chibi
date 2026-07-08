@@ -38,12 +38,14 @@ function Hero() {
 | `className` / `style` | — | — | Sizing is the host's job; the canvas fills the box. |
 | `fallback` | `ReactNode` | `null` | Shown while the scene file loads. |
 | `onEvent` | `(e: RuntimeEvent) => void` | — | `{type:"ready"}` · `{type:"interaction", trigger, action}` · `{type:"stateChange", nodeId, stateId}`. |
+| `scrollProgress` | `number` | auto-tracked | Scroll progress in `[0, 1]` fed to `scroll` triggers and scroll bindings. Omit to auto-track this component's position against the viewport; pass a number to take over (e.g. a custom smooth-scroll lib, or an overlay with no real page scroll). |
 | `api` | `Ref<ChibiSceneApi>` | — | Imperative bridge (below). |
 
 `ChibiSceneApi`: `transitionTo(stateId, {duration?, ease?})` (`"base"` resets
 every stateful object) · `play(animationId)` · `pause(animationId)` ·
 `stop(animationId)` · `getState()` → `{ [nodeId]: stateId }` ·
-`setPaused(bool)`.
+`setPaused(bool)` · `getScrollProgress()` → current scroll progress in
+`[0, 1]` (auto-tracked, or the `scrollProgress` prop).
 
 Also exported: `loadDocument(urlOrBytes)` (zip/json loader returning
 `{ doc, resolveAsset, dispose }`), `validateDocument`, `createDocument`,
@@ -62,6 +64,11 @@ Also exported: `loadDocument(urlOrBytes)` (zip/json loader returning
   `useGLTF`, which is shared immutable data, not state.)
 - **Text3D nodes** need the font file served by the host at
   `/fonts/helvetiker_regular.typeface.json` (see `react/Geometry.tsx`).
+- **Scroll tracking is opt-in.** The auto-tracking `scroll`/`resize` listener
+  only attaches when the document actually declares scroll features
+  (`docUsesScroll(doc)`: a `scroll` trigger or a non-empty `scrollBindings`)
+  *and* no explicit `scrollProgress` prop is passed — plain scenes never pay
+  for a listener, preserving the demand-frameloop guarantee above.
 - Scene format reference: [PRD §3.1](../../PRD.md). Documents are validated
   with zod; legacy (≤ M5) documents are migrated in-place by
   `schema/migrate.ts`.

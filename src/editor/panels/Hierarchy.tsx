@@ -48,6 +48,7 @@ const TRIGGER_LABELS: Record<string, string> = {
   click: "Click",
   hoverEnter: "Hover enter",
   hoverExit: "Hover exit",
+  scroll: "Scroll",
 };
 
 function describeAction(action: Action, doc: ChibiDocument): string {
@@ -154,7 +155,8 @@ export function Hierarchy() {
     const map = new Map<string, { trigger: string; action: string }[]>();
     if (doc) {
       for (const ix of doc.interactions) {
-        if (ix.trigger.type === "start") continue;
+        // scene-level triggers (no nodeId) surface in the scene section, not per-node
+        if (ix.trigger.type === "start" || ix.trigger.type === "scroll") continue;
         const row = {
           trigger: TRIGGER_LABELS[ix.trigger.type],
           action: describeAction(ix.action, doc),

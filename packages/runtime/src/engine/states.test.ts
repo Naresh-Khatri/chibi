@@ -264,6 +264,78 @@ describe("InteractionRuntime", () => {
     rt.pointer("click", cubeId); // restart
     expect((rt.advance(0.5).get(posKey) as Vec3)[1]).toBeCloseTo(0.5, 10);
   });
+
+  it("dispatches a scroll trigger's action exactly once crossing the threshold, either direction", () => {
+    const { doc, cubeId } = interactiveDoc();
+    doc.interactions.push({
+      id: newId("ix"),
+      trigger: { type: "scroll", progress: 0.5 },
+      action: { type: "transition", nodeId: cubeId, to: HOVER, duration: 0, ease: "linear" },
+    });
+    const rt = new InteractionRuntime(doc);
+    rt.scroll(0.2);
+    expect(rt.stateOf(cubeId)).toBe(BASE_STATE_ID); // below threshold, no fire yet
+    rt.scroll(0.6); // crossed upward
+    expect(rt.stateOf(cubeId)).toBe(HOVER);
+    rt.scroll(0.8); // still above, no re-fire (action here would be idempotent anyway)
+    rt.scroll(0.4); // crossed back downward — fires again (transition to HOVER again, a no-op state-wise)
+    expect(rt.stateOf(cubeId)).toBe(HOVER);
+  });
+
+  it("toggleStates on a scroll trigger flips once per crossing", () => {
+    const { doc, cubeId } = interactiveDoc();
+    doc.interactions.push({
+      id: newId("ix"),
+      trigger: { type: "scroll", progress: 0.5 },
+      action: {
+        type: "toggleStates",
+        nodeId: cubeId,
+        a: BASE_STATE_ID,
+        b: HOVER,
+        duration: 0,
+        ease: "linear",
+      },
+    });
+    const rt = new InteractionRuntime(doc);
+    rt.scroll(0.6); // cross up -> toggles to HOVER
+    expect(rt.stateOf(cubeId)).toBe(HOVER);
+    rt.scroll(0.7); // no crossing, no toggle
+    expect(rt.stateOf(cubeId)).toBe(HOVER);
+    rt.scroll(0.3); // cross down -> toggles back
+    expect(rt.stateOf(cubeId)).toBe(BASE_STATE_ID);
+  });
+
+  it("getScrollProgress reflects the last clamped value; repeat calls at the same value are no-ops", () => {
+    const { doc } = interactiveDoc();
+    const rt = new InteractionRuntime(doc);
+    expect(rt.getScrollProgress()).toBe(0);
+    rt.scroll(1.4); // clamps to 1
+    expect(rt.getScrollProgress()).toBe(1);
+    rt.scroll(-3); // clamps to 0
+    expect(rt.getScrollProgress()).toBe(0);
+  });
+
+  it("advance() layers scroll bindings over transitions/clips on the same key", () => {
+    const { doc, cubeId, scaleKey } = interactiveDoc();
+    doc.states["st_scroll_scale"] = {
+      id: "st_scroll_scale",
+      nodeId: cubeId,
+      name: "ScrollScale",
+      overrides: { [cubeId]: { "transform.scale": [5, 5, 5] } },
+    };
+    doc.scrollBindings.push({
+      id: "sb_1",
+      target: { type: "state", nodeId: cubeId, stateId: "st_scroll_scale" },
+      start: 0,
+      end: 1,
+      ease: "linear",
+    });
+    const rt = new InteractionRuntime(doc);
+    rt.pointer("hoverEnter", cubeId); // starts a transition toward scale [2,2,2]
+    rt.scroll(1); // full scroll -> binding wants scale [5,5,5]
+    const value = rt.advance(0.5).get(scaleKey);
+    expect(value).toEqual([5, 5, 5]); // scroll binding wins over the in-flight transition
+  });
 });
 
 describe("interactiveNodeIds", () => {

@@ -527,8 +527,134 @@ function buildMoodsScene(): ChibiDocument {
   });
 }
 
+// all motion is scroll-driven, nothing auto-plays: rocket liftoff = state
+// binding over [0,1], spark spin = clip binding over [0.2,0.9], Clawd pop =
+// discrete `scroll` trigger at 0.5 -> toggleStates. no hover on Clawd — a
+// hover-peek state would fight the scroll-driven state for his one state slot
+function buildScrollScene(): ChibiDocument {
+  const rocket = [
+    mesh("nd_rk_body", "Rocket body", "cylinder", cyl(0.42, 0.42, 1.5, 0.12), "mt_cream", T([0, 1.95, 0])),
+    mesh("nd_rk_nose", "Nose cone", "cone", cone(0.43, 0.6, 0.08), "mt_clawd", T([0, 3.0, 0])),
+    mesh("nd_rk_ring", "Window ring", "torus", torus(0.15, 0.05), "mt_clawd", T([0, 2.15, 0.4])),
+    mesh("nd_rk_glass", "Window", "sphere", sph(0.13), "mt_screen", T([0, 2.15, 0.38])),
+    mesh("nd_rk_finL", "Fin L", "box", box(0.1, 0.55, 0.4, 0.05), "mt_clawd", T([-0.5, 1.35, 0])),
+    mesh("nd_rk_finR", "Fin R", "box", box(0.1, 0.55, 0.4, 0.05), "mt_clawd", T([0.5, 1.35, 0])),
+    mesh("nd_rk_finB", "Fin back", "box", box(0.4, 0.55, 0.1, 0.05), "mt_clawd", T([0, 1.35, -0.5])),
+    mesh("nd_rk_flame", "Flame", "cone", cone(0.3, 0.7, 0), "mt_flame", T([0, 0.9, 0], [3.1416, 0, 0])),
+    mesh("nd_rk_core", "Flame core", "cone", cone(0.16, 0.45, 0), "mt_flame_core", T([0, 0.78, 0], [3.1416, 0, 0])),
+  ];
+  // same 8-ray star as the terminal scene, but this one only spins on scroll
+  const sparkRays = [0, 0.7854, 1.5708, 2.3562].map((rz, i) =>
+    mesh(`nd_ray${i}`, "Ray", "capsule", cap(0.035, 0.16), "mt_glow", T([0, 0, 0], [0, 0, rz])),
+  );
+  const roots = [
+    mesh("nd_plinth", "Sand plinth", "cylinder", cyl(2.0, 2.2, 0.5, 0.15), "mt_sand", T([0, 0.25, 0])),
+    group("nd_rocket", "Rocket", T([0.6, 0, -0.3]), rocket.map((n) => n.id)),
+    group("nd_spark", "Claude spark", T([0, 3.7, -0.2]), sparkRays.map((n) => n.id)),
+    light("nd_key", "Key light", "directional", "#ffe0bd", 2, [4, 5, 3], true),
+    light("nd_fill", "Fill light", "point", "#ffb9a0", 4, [-4, 3, -2], false),
+  ];
+  const clawdNodes = clawd("clawd", "Clawd", T([-1.05, 0.5, 0.55], [0, -0.45, 0]), "joy", true);
+
+  // ambient-only clips: unrelated to scroll, just keep the flame + wave alive
+  const ambientClips = [
+    clip("an_flame", "Flame flicker", 0.36, [
+      stepTrack("nd_rk_flame", "transform.scale", [[0, [1, 1, 1]], [0.18, [0.9, 1.25, 0.9]]]),
+      stepTrack("nd_rk_core", "transform.scale", [[0, [1, 1.2, 1]], [0.18, [1.1, 0.85, 1.1]]]),
+    ]),
+    clip("an_wave", "Clawd wave", 0.7, [
+      stepTrack("nd_clawd_armR", "transform.rotation", [
+        [0, [0, 0, -0.9]],
+        [0.35, [0, 0, -1.35]],
+      ]),
+    ]),
+  ];
+  // scroll-scrubbed only: no start trigger plays this one, a binding samples it
+  const sparkClip = clip("an_spark", "Spark spin", 1.6, [
+    stepTrack(
+      "nd_spark",
+      "transform.rotation",
+      [0, 1, 2, 3, 4, 5, 6, 7].map((i): [number, PropertyValue] => [i * 0.2, [0, 0, -i * 0.3927]]),
+    ),
+  ]);
+
+  return validateDocument({
+    chibi: 1,
+    name: "Clawd's scroll story",
+    root: ["nd_clawd", ...roots.map((n) => n.id)],
+    nodes: {
+      ...clawdNodes,
+      ...nodeMap([...roots, ...rocket, ...sparkRays]),
+    },
+    materials: {
+      ...clawdMaterials(),
+      mt_screen: clay("mt_screen", "Window dark", "#38332e", { roughness: 0.6 }),
+      mt_glow: clay("mt_glow", "Orange glow", "#ffb27a", { emissive: "#ff8a4d", emissiveIntensity: 1.8, roughness: 0.5 }),
+      mt_cream: clay("mt_cream", "Cream", "#f2e7d9"),
+      mt_sand: clay("mt_sand", "Sand", "#eccf96"),
+      mt_flame: clay("mt_flame", "Flame", "#ffb347", { emissive: "#ff8a4d", emissiveIntensity: 2.5, roughness: 0.5 }),
+      mt_flame_core: clay("mt_flame_core", "Flame core", "#ffd9a0", { emissive: "#ffc27a", emissiveIntensity: 3, roughness: 0.5 }),
+    },
+    assets: {},
+    animations: Object.fromEntries([...ambientClips, sparkClip].map((c) => [c.id, c])),
+    states: {
+      st_rocket_liftoff: {
+        id: "st_rocket_liftoff",
+        nodeId: "nd_rocket",
+        name: "Liftoff",
+        overrides: { nd_rocket: { "transform.position": [0.6, 3.2, -0.3] } },
+      },
+      st_clawd_big: {
+        id: "st_clawd_big",
+        nodeId: "nd_clawd",
+        name: "Big",
+        overrides: { nd_clawd: { "transform.scale": [1.3, 1.3, 1.3] } },
+      },
+    },
+    interactions: [
+      ...ambientClips.map((c) => ({
+        id: `ix_${c.id}`,
+        trigger: { type: "start" as const },
+        action: { type: "playAnimation" as const, animationId: c.id },
+      })),
+      {
+        id: "ix_clawd_big",
+        trigger: { type: "scroll", progress: 0.5 },
+        action: {
+          type: "toggleStates",
+          nodeId: "nd_clawd",
+          a: BASE_STATE_ID,
+          b: "st_clawd_big",
+          duration: 0.4,
+          ease: "easeOut",
+        },
+      },
+    ],
+    scrollBindings: [
+      {
+        id: "sb_rocket",
+        target: { type: "state", nodeId: "nd_rocket", stateId: "st_rocket_liftoff" },
+        start: 0,
+        end: 1,
+        ease: "easeInOut",
+      },
+      {
+        id: "sb_spark",
+        target: { type: "animation", animationId: "an_spark" },
+        start: 0.2,
+        end: 0.9,
+        ease: "linear",
+      },
+    ],
+    environment: clayEnv("#e9c0ac", "#d29c88"),
+    camera: { position: [4.4, 3.0, 5.0], target: [0, 1.5, 0], fov: 40 },
+    editor: { grid: true },
+  });
+}
+
 export const SCENE_TEMPLATES: SceneTemplate[] = [
   { title: "Clawd at the terminal", build: buildTerminalScene },
   { title: "Clawd's rocket launch", build: buildRocketScene },
   { title: "Clawd's moods", build: buildMoodsScene },
+  { title: "Clawd's scroll story", build: buildScrollScene },
 ];

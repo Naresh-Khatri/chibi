@@ -1,6 +1,7 @@
 import { BASE_STATE_ID } from "../schema/create";
 import type { Action, ChibiDocument, Easing, Trigger } from "../schema/types";
 import { ClipPlayer } from "./player";
+import { clampProgress, sampleScrollBindings } from "./scroll";
 import type { SampleMap } from "./sampler";
 import { resolveStateValues } from "./state";
 import { createTransition, type Transition } from "./transition";
@@ -29,7 +30,9 @@ export function interactiveNodeIds(doc: ChibiDocument): {
   const hover = new Set<string>();
   for (const ix of doc.interactions) {
     if (ix.trigger.type === "click") click.add(ix.trigger.nodeId);
-    else if (ix.trigger.type !== "start") hover.add(ix.trigger.nodeId);
+    else if (ix.trigger.type === "hoverEnter" || ix.trigger.type === "hoverExit") {
+      hover.add(ix.trigger.nodeId);
+    }
   }
   return { click, hover };
 }
@@ -53,6 +56,7 @@ export class InteractionRuntime {
   private currentStates = new Map<string, string>(); // nodeId -> stateId
   private transitions = new Map<string, Transition>(); // nodeId -> in-flight
   private players = new Map<string, ClipPlayer>();
+  private scrollProgress = 0;
 
   constructor(doc: ChibiDocument) {
     this.doc = doc;
@@ -129,6 +133,31 @@ export class InteractionRuntime {
     return Object.fromEntries(this.currentStates);
   }
 
+  getScrollProgress(): number {
+    return this.scrollProgress;
+  }
+
+  /** feed scroll progress [0,1]. `scroll` trigger threshold crossings (either
+   * direction) dispatch once, like click/hover; bindings don't dispatch —
+   * advance() resamples them, so this just wakes one more frame */
+  scroll(progress: number): void {
+    const p = clampProgress(progress);
+    if (p === this.scrollProgress) return;
+    const prev = this.scrollProgress;
+    this.scrollProgress = p;
+    for (const ix of this.doc.interactions) {
+      if (ix.trigger.type !== "scroll") continue;
+      const threshold = ix.trigger.progress;
+      const crossed =
+        (prev < threshold && p >= threshold) || (prev > threshold && p <= threshold);
+      if (crossed) {
+        this.onEvent?.({ type: "interaction", trigger: ix.trigger, action: ix.action });
+        this.run(ix.action);
+      }
+    }
+    if (this.doc.scrollBindings.length > 0) this.onWake?.();
+  }
+
   /** freeze/unfreeze all motion; paused advance() applies nothing */
   setPaused(paused: boolean): void {
     this.paused = paused;
@@ -145,7 +174,7 @@ export class InteractionRuntime {
     return false;
   }
 
-  /** values to apply this frame; clip samples layer over state values, finished non-looping clips hold their last pose */
+  /** values to apply this frame; clip samples layer over state values, scroll bindings layer over both (see docs/specs/13-scroll-interactions.md) */
   advance(delta: number): SampleMap {
     if (this.paused) return new Map();
     for (const [nodeId, transition] of this.transitions) {
@@ -157,6 +186,9 @@ export class InteractionRuntime {
     const out = new Map(this.current);
     for (const player of this.players.values()) {
       for (const [key, value] of player.advance(delta)) out.set(key, value);
+    }
+    for (const [key, value] of sampleScrollBindings(this.doc, this.scrollProgress)) {
+      out.set(key, value);
     }
     return out;
   }

@@ -71,6 +71,7 @@ export function createDocument(name = "Untitled"): ChibiDocument {
     animations: {},
     states: {},
     interactions: [],
+    scrollBindings: [],
     environment: {
       background: "#0b0b0f",
       preset: "city",

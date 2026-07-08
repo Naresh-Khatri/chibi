@@ -30,6 +30,8 @@ export type ChibiSceneApi = {
   /** logical state per stateful node id ("base" or a state id) */
   getState(): Record<string, string>;
   setPaused(paused: boolean): void;
+  /** current scroll progress in [0, 1] (auto-tracked, or the `scrollProgress` prop) */
+  getScrollProgress(): number;
 };
 
 export type ChibiSceneProps = {
@@ -45,6 +47,9 @@ export type ChibiSceneProps = {
   orbit?: boolean;
   /** fire `start` triggers on mount (default true) */
   autoStart?: boolean;
+  /** explicit scroll progress in [0, 1]; omit to auto-track this component's
+   * position against the window scroll (see SceneHostProps.scrollProgress) */
+  scrollProgress?: number;
   className?: string;
   style?: CSSProperties;
   /** shown while the scene file loads */
@@ -67,6 +72,7 @@ export function ChibiScene({
   interactive = true,
   orbit = false,
   autoStart = true,
+  scrollProgress,
   className,
   style,
   fallback = null,
@@ -91,6 +97,7 @@ export function ChibiScene({
       stop: (id) => runtimeRef.current?.stop(id),
       getState: () => runtimeRef.current?.getState() ?? {},
       setPaused: (paused) => runtimeRef.current?.setPaused(paused),
+      getScrollProgress: () => runtimeRef.current?.getScrollProgress() ?? 0,
     }),
     [],
   );
@@ -159,6 +166,7 @@ export function ChibiScene({
         interactive={interactive}
         orbit={orbit}
         autoStart={autoStart}
+        scrollProgress={scrollProgress}
         onEvent={onEvent}
         onRuntime={(runtime) => {
           runtimeRef.current = runtime;

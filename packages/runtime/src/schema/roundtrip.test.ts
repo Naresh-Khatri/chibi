@@ -127,6 +127,28 @@ describe("document round-trip", () => {
         trigger: { type: "click", nodeId: sphere.id },
         action: { type: "playAnimation", animationId: "an_float" },
       },
+      {
+        id: "ix_scroll",
+        trigger: { type: "scroll", progress: 0.5 },
+        action: { type: "playAnimation", animationId: "an_float" },
+      },
+    );
+
+    doc.scrollBindings.push(
+      {
+        id: "sb_float",
+        target: { type: "animation", animationId: "an_float" },
+        start: 0,
+        end: 1,
+        ease: "linear",
+      },
+      {
+        id: "sb_hot",
+        target: { type: "state", nodeId: sphere.id, stateId: "st_hot" },
+        start: 0.2,
+        end: 0.8,
+        ease: "easeInOut",
+      },
     );
 
     doc.environment.fog = { color: "#0b0b0f", near: 8, far: 40 };
@@ -163,6 +185,13 @@ describe("document round-trip", () => {
     expect(parsed.environment.vignette).toBe(false);
     expect(parsed.materials["mt_default"].clearcoat).toBe(0);
     expect(parsed.materials["mt_default"].sheenColor).toBe("#ffffff");
+  });
+
+  it("defaults scrollBindings to [] for documents predating the field", () => {
+    const doc = JSON.parse(JSON.stringify(createDocument("legacy")));
+    delete doc.scrollBindings;
+    const parsed = validateDocument(doc);
+    expect(parsed.scrollBindings).toEqual([]);
   });
 
   it("rejects unknown format versions with a clear error", () => {

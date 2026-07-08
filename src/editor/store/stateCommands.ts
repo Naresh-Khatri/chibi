@@ -73,13 +73,16 @@ function actionReferencesState(action: Action, stateId: string): boolean {
   return false;
 }
 
-/** deletes the state + any interactions referencing it */
+/** deletes the state + any interactions/scroll bindings referencing it */
 export function deleteState(stateId: string) {
   dispatch("Delete state", (d) => {
     if (!d.states[stateId]) return;
     delete d.states[stateId];
     d.interactions = d.interactions.filter(
       (ix) => !actionReferencesState(ix.action, stateId),
+    );
+    d.scrollBindings = d.scrollBindings.filter(
+      (b) => !(b.target.type === "state" && b.target.stateId === stateId),
     );
   });
   const ui = useUI.getState();
@@ -127,11 +130,19 @@ export function addInteraction(trigger: Trigger, action: Action): string {
   return id;
 }
 
-export function setInteractionTrigger(id: string, trigger: Trigger) {
-  dispatch("Edit interaction", (d) => {
-    const ix = d.interactions.find((i) => i.id === id);
-    if (ix) ix.trigger = trigger;
-  });
+export function setInteractionTrigger(
+  id: string,
+  trigger: Trigger,
+  opts?: DispatchOpts,
+) {
+  dispatch(
+    "Edit interaction",
+    (d) => {
+      const ix = d.interactions.find((i) => i.id === id);
+      if (ix) ix.trigger = trigger;
+    },
+    opts,
+  );
 }
 
 export function setInteractionAction(
