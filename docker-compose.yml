@@ -1,0 +1,33 @@
+# Local Postgres for chibi's optional auth / cloud addon.
+#
+# chibi runs fully without this — scenes persist locally (IndexedDB). Postgres is
+# only needed once you opt into the auth addon (sign in, and later save/host
+# scenes online). It listens on a NON-default host port (5487) so it won't clash
+# with any Postgres you already run on 5432.
+#
+#   docker compose up -d     # start Postgres
+#   pnpm db:migrate          # apply the Drizzle migrations in ./drizzle
+#
+# Matches the default DATABASE_URL in .env.example:
+#   postgres://chibi:chibi@localhost:5487/chibi
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: chibi-postgres
+    restart: unless-stopped
+    ports:
+      - "5487:5432"
+    environment:
+      POSTGRES_USER: chibi
+      POSTGRES_PASSWORD: chibi
+      POSTGRES_DB: chibi
+    volumes:
+      - chibi-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chibi -d chibi"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  chibi-pgdata:

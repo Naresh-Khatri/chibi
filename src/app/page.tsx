@@ -35,6 +35,7 @@ import {
   type RecentDoc,
 } from "@/editor/store/persistence";
 import { importDocumentFromFile } from "@/editor/store/files";
+import { AccountMenu } from "@/components/auth/AccountMenu";
 import { getApiKey, setApiKey } from "@/editor/ai/client";
 import { GenerationError, generateDocument } from "@/editor/ai/generate";
 import { EXAMPLE_PROMPTS } from "@/editor/ai/examplePrompts";
@@ -321,7 +322,10 @@ export default function Home() {
   useEffect(refresh, [refresh]);
 
   return (
-    <main className="grid min-h-dvh place-items-center bg-background">
+    <main className="relative grid min-h-dvh place-items-center bg-background">
+      <div className="absolute right-4 top-4">
+        <AccountMenu />
+      </div>
       <div className="flex w-full max-w-md flex-col gap-8 px-6">
         <div className="text-center">
           <div className="mb-3 inline-grid size-12 place-items-center rounded-xl bg-primary/15">
