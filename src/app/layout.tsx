@@ -32,7 +32,7 @@ export default function RootLayout({
         {children}
         <Script
           src="https://umami2.nareshkhatri.site/script.js"
-          data-website-id="e2c59749-de79-40eb-b0db-97d95b47f667"
+          data-website-id="8919e047-be38-4a7d-8bf2-08e66461fe91"
           strategy="afterInteractive"
         />
       </body>
