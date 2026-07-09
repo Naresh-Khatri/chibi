@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useDoc } from "./store/document";
 import { useUI } from "./store/ui";
 import { duplicateNode, groupNode, removeNode } from "./store/commands";
+import { deleteSelectedFaces } from "./store/meshCommands";
 import { frameSelected } from "./viewport/frame";
 
 export function useShortcuts() {
@@ -45,6 +46,33 @@ export function useShortcuts() {
         return;
       }
       if (meta || e.altKey) return;
+
+      // mesh-edit sub-mode takes priority over node-level shortcuts, but
+      // w/e/r/v/f fall through unchanged — the mesh-edit gizmo reuses ui.tool.
+      if (ui.meshEditNodeId) {
+        switch (key) {
+          case "escape":
+            ui.exitMeshEdit();
+            return;
+          case "1":
+            ui.setElementMode("vertex");
+            return;
+          case "2":
+            ui.setElementMode("edge");
+            return;
+          case "3":
+            ui.setElementMode("face");
+            return;
+          case "delete":
+          case "backspace":
+            // face-mode delete only — other modes/element counts stay a no-op
+            // rather than falling through to node deletion in edit mode
+            if (ui.elementMode === "face" && ui.meshSelection.faces.size > 0) {
+              deleteSelectedFaces(ui.meshEditNodeId);
+            }
+            return;
+        }
+      }
 
       switch (key) {
         case " ":

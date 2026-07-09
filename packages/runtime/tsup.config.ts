@@ -5,6 +5,7 @@ export default defineConfig({
     index: "src/index.ts",
     "schema/index": "src/schema/index.ts",
     "engine/index": "src/engine/index.ts",
+    "mesh/index": "src/mesh/index.ts",
     "react/Geometry": "src/react/Geometry.tsx",
     "react/SceneHost": "src/react/SceneHost.tsx",
   },

@@ -462,7 +462,8 @@ function RMesh({ node }: { node: MeshNode }) {
   const { position, rotation, scale } = node.transform;
 
   if (node.geometry.kind === "text3d") {
-    const bevel = numParam(node.geometry.params, "bevel", 0);
+    const params = node.geometry.params;
+    const bevel = numParam(params, "bevel", 0);
     return (
       <group
         ref={ref}
@@ -474,8 +475,8 @@ function RMesh({ node }: { node: MeshNode }) {
       >
         <Text3D
           font={FONT_URL}
-          size={numParam(node.geometry.params, "size", 0.5)}
-          height={numParam(node.geometry.params, "depth", 0.2)}
+          size={numParam(params, "size", 0.5)}
+          height={numParam(params, "depth", 0.2)}
           bevelEnabled={bevel > 0}
           bevelSize={bevel}
           bevelThickness={bevel}
@@ -484,7 +485,7 @@ function RMesh({ node }: { node: MeshNode }) {
           receiveShadow={node.receiveShadow}
           material={material}
         >
-          {strParam(node.geometry.params, "text", "chibi")}
+          {strParam(params, "text", "chibi")}
         </Text3D>
         <RChildren ids={node.children} />
       </group>
@@ -503,7 +504,7 @@ function RMesh({ node }: { node: MeshNode }) {
       material={material}
       {...handlers}
     >
-      <GeometryElement kind={node.geometry.kind} params={node.geometry.params} />
+      <GeometryElement geometry={node.geometry} />
       <RChildren ids={node.children} />
     </mesh>
   );

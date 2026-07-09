@@ -27,6 +27,11 @@ import {
   setTransform,
 } from "../store/commands";
 import {
+  addEditableMeshNode,
+  convertToEditableMesh,
+  setSubdivisions,
+} from "../store/meshCommands";
+import {
   addMaterial,
   assignMaterial,
   setDocumentName,
@@ -393,6 +398,11 @@ export function buildTools(): ToolSet {
         if (node.type !== "mesh") {
           throw new Error(`${nodeId} is a ${node.type}, not a mesh`);
         }
+        if (node.geometry.kind === "editableMesh") {
+          throw new Error(
+            `${nodeId} is an editable-mesh cage, not a parametric primitive — it has no geometry params to set`,
+          );
+        }
         if (!(key in node.geometry.params)) {
           throw new Error(
             `"${key}" is not a param of ${node.geometry.kind} (has: ${Object.keys(node.geometry.params).join(", ")})`,
@@ -400,6 +410,109 @@ export function buildTools(): ToolSet {
         }
         ai(() => setGeometryParam(nodeId, key, value));
         return { nodeId, summary: `set ${key}=${value} on ${nodeId}` };
+      },
+    }),
+
+    add_editable_mesh: tool({
+      description:
+        "Create a mesh from a hand-authored subdivision-surface control cage — for organic/bespoke shapes no primitive combination can make. Author a LOW-POLY cage (8-60 verts): flat positions [x,y,z,...] in local space, faces as polygon loops of vertex indices (quads preferred), each wound counter-clockwise seen from OUTSIDE, with neighboring faces sharing vertex indices (welded, watertight unless an open surface is wanted). Catmull-Clark smooths it at render time via subdivisions — never densify the cage by hand.",
+      inputSchema: z.object({
+        name: z.string().optional(),
+        positions: z
+          .array(z.number())
+          .describe("flat [x,y,z,...] local-space vertex positions"),
+        faces: z
+          .array(z.array(z.number().int().min(0)).min(3))
+          .min(1)
+          .describe("polygon loops (quads preferred), CCW seen from outside"),
+        subdivisions: z.number().int().min(0).max(4).default(1),
+        transform: transformInput.optional(),
+        materialId: z.string().optional(),
+      }),
+      execute: async ({ name, positions, faces, subdivisions, transform, materialId }) => {
+        assertBaseState("add objects");
+        if (positions.length < 9 || positions.length % 3 !== 0) {
+          throw new Error(
+            "positions must be a flat [x,y,z,...] array of at least 3 vertices (length divisible by 3)",
+          );
+        }
+        const vertexCount = positions.length / 3;
+        for (const face of faces) {
+          for (const vi of face) {
+            if (vi >= vertexCount) {
+              throw new Error(
+                `face [${face.join(",")}] references vertex ${vi} but there are only ${vertexCount} vertices`,
+              );
+            }
+          }
+          if (new Set(face).size !== face.length) {
+            throw new Error(`face [${face.join(",")}] repeats a vertex`);
+          }
+        }
+        if (materialId && !getDoc().materials[materialId]) {
+          throw new Error(`No material with id "${materialId}"`);
+        }
+        const id = ai(() => addEditableMeshNode({ positions, faces }, subdivisions));
+        if (!id) throw new Error("add_editable_mesh was refused by the editor");
+        if (name) ai(() => setNodeName(id, name));
+        if (transform) applyTransform(id, transform);
+        if (materialId) ai(() => assignMaterial(id, materialId));
+        return {
+          nodeId: id,
+          summary: `created editable mesh ${id} (${vertexCount}v/${faces.length}f, subdivisions ${subdivisions})`,
+        };
+      },
+    }),
+
+    convert_to_editable_mesh: tool({
+      description:
+        "Convert a parametric primitive mesh into an editable subdivision-surface cage (destructive: its geometry params are dropped, undo to revert). Works for box/plane/cylinder/cone/sphere/torus; capsule and text3d have no cage generator. The node keeps its transform/material; smoothing is controlled by set_subdivisions afterward.",
+      inputSchema: z.object({ nodeId: z.string() }),
+      execute: async ({ nodeId }) => {
+        assertBaseState("convert to editable mesh");
+        const node = getNodeOrThrow(getDoc(), nodeId);
+        if (node.type !== "mesh") {
+          throw new Error(`${nodeId} is a ${node.type}, not a mesh`);
+        }
+        if (node.geometry.kind === "editableMesh") {
+          throw new Error(`${nodeId} is already an editable mesh`);
+        }
+        if (node.geometry.kind === "capsule" || node.geometry.kind === "text3d") {
+          throw new Error(
+            `${node.geometry.kind} has no cage generator — only box/plane/cylinder/cone/sphere/torus convert`,
+          );
+        }
+        ai(() => convertToEditableMesh(nodeId));
+        const after = getNodeOrThrow(getDoc(), nodeId);
+        if (after.type !== "mesh" || after.geometry.kind !== "editableMesh") {
+          throw new Error("conversion was refused by the editor");
+        }
+        return {
+          nodeId,
+          vertices: after.geometry.positions.length / 3,
+          faces: after.geometry.faces.length,
+          subdivisions: after.geometry.subdivisions,
+          summary: `converted ${nodeId} to an editable-mesh cage`,
+        };
+      },
+    }),
+
+    set_subdivisions: tool({
+      description:
+        "Set the render-time Catmull-Clark subdivision level (0-4) of an editable-mesh node. 0 shows the faceted cage; 1-2 is usually enough for smooth organic shapes.",
+      inputSchema: z.object({
+        nodeId: z.string(),
+        level: z.number().int().min(0).max(4),
+      }),
+      execute: async ({ nodeId, level }) => {
+        const node = getNodeOrThrow(getDoc(), nodeId);
+        if (node.type !== "mesh" || node.geometry.kind !== "editableMesh") {
+          throw new Error(
+            `${nodeId} is not an editable mesh — convert_to_editable_mesh first`,
+          );
+        }
+        ai(() => setSubdivisions(nodeId, level));
+        return { nodeId, summary: `set subdivisions=${level} on ${nodeId}` };
       },
     }),
 

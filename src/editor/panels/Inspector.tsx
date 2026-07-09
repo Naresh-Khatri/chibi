@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  Boxes,
   Palette,
+  Pencil,
   Plus,
   RotateCcw,
   SlidersHorizontal,
@@ -12,6 +14,11 @@ import {
 import { Color } from "three";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   BASE_STATE_ID,
   DEFAULT_MATERIAL_ID,
@@ -35,8 +42,13 @@ import {
   setTransformComponent,
   splitModelNode,
 } from "../store/commands";
+import {
+  convertToEditableMesh,
+  increaseBaseSubdivision,
+  setSubdivisions,
+} from "../store/meshCommands";
 import { getGltfScene, useRegistry } from "../viewport/objectRegistry";
-import { clearOverride } from "../store/stateCommands";
+import { clearOverride, requireBaseState } from "../store/stateCommands";
 import {
   addMaterial,
   assignMaterial,
@@ -359,7 +371,12 @@ function NodeInspector({ nodeId }: { nodeId: string }) {
         />
       </Section>
 
-      {node.type === "mesh" && <GeometrySection node={node} />}
+      {node.type === "mesh" && node.geometry.kind === "editableMesh" && (
+        <EditableMeshSection node={node} />
+      )}
+      {node.type === "mesh" && node.geometry.kind !== "editableMesh" && (
+        <GeometrySection node={node} />
+      )}
       {(node.type === "mesh" ||
         (node.type === "model" && node.path !== undefined)) && (
         <MaterialSection node={node} />
@@ -413,11 +430,15 @@ function ModelSection({ node }: { node: ModelNode }) {
 }
 
 function GeometrySection({ node }: { node: MeshNode }) {
-  const def = GEOMETRY_DEFS[node.geometry.kind];
+  const geometry = node.geometry;
+  if (geometry.kind === "editableMesh") return null; // handled by EditableMeshSection
+  const def = GEOMETRY_DEFS[geometry.kind];
+  // capsule/text3d have no cage generator yet — see cageFromGeometry
+  const convertible = geometry.kind !== "capsule" && geometry.kind !== "text3d";
   return (
     <Section title={`Geometry · ${def.label}`}>
       {def.params.map((param) => {
-        const raw = node.geometry.params[param.key] ?? param.default;
+        const raw = geometry.params[param.key] ?? param.default;
         const commit = (v: number, merge: boolean) =>
           setGeometryParam(
             node.id,
@@ -469,6 +490,100 @@ function GeometrySection({ node }: { node: MeshNode }) {
           </LabeledRow>
         );
       })}
+      <Button
+        variant="secondary"
+        size="xs"
+        className="w-full"
+        disabled={!convertible}
+        onClick={() => convertToEditableMesh(node.id)}
+      >
+        <Boxes />
+        Convert to Editable Mesh
+      </Button>
+      {!convertible && (
+        <div className="text-[11px] text-muted-foreground/70">
+          {def.label} can&apos;t be converted to an editable mesh yet.
+        </div>
+      )}
+    </Section>
+  );
+}
+
+function EditableMeshSection({ node }: { node: MeshNode }) {
+  const geometry = node.geometry;
+  const meshEditNodeId = useUI((s) => s.meshEditNodeId);
+  const enterMeshEdit = useUI((s) => s.enterMeshEdit);
+  if (geometry.kind !== "editableMesh") return null; // handled by GeometrySection
+  const vertCount = geometry.positions.length / 3;
+  const editing = meshEditNodeId === node.id;
+  // predicted post-bake face count: 1st CC step = each n-gon -> n quads (sum
+  // of degrees), each further step ×4. shown in tooltip so the destructive
+  // rewrite is visible before the click
+  const bakeSteps = Math.max(1, geometry.subdivisions);
+  const bakedFaceCount =
+    geometry.faces.reduce((sum, f) => sum + f.length, 0) * 4 ** (bakeSteps - 1);
+  const commitLevel = (v: number, merge: boolean) =>
+    setSubdivisions(
+      node.id,
+      v,
+      merge ? { mergeKey: `subdiv:${node.id}` } : undefined,
+    );
+  return (
+    <Section title="Geometry · Editable Mesh">
+      <LabeledRow
+        label="Level"
+        scrub={{ value: geometry.subdivisions, onCommit: commitLevel, step: 1, min: 0, max: 4 }}
+      >
+        <Slider
+          value={geometry.subdivisions}
+          min={0}
+          max={4}
+          step={1}
+          onCommit={commitLevel}
+        />
+      </LabeledRow>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="secondary"
+            size="xs"
+            className="w-full"
+            onClick={() => increaseBaseSubdivision(node.id)}
+          >
+            <Plus />
+            {/* bakes the Level above in one shot when >1 — no clicking once per step */}
+            {geometry.subdivisions > 1
+              ? `Increase Base Subdivision (+${geometry.subdivisions})`
+              : "Increase Base Subdivision"}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="top">
+          Rewrites the cage: {geometry.faces.length} → {bakedFaceCount} faces ·
+          undo to revert
+        </TooltipContent>
+      </Tooltip>
+      {editing ? (
+        // active-edit controls (element mode, face ops, Done) live in the
+        // floating MeshEditToolbar at the top of the viewport
+        <div className="rounded-lg border border-primary/30 bg-primary/5 px-2.5 py-1.5 text-[11px] text-muted-foreground">
+          Editing — use the toolbar at the top of the viewport.
+        </div>
+      ) : (
+        <Button
+          variant="secondary"
+          size="xs"
+          className="w-full"
+          onClick={() => {
+            if (requireBaseState("edit the mesh")) enterMeshEdit(node.id);
+          }}
+        >
+          <Pencil />
+          Edit Mesh
+        </Button>
+      )}
+      <div className="text-xs text-muted-foreground">
+        {vertCount} verts · {geometry.faces.length} faces
+      </div>
     </Section>
   );
 }

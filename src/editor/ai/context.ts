@@ -50,8 +50,11 @@ function nodeDetail(node: ChibiNode): string {
   ];
   if (!node.visible) parts.push("hidden");
   if (node.type === "mesh") {
+    const geo = node.geometry;
     parts.push(
-      `geometry ${node.geometry.kind} ${JSON.stringify(node.geometry.params)}`,
+      geo.kind === "editableMesh"
+        ? `geometry editableMesh (${geo.positions.length / 3}v/${geo.faces.length}f, subdivision ${geo.subdivisions})`
+        : `geometry ${geo.kind} ${JSON.stringify(geo.params)}`,
       `material ${node.materialId}`,
     );
     if (!node.castShadow) parts.push("no castShadow");

@@ -23,6 +23,8 @@ import { SceneNodes } from "./NodeRenderer";
 import { AnimationPlayback } from "./AnimationPlayback";
 import { Gizmo } from "./Gizmo";
 import { SelectionBox } from "./SelectionBox";
+import { CageOverlay } from "./CageOverlay";
+import { MeshEditGizmo } from "./MeshEditGizmo";
 import { handleDroppedFiles } from "./dropImport";
 import {
   isClick,
@@ -100,6 +102,7 @@ export function Viewport() {
   });
   const inspectorOpen = useUI((s) => s.inspectorOpen);
   const previewing = useUI((s) => s.previewing);
+  const meshEditNodeId = useUI((s) => s.meshEditNodeId);
   const dragDepth = useRef(0);
   const [dropping, setDropping] = useState(false);
 
@@ -141,8 +144,14 @@ export function Viewport() {
           far: 500,
         }}
         onPointerMissed={(e) => {
+          // right/middle button = orbit-pan/dolly, never a deselect — a short
+          // pan under click-slop would otherwise read as click-on-empty
+          if (e.button !== 0) return;
           if (isGizmoActive()) return;
-          if (isClick(e.clientX, e.clientY)) {
+          if (!isClick(e.clientX, e.clientY)) return;
+          if (useUI.getState().meshEditNodeId) {
+            useUI.getState().setMeshSelection({ vertices: new Set(), edges: new Set(), faces: new Set() });
+          } else {
             useUI.getState().select(null);
           }
         }}
@@ -166,8 +175,17 @@ export function Viewport() {
           <SceneNodes />
         </Suspense>
         <AnimationPlayback />
-        <SelectionBox />
-        <Gizmo />
+        {meshEditNodeId ? (
+          <>
+            <CageOverlay />
+            <MeshEditGizmo />
+          </>
+        ) : (
+          <>
+            <SelectionBox />
+            <Gizmo />
+          </>
+        )}
         {grid && (
           <Grid
             infiniteGrid

@@ -205,4 +205,52 @@ describe("document round-trip", () => {
     doc.nodes["nd_bad"] = { id: "nd_bad", type: "mesh" };
     expect(() => validateDocument(doc)).toThrow();
   });
+
+  it("round-trips a mesh node with an editableMesh cage geometry", () => {
+    const doc = createDocument("Editable mesh round trip");
+
+    const cageNode: MeshNode = {
+      id: "nd_cage",
+      name: "Cage",
+      type: "mesh",
+      geometry: {
+        kind: "editableMesh",
+        positions: [
+          0, 0, 0, // 0
+          1, 0, 0, // 1
+          1, 1, 0, // 2
+          0, 1, 0, // 3
+        ],
+        faces: [[0, 1, 2, 3]],
+        subdivisions: 1,
+      },
+      materialId: "mt_default",
+      transform: identity(),
+      visible: true,
+      castShadow: true,
+      receiveShadow: true,
+      children: [],
+    };
+    doc.nodes[cageNode.id] = cageNode;
+    doc.root.push(cageNode.id);
+
+    // parametric mesh must still validate alongside the new union member
+    const box: MeshNode = {
+      id: "nd_box",
+      name: "Box",
+      type: "mesh",
+      geometry: { kind: "box", params: defaultGeometryParams("box") },
+      materialId: "mt_default",
+      transform: identity(),
+      visible: true,
+      castShadow: true,
+      receiveShadow: true,
+      children: [],
+    };
+    doc.nodes[box.id] = box;
+    doc.root.push(box.id);
+
+    const parsed = validateDocument(JSON.parse(JSON.stringify(doc)));
+    expect(parsed).toEqual(doc);
+  });
 });

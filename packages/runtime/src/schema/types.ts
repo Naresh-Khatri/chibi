@@ -31,6 +31,32 @@ export const geometryParamsSchema = z.record(
 );
 export type GeometryParams = z.infer<typeof geometryParamsSchema>;
 
+// the 8 addable primitives — shape fully determined by a few numbers
+export const parametricGeometrySchema = z.object({
+  kind: geometryKindSchema,
+  params: geometryParamsSchema,
+});
+export type ParametricGeometry = z.infer<typeof parametricGeometrySchema>;
+
+// control cage for subdivision-surface modeling — smooth surface is derived
+// at render time (mesh/catmullClark.ts) and never persisted. faces are
+// polygon loops (tri/quad/n-gon); referential integrity (index range,
+// manifoldness) is deliberately not zod-validated, matching materialId —
+// mesh/ builders defensively skip/clamp bad faces instead.
+export const editableMeshGeometrySchema = z.object({
+  kind: z.literal("editableMesh"),
+  positions: z.array(z.number()).min(9), // flat [x,y,z,...]
+  faces: z.array(z.array(z.number().int().nonnegative()).min(3)).min(1),
+  subdivisions: z.number().int().min(0).max(4).default(1),
+});
+export type EditableMeshGeometry = z.infer<typeof editableMeshGeometrySchema>;
+
+export const meshGeometrySchema = z.discriminatedUnion("kind", [
+  parametricGeometrySchema,
+  editableMeshGeometrySchema,
+]);
+export type MeshGeometry = z.infer<typeof meshGeometrySchema>;
+
 const nodeBase = {
   id: z.string(),
   name: z.string(),
@@ -42,10 +68,7 @@ const nodeBase = {
 export const meshNodeSchema = z.object({
   ...nodeBase,
   type: z.literal("mesh"),
-  geometry: z.object({
-    kind: geometryKindSchema,
-    params: geometryParamsSchema,
-  }),
+  geometry: meshGeometrySchema,
   materialId: z.string(),
   castShadow: z.boolean(),
   receiveShadow: z.boolean(),

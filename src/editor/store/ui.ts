@@ -1,10 +1,40 @@
 import { create } from "zustand";
+import { useMeshPreview } from "./meshEditPreview";
 
 export type Tool = "select" | "move" | "rotate" | "scale";
 
 // "paused" previews the sampled pose at the playhead; "stopped" means the
 // viewport shows plain document values (playback restores them on stop).
 export type Playback = "stopped" | "playing" | "paused";
+
+// mesh-edit sub-mode (Phase 3): which kind of cage element clicks/drags pick
+export type ElementMode = "vertex" | "edge" | "face";
+
+// replaced wholesale on every change, never mutated in place (zustand identity)
+export type MeshSelection = {
+  vertices: Set<number>;
+  edges: Set<string>; // topology edgeKey, "${min}_${max}"
+  faces: Set<number>;
+};
+
+export type HoveredElement =
+  | { mode: "vertex"; index: number }
+  | { mode: "edge"; key: string }
+  | { mode: "face"; index: number };
+
+function emptyMeshSelection(): MeshSelection {
+  return { vertices: new Set(), edges: new Set(), faces: new Set() };
+}
+
+// fields that reset mesh-edit mode — shared by exitMeshEdit and by
+// select/selectMany when the new selection drops the node being edited
+function meshEditExitState() {
+  return {
+    meshEditNodeId: null,
+    meshSelection: emptyMeshSelection(),
+    hoveredElement: null,
+  };
+}
 
 type UIState = {
   tool: Tool;
@@ -25,6 +55,11 @@ type UIState = {
   activeStateId: string;
   previewing: boolean;
   inspectorTab: "design" | "interactions";
+  // mesh-edit sub-mode: editing one node's cage in-place (null = not editing)
+  meshEditNodeId: string | null;
+  elementMode: ElementMode;
+  meshSelection: MeshSelection;
+  hoveredElement: HoveredElement | null;
   setTool: (tool: Tool) => void;
   select: (id: string | null) => void;
   selectMany: (ids: string[]) => void;
@@ -42,6 +77,11 @@ type UIState = {
   showToast: (message: string) => void;
   setInspectorTab: (tab: "design" | "interactions") => void;
   openNodeInteractions: (id: string) => void;
+  enterMeshEdit: (nodeId: string) => void;
+  exitMeshEdit: () => void;
+  setElementMode: (mode: ElementMode) => void;
+  setMeshSelection: (selection: MeshSelection) => void;
+  setHoveredElement: (el: HoveredElement | null) => void;
 };
 
 const TOAST_MS = 4000;
@@ -62,10 +102,35 @@ export const useUI = create<UIState>()((set, get) => ({
   activeStateId: "base",
   previewing: false,
   inspectorTab: "design",
+  meshEditNodeId: null,
+  elementMode: "vertex",
+  meshSelection: emptyMeshSelection(),
+  hoveredElement: null,
   setTool: (tool) => set({ tool }),
-  select: (selectedId) =>
-    set({ selectedId, selectedIds: selectedId ? [selectedId] : [] }),
-  selectMany: (ids) => set({ selectedIds: ids, selectedId: ids[0] ?? null }),
+  select: (selectedId) => {
+    const selectedIds = selectedId ? [selectedId] : [];
+    // selection moved off the edited node (or was cleared) — exit mesh edit
+    // so the cage overlay doesn't outlive the node it was editing
+    const { meshEditNodeId } = get();
+    const exitingMeshEdit =
+      meshEditNodeId !== null && !selectedIds.includes(meshEditNodeId);
+    if (exitingMeshEdit) useMeshPreview.getState().setPreview(null);
+    set({
+      selectedId,
+      selectedIds,
+      ...(exitingMeshEdit ? meshEditExitState() : null),
+    });
+  },
+  selectMany: (ids) => {
+    const { meshEditNodeId } = get();
+    const exitingMeshEdit = meshEditNodeId !== null && !ids.includes(meshEditNodeId);
+    if (exitingMeshEdit) useMeshPreview.getState().setPreview(null);
+    set({
+      selectedIds: ids,
+      selectedId: ids[0] ?? null,
+      ...(exitingMeshEdit ? meshEditExitState() : null),
+    });
+  },
   toggleSnap: () => set((s) => ({ snap: !s.snap })),
   toggleTimeline: () =>
     set((s) =>
@@ -105,4 +170,24 @@ export const useUI = create<UIState>()((set, get) => ({
       inspectorOpen: true,
       inspectorTab: "interactions",
     }),
+  enterMeshEdit: (nodeId) =>
+    set({
+      meshEditNodeId: nodeId,
+      elementMode: "vertex",
+      meshSelection: emptyMeshSelection(),
+      hoveredElement: null,
+    }),
+  exitMeshEdit: () => {
+    // Escape mid-drag unmounts the gizmo before onMouseUp can clear the
+    // preview, so clear it here too or the viewport keeps showing the
+    // uncommitted drag positions
+    useMeshPreview.getState().setPreview(null);
+    set(meshEditExitState());
+  },
+  // element mode change invalidates picks from the other layer — stale
+  // cross-mode selection would silently skew the gizmo centroid otherwise
+  setElementMode: (elementMode) =>
+    set({ elementMode, meshSelection: emptyMeshSelection(), hoveredElement: null }),
+  setMeshSelection: (meshSelection) => set({ meshSelection }),
+  setHoveredElement: (hoveredElement) => set({ hoveredElement }),
 }));

@@ -16,6 +16,7 @@ import {
   Eye,
   EyeOff,
   Group,
+  Hexagon,
   Layers,
   Lightbulb,
   Package,
@@ -72,7 +73,11 @@ const TYPE_ICONS: Record<Exclude<ChibiNode["type"], "mesh">, LucideIcon> = {
 };
 
 export function nodeIcon(node: ChibiNode): LucideIcon {
-  if (node.type === "mesh") return GEOMETRY_ICONS[node.geometry.kind];
+  if (node.type === "mesh") {
+    // editable-mesh cages have no parametric kind to key GEOMETRY_ICONS with
+    if (node.geometry.kind === "editableMesh") return Hexagon;
+    return GEOMETRY_ICONS[node.geometry.kind];
+  }
   return TYPE_ICONS[node.type];
 }
 

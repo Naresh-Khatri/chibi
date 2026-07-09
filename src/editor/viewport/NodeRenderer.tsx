@@ -29,8 +29,10 @@ import {
   type ChibiAsset,
   type ChibiDocument,
   type ChibiNode,
+  type EditableMeshGeometry,
   type GroupNode,
   type LightNode,
+  type MeshGeometry,
   type MeshNode,
   type ModelNode,
   type PropertyValue,
@@ -40,6 +42,7 @@ import { FONT_URL, GeometryElement } from "@/runtime/react/Geometry";
 import { GlbPart } from "@/runtime/react/GlbPart";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
+import { useMeshPreview, type MeshPreview } from "../store/meshEditPreview";
 import { assetUrl } from "../store/assets";
 import { findParentId } from "../store/commands";
 import {
@@ -101,6 +104,22 @@ function effectiveView(node: ChibiNode, ov: OverrideMap) {
     scale: (ov?.["transform.scale"] as Vec3 | undefined) ?? node.transform.scale,
     visible: (ov?.visible as boolean | undefined) ?? node.visible,
   };
+}
+
+// live-drag preview substitutes positions and caps subdivisions <=2 so
+// dragging a dense cage doesn't tank frame rate (mesh-edit plan risk #1) —
+// baseline `subdivisions` is restored the instant the drag preview clears.
+// `preview` is already narrowed to this node (or null) by the caller's
+// selector, so no nodeId check is needed here — just stay null-safe.
+function effectiveGeometry(node: MeshNode, preview: MeshPreview): MeshGeometry {
+  const geo = node.geometry;
+  if (geo.kind !== "editableMesh" || !preview) return geo;
+  const capped: EditableMeshGeometry = {
+    ...geo,
+    positions: preview.positions,
+    subdivisions: Math.min(geo.subdivisions, 2),
+  };
+  return capped;
 }
 
 function useNodeRef<T extends Object3D>(id: string) {
@@ -170,6 +189,13 @@ function MeshView({ node }: { node: MeshNode }) {
       s.doc?.materials[DEFAULT_MATERIAL_ID],
   );
   const ref = useNodeRef<Mesh | Group>(node.id);
+  const meshEditNodeId = useUI((s) => s.meshEditNodeId);
+  const beingMeshEdited = meshEditNodeId === node.id;
+  // narrow to this node's preview so drag frames (~60fps) only re-render the
+  // edited MeshView — every other node's selector stays at a stable `null`.
+  const preview = useMeshPreview((s) =>
+    s.preview && s.preview.nodeId === node.id ? s.preview : null,
+  );
   const selectHandlers = useSelect(node.id);
   const overrides = useOverrides(node.id);
   const materialOverrides = useOverrides(node.materialId);
@@ -184,9 +210,9 @@ function MeshView({ node }: { node: MeshNode }) {
       : materialDef;
   const material = effectiveDef ? getSharedMaterial(effectiveDef) : undefined;
   const { position, rotation, scale, visible } = effectiveView(node, overrides);
-  const params = node.geometry.params;
 
   if (node.geometry.kind === "text3d") {
+    const params = node.geometry.params;
     const bevel = numParam(params, "bevel", 0);
     return (
       <group
@@ -228,9 +254,9 @@ function MeshView({ node }: { node: MeshNode }) {
       castShadow={node.castShadow}
       receiveShadow={node.receiveShadow}
       material={material}
-      {...selectHandlers}
+      {...(beingMeshEdited ? undefined : selectHandlers)}
     >
-      <GeometryElement kind={node.geometry.kind} params={params} />
+      <GeometryElement geometry={effectiveGeometry(node, preview)} />
       {node.children.map((cid) => (
         <NodeView key={cid} id={cid} />
       ))}

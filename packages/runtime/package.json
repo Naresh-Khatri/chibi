@@ -27,6 +27,11 @@
       "import": "./dist/engine/index.js",
       "require": "./dist/engine/index.cjs"
     },
+    "./mesh": {
+      "types": "./dist/mesh/index.d.ts",
+      "import": "./dist/mesh/index.js",
+      "require": "./dist/mesh/index.cjs"
+    },
     "./react/Geometry": {
       "types": "./dist/react/Geometry.d.ts",
       "import": "./dist/react/Geometry.js",

@@ -1,9 +1,22 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { LatheGeometry, Shape, ShapeGeometry, Vector2 } from "three";
+import {
+  BufferGeometry,
+  Float32BufferAttribute,
+  LatheGeometry,
+  Shape,
+  ShapeGeometry,
+  Vector2,
+} from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
-import { numParam, type GeometryKind, type GeometryParams } from "../schema";
+import {
+  numParam,
+  type EditableMeshGeometry,
+  type GeometryParams,
+  type MeshGeometry,
+} from "../schema";
+import { subdivideCatmullClark, triangulate, type Cage } from "../mesh";
 
 /** host app must ship this font in public/ (text3d meshes) */
 export const FONT_URL = "/fonts/helvetiker_regular.typeface.json";
@@ -141,14 +154,40 @@ function FilletedFrustumGeom({
   return <primitive object={geo} attach="geometry" />;
 }
 
-/** parametric geometry for a mesh node; shared by editor + runtime */
-export function GeometryElement({
-  kind,
-  params,
-}: {
-  kind: GeometryKind;
-  params: GeometryParams;
-}) {
+/** subdivision-surface modifier: cage -> Catmull-Clark -> triangulated BufferGeometry.
+ * mirrors the RoundedBoxGeom/FilletedFrustumGeom memo+dispose idiom above. */
+function SubdividedMeshGeom({ geometry }: { geometry: EditableMeshGeometry }) {
+  const geo = useMemo(() => {
+    const cage: Cage = { positions: geometry.positions, faces: geometry.faces };
+    const subdivided = subdivideCatmullClark(cage, geometry.subdivisions);
+    const { positions, index } = triangulate(subdivided);
+    const g = new BufferGeometry();
+    g.setAttribute("position", new Float32BufferAttribute(positions, 3));
+    g.setIndex(index);
+    // level 0: box cage shares 8 verts across hard faces -> indexed
+    // computeVertexNormals averages corners and rounds flat faces. expand to
+    // non-indexed so faces stay flat. level >=1: indexed is correct — CC
+    // shares verts across quads, averaged normals = the smooth surface.
+    if (geometry.subdivisions === 0) {
+      const flat = g.toNonIndexed();
+      g.dispose();
+      flat.computeVertexNormals();
+      return flat;
+    }
+    g.computeVertexNormals();
+    return g;
+  }, [geometry.positions, geometry.faces, geometry.subdivisions]);
+  useEffect(() => () => geo.dispose(), [geo]);
+  return <primitive object={geo} attach="geometry" />;
+}
+
+/** geometry for a mesh node (parametric primitive or editable-mesh cage);
+ * shared by editor + runtime */
+export function GeometryElement({ geometry }: { geometry: MeshGeometry }) {
+  if (geometry.kind === "editableMesh") {
+    return <SubdividedMeshGeom geometry={geometry} />;
+  }
+  const { kind, params } = geometry;
   const n = (key: string, fallback: number) => numParam(params, key, fallback);
   switch (kind) {
     case "box":

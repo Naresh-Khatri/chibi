@@ -35,7 +35,7 @@ function dispatch(
   useDoc.getState().dispatch(label, recipe, opts);
 }
 
-function identityTransform(): Transform {
+export function identityTransform(): Transform {
   return { position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] };
 }
 
@@ -77,7 +77,7 @@ export function subtreeIds(doc: ChibiDocument, nodeId: string): string[] {
   return ids;
 }
 
-function uniqueName(doc: ChibiDocument, base: string): string {
+export function uniqueName(doc: ChibiDocument, base: string): string {
   const names = new Set(Object.values(doc.nodes).map((n) => n.name));
   if (!names.has(base)) return base;
   let i = 2;
@@ -492,7 +492,9 @@ export function setGeometryParam(
     "Edit geometry",
     (d) => {
       const node = d.nodes[nodeId];
-      if (node?.type === "mesh") node.geometry.params[key] = value;
+      // editable-mesh cages have no .params — nothing to set (phase 2: cage editing)
+      if (node?.type === "mesh" && node.geometry.kind !== "editableMesh")
+        node.geometry.params[key] = value;
     },
     opts,
   );

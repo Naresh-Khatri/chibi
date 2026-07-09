@@ -8,6 +8,7 @@ import { Toolbar } from "./panels/Toolbar";
 import { Hierarchy } from "./panels/Hierarchy";
 import { Inspector } from "./panels/Inspector";
 import { AiChat, AskAiButton } from "./panels/AiChat";
+import { MeshEditToolbar } from "./panels/MeshEditToolbar";
 import { Timeline } from "./panels/Timeline";
 import { Viewport } from "./viewport/Viewport";
 import { PreviewOverlay } from "./Preview";
@@ -85,6 +86,7 @@ export function EditorLayout() {
         </header>
         <main className="relative min-h-0 min-w-0">
           <Viewport />
+          <MeshEditToolbar />
           <FloatingPanel side="left" open={hierarchyOpen} onToggle={toggleHierarchy}>
             <Hierarchy />
           </FloatingPanel>
