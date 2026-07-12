@@ -29,6 +29,7 @@ import { handleDroppedFiles } from "./dropImport";
 import {
   isClick,
   isGizmoActive,
+  markCameraMoved,
   setOrbitControls,
   setPointerDownAt,
   type OrbitLike,
@@ -205,6 +206,9 @@ export function Viewport() {
           makeDefault
           enableDamping
           dampingFactor={0.12}
+          // a camera move mid-gesture means pointerup isn't a click -> don't
+          // deselect / clear the mesh selection when orbiting or panning
+          onChange={markCameraMoved}
           target={initialCamera.target as [number, number, number]}
           ref={(controls) => {
             setOrbitControls(controls as unknown as OrbitLike | null);

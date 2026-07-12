@@ -56,6 +56,7 @@ export function MeshEditGizmo() {
   const snapEnabled = useUI((s) => s.snap);
   const selection = useUI((s) => s.meshSelection);
   const setPreview = useMeshPreview((s) => s.setPreview);
+  const cutActive = useUI((s) => s.meshCutActive);
   const ctrlHeld = useCtrlHeld();
   const sceneObject = useSceneObject(nodeId);
   const geometry = useDoc((s) => {
@@ -161,7 +162,8 @@ export function MeshEditGizmo() {
     });
   }, [nodeId, proxy, setPreview]);
 
-  if (!nodeId || !sceneObject || vertexIndices.length === 0 || tool === "select") {
+  // cut tool owns the pointer while active — hide the transform gizmo
+  if (!nodeId || !sceneObject || vertexIndices.length === 0 || tool === "select" || cutActive) {
     return null;
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import {
   BufferGeometry,
@@ -8,17 +8,44 @@ import {
   DoubleSide,
   Float32BufferAttribute,
   LineSegments as ThreeLineSegments,
+  Matrix4,
   Mesh as ThreeMesh,
   PerspectiveCamera,
   Points as ThreePoints,
   Vector3,
   type Group,
 } from "three";
-import { buildTopology, triangulate } from "@/runtime/mesh";
+import { buildTopology, computeEdgeLoop, triangulate, type Topology } from "@/runtime/mesh";
 import { useDoc } from "../store/document";
 import { useUI, type HoveredElement, type MeshSelection } from "../store/ui";
 import { useMeshPreview } from "../store/meshEditPreview";
+import { loopCutMesh } from "../store/meshCommands";
 import { isClick, isGizmoActive, useSceneObject } from "./objectRegistry";
+
+const CUT_RGB = "#fde047"; // yellow — loop-cut preview line
+
+// perpendicular distance from a local point to cage edge (ia,ib) — picks the
+// edge nearest the cursor to seed the loop cut (Blender "hover the edge").
+function pointToEdgeDistance(p: Vector3, pos: number[], ia: number, ib: number): number {
+  const ax = pos[ia * 3], ay = pos[ia * 3 + 1], az = pos[ia * 3 + 2];
+  const bx = pos[ib * 3], by = pos[ib * 3 + 1], bz = pos[ib * 3 + 2];
+  const abx = bx - ax, aby = by - ay, abz = bz - az;
+  const ab2 = abx * abx + aby * aby + abz * abz || 1e-9;
+  let t = ((p.x - ax) * abx + (p.y - ay) * aby + (p.z - az) * abz) / ab2;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(p.x - (ax + abx * t), p.y - (ay + aby * t), p.z - (az + abz * t));
+}
+
+function edgeMidpoint(topo: Topology, pos: number[], key: string): [number, number, number] | null {
+  const ev = topo.edgeVerts.get(key);
+  if (!ev) return null;
+  const [a, b] = ev;
+  return [
+    (pos[a * 3] + pos[b * 3]) / 2,
+    (pos[a * 3 + 1] + pos[b * 3 + 1]) / 2,
+    (pos[a * 3 + 2] + pos[b * 3 + 2]) / 2,
+  ];
+}
 
 const BASE_RGB = new Color("#22d3ee").toArray(); // cyan — idle cage
 const SELECTED_RGB = new Color("#f59e0b").toArray(); // amber — picked
@@ -123,6 +150,7 @@ export function CageOverlay() {
   const setHoveredElement = useUI((s) => s.setHoveredElement);
   const hovered = useUI((s) => s.hoveredElement);
   const exitMeshEdit = useUI((s) => s.exitMeshEdit);
+  const meshCutActive = useUI((s) => s.meshCutActive);
   const preview = useMeshPreview((s) => s.preview);
   const geometry = useDoc((s) => {
     const node = nodeId ? s.doc?.nodes[nodeId] : undefined;
@@ -255,10 +283,82 @@ export function CageOverlay() {
   }, [selection.faces, hovered]);
 
   const highlightFacesGeo = useMemo(() => {
-    if (!geometry || !positions || highlightFaceIndices.size === 0) return null;
+    if (meshCutActive || !geometry || !positions || highlightFaceIndices.size === 0) return null;
     return buildFacesGeometry(positions, geometry.faces, highlightFaceIndices);
-  }, [geometry, positions, highlightFaceIndices]);
+  }, [meshCutActive, geometry, positions, highlightFaceIndices]);
   useEffect(() => () => highlightFacesGeo?.dispose(), [highlightFacesGeo]);
+
+  // loop-cut preview: yellow ring line following the cursor while the Cut
+  // tool is active. local-space segments (rendered inside the transformed
+  // group), rebuilt on hover. cleared when the tool turns off.
+  const [cutSegments, setCutSegments] = useState<Float32Array | null>(null);
+  const invWorld = useRef(new Matrix4());
+
+  const cutGeo = useMemo(() => {
+    if (!meshCutActive || !cutSegments || cutSegments.length < 6) return null;
+    const g = new BufferGeometry();
+    g.setAttribute("position", new Float32BufferAttribute(cutSegments, 3));
+    return g;
+  }, [meshCutActive, cutSegments]);
+  useEffect(() => () => cutGeo?.dispose(), [cutGeo]);
+
+  // hovered quad + world hit point -> {seed edge nearest cursor, ring preview}
+  const cutForFace = useCallback(
+    (faceIndex: number, worldPoint: Vector3) => {
+      if (!topology || !positions || !sceneObject) return null;
+      const keys = topology.faceEdges[faceIndex];
+      if (!keys || keys.length !== 4) return null; // only quads seed a loop
+      invWorld.current.copy(sceneObject.matrixWorld).invert();
+      const local = worldPoint.clone().applyMatrix4(invWorld.current);
+      let seedKey = keys[0];
+      let best = Infinity;
+      for (const key of keys) {
+        const ev = topology.edgeVerts.get(key);
+        if (!ev) continue;
+        const d = pointToEdgeDistance(local, positions, ev[0], ev[1]);
+        if (d < best) {
+          best = d;
+          seedKey = key;
+        }
+      }
+      const loop = computeEdgeLoop(topology, faceIndex, seedKey);
+      if (!loop) return null;
+      const seg: number[] = [];
+      for (const f of loop.faces) {
+        const a = edgeMidpoint(topology, positions, f.inKey);
+        const b = edgeMidpoint(topology, positions, f.outKey);
+        if (a && b) seg.push(a[0], a[1], a[2], b[0], b[1], b[2]);
+      }
+      return { seedKey, segments: new Float32Array(seg) };
+    },
+    [topology, positions, sceneObject],
+  );
+
+  const onCutMove = useCallback(
+    (e: ThreeEvent<PointerEvent>) => {
+      if (isGizmoActive() || e.faceIndex == null || !triangulated) return;
+      const fi = triangulated.triangleToFace[e.faceIndex];
+      if (fi === undefined) return;
+      e.stopPropagation();
+      const res = cutForFace(fi, e.point);
+      setCutSegments(res ? res.segments : null);
+    },
+    [triangulated, cutForFace],
+  );
+  const onCutUp = useCallback(
+    (e: ThreeEvent<PointerEvent>) => {
+      if (isGizmoActive() || e.faceIndex == null || !triangulated || !nodeId) return;
+      const fi = triangulated.triangleToFace[e.faceIndex];
+      if (fi === undefined) return;
+      e.stopPropagation();
+      if (!isClick(e.clientX, e.clientY)) return;
+      const res = cutForFace(fi, e.point);
+      if (!res) return;
+      loopCutMesh(nodeId, fi, res.seedKey);
+      setCutSegments(null);
+    },
+    [triangulated, cutForFace, nodeId],
+  );
 
   const onPointerDown = useCallback((e: ThreeEvent<PointerEvent>) => {
     if (isGizmoActive()) return;
@@ -266,6 +366,7 @@ export function CageOverlay() {
   }, []);
   const onPointerOut = useCallback(() => {
     setHoveredElement(null);
+    setCutSegments(null);
   }, [setHoveredElement]);
 
   const onVertexMove = useCallback(
@@ -340,17 +441,27 @@ export function CageOverlay() {
 
   return (
     <group ref={groupRef}>
-      {/* invisible pick surface: only raycastable in face mode */}
+      {/* invisible pick surface, always raycastable. face/cut mode pick with
+          it; vertex/edge mode use it only to absorb body clicks (onFaceMove/Up
+          no-op off face mode) so a missed-element click can't reach
+          onPointerMissed and wipe the selection. onPointerDown stops prop ->
+          no click-through to a node behind. */}
       <mesh
         geometry={pickGeo}
-        raycast={elementMode === "face" ? ThreeMesh.prototype.raycast : () => null}
+        raycast={ThreeMesh.prototype.raycast}
         onPointerDown={onPointerDown}
-        onPointerMove={onFaceMove}
+        onPointerMove={meshCutActive ? onCutMove : onFaceMove}
         onPointerOut={onPointerOut}
-        onPointerUp={onFaceUp}
+        onPointerUp={meshCutActive ? onCutUp : onFaceUp}
       >
         <meshBasicMaterial transparent opacity={0} depthWrite={false} side={DoubleSide} />
       </mesh>
+
+      {cutGeo && (
+        <lineSegments geometry={cutGeo} raycast={() => null}>
+          <lineBasicMaterial color={CUT_RGB} depthTest={false} transparent linewidth={2} />
+        </lineSegments>
+      )}
 
       {highlightFacesGeo && (
         <mesh geometry={highlightFacesGeo} raycast={() => null}>
@@ -366,7 +477,7 @@ export function CageOverlay() {
 
       <lineSegments
         geometry={linesGeo}
-        raycast={elementMode === "edge" ? ThreeLineSegments.prototype.raycast : () => null}
+        raycast={elementMode === "edge" && !meshCutActive ? ThreeLineSegments.prototype.raycast : () => null}
         onPointerDown={onPointerDown}
         onPointerMove={onEdgeMove}
         onPointerOut={onPointerOut}
@@ -377,7 +488,7 @@ export function CageOverlay() {
 
       <points
         geometry={pointsGeo}
-        raycast={elementMode === "vertex" ? ThreePoints.prototype.raycast : () => null}
+        raycast={elementMode === "vertex" && !meshCutActive ? ThreePoints.prototype.raycast : () => null}
         onPointerDown={onPointerDown}
         onPointerMove={onVertexMove}
         onPointerOut={onPointerOut}

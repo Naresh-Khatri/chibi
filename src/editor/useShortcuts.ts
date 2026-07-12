@@ -52,7 +52,12 @@ export function useShortcuts() {
       if (ui.meshEditNodeId) {
         switch (key) {
           case "escape":
-            ui.exitMeshEdit();
+            // cut tool active -> Esc cancels the cut first, not the whole edit
+            if (ui.meshCutActive) ui.setMeshCutActive(false);
+            else ui.exitMeshEdit();
+            return;
+          case "c":
+            ui.setMeshCutActive(!ui.meshCutActive);
             return;
           case "1":
             ui.setElementMode("vertex");

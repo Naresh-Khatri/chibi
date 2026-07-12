@@ -1,5 +1,8 @@
 import {
+  applyLoopCut,
+  buildTopology,
   cageFromGeometry,
+  computeEdgeLoop,
   deleteFaces,
   extrudeFaces,
   subdivideCatmullClark,
@@ -240,4 +243,37 @@ export function deleteSelectedFaces(nodeId: string): void {
     n.geometry.faces = cage.faces;
   });
   useUI.getState().setMeshSelection({ vertices: new Set(), edges: new Set(), faces: new Set() });
+}
+
+/**
+ * Loop cut: slice the quad ring seeded by `startEdgeKey`/`startFace` (edge
+ * nearest the cursor). Cut tool previews the same ring, calls this on click.
+ * Re-selects the new dividing edges (edge mode) and drops the cut tool so the
+ * fresh cut is visible and immediately movable.
+ */
+export function loopCutMesh(nodeId: string, startFace: number, startEdgeKey: string): void {
+  if (!requireBaseState("cut mesh")) return;
+  const doc = useDoc.getState().doc;
+  const node = doc?.nodes[nodeId];
+  if (!node || node.type !== "mesh" || node.geometry.kind !== "editableMesh") return;
+
+  const cage = { positions: node.geometry.positions, faces: node.geometry.faces };
+  const loop = computeEdgeLoop(buildTopology(cage), startFace, startEdgeKey);
+  if (!loop || loop.faces.length === 0) {
+    useUI.getState().showToast("Can't cut here — hover an edge of a quad face");
+    return;
+  }
+
+  const { cage: out, newEdgeKeys } = applyLoopCut(cage, loop);
+  dispatch("Loop cut", (d) => {
+    const n = d.nodes[nodeId];
+    if (n?.type !== "mesh" || n.geometry.kind !== "editableMesh") return;
+    n.geometry.positions = out.positions;
+    n.geometry.faces = out.faces;
+  });
+
+  const ui = useUI.getState();
+  ui.setMeshCutActive(false);
+  ui.setElementMode("edge"); // clears selection; show the new cut edges below
+  ui.setMeshSelection({ vertices: new Set(), edges: new Set(newEdgeKeys), faces: new Set() });
 }

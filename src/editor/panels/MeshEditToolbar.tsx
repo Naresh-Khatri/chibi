@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpFromLine, Check, Dot, Minus, Trash2, Triangle } from "lucide-react";
+import { ArrowUpFromLine, Check, Dot, Minus, Scissors, Trash2, Triangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useUI, type ElementMode } from "../store/ui";
@@ -41,11 +41,13 @@ export function MeshEditToolbar() {
   const selection = useUI((s) => s.meshSelection);
   const setElementMode = useUI((s) => s.setElementMode);
   const exitMeshEdit = useUI((s) => s.exitMeshEdit);
+  const cutActive = useUI((s) => s.meshCutActive);
+  const setMeshCutActive = useUI((s) => s.setMeshCutActive);
 
   if (!nodeId) return null;
 
   const count = selectedCount(elementMode, selection);
-  const showFaceOps = elementMode === "face" && selection.faces.size > 0;
+  const showFaceOps = elementMode === "face" && selection.faces.size > 0 && !cutActive;
   const activeMode = ELEMENT_MODES.find((m) => m.mode === elementMode);
 
   return (
@@ -76,10 +78,26 @@ export function MeshEditToolbar() {
       </ToggleGroup>
 
       <span className="min-w-16 text-[11px] tabular-nums text-muted-foreground">
-        {count > 0
-          ? `${count} ${activeMode?.label.toLowerCase()}${count > 1 ? "s" : ""}`
-          : "None selected"}
+        {cutActive
+          ? "Hover an edge · click to slice"
+          : count > 0
+            ? `${count} ${activeMode?.label.toLowerCase()}${count > 1 ? "s" : ""}`
+            : "None selected"}
       </span>
+
+      {/* Cut (loop cut) — always available; hover the mesh to preview a ring
+          cut, click to slice. direction follows the nearest edge. */}
+      <div className="flex items-center gap-1 border-l pl-2">
+        <Button
+          variant={cutActive ? "default" : "secondary"}
+          size="xs"
+          title="Cut tool (C) — hover the mesh, click to slice a loop"
+          onClick={() => setMeshCutActive(!cutActive)}
+        >
+          <Scissors />
+          Cut
+        </Button>
+      </div>
 
       {showFaceOps && (
         <div className="flex items-center gap-1 border-l pl-2">

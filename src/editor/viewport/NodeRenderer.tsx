@@ -45,6 +45,7 @@ import { useUI } from "../store/ui";
 import { useMeshPreview, type MeshPreview } from "../store/meshEditPreview";
 import { assetUrl } from "../store/assets";
 import { findParentId } from "../store/commands";
+import { requireBaseState } from "../store/stateCommands";
 import {
   isClick,
   isGizmoActive,
@@ -176,6 +177,13 @@ function useSelect(id: string) {
   const onPointerUp = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
       if (isGizmoActive()) return;
+      // mesh-edit is modal: edited node has no handlers, so any handler here is
+      // a DIFFERENT node behind it -> absorb (stop prop) so click-through can't
+      // switch selection or drop out of edit
+      if (useUI.getState().meshEditNodeId) {
+        e.stopPropagation();
+        return;
+      }
       e.stopPropagation();
       if (!isClick(e.clientX, e.clientY)) return;
       const doc = useDoc.getState().doc;
@@ -192,7 +200,21 @@ function useSelect(id: string) {
     },
     [id],
   );
-  return { onPointerDown, onPointerUp };
+  // double-click an editable-mesh node -> jump straight into mesh-edit mode
+  // (same as selecting it + Inspector's "Edit Mesh"). No-op otherwise.
+  const onDoubleClick = useCallback(
+    (e: ThreeEvent<MouseEvent>) => {
+      if (isGizmoActive()) return;
+      e.stopPropagation();
+      const node = useDoc.getState().doc?.nodes[id];
+      if (node?.type !== "mesh" || node.geometry.kind !== "editableMesh") return;
+      const { select, enterMeshEdit } = useUI.getState();
+      select(id);
+      if (requireBaseState("edit the mesh")) enterMeshEdit(id);
+    },
+    [id],
+  );
+  return { onPointerDown, onPointerUp, onDoubleClick };
 }
 
 function MeshView({ node }: { node: MeshNode }) {

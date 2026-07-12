@@ -33,6 +33,7 @@ function meshEditExitState() {
     meshEditNodeId: null,
     meshSelection: emptyMeshSelection(),
     hoveredElement: null,
+    meshCutActive: false,
   };
 }
 
@@ -62,6 +63,9 @@ type UIState = {
   elementMode: ElementMode;
   meshSelection: MeshSelection;
   hoveredElement: HoveredElement | null;
+  // loop-cut tool active within mesh-edit — hover previews a ring cut, click
+  // commits. mutually exclusive with the transform gizmo (it hides).
+  meshCutActive: boolean;
   setTool: (tool: Tool) => void;
   select: (id: string | null) => void;
   selectMany: (ids: string[]) => void;
@@ -85,6 +89,7 @@ type UIState = {
   setElementMode: (mode: ElementMode) => void;
   setMeshSelection: (selection: MeshSelection) => void;
   setHoveredElement: (el: HoveredElement | null) => void;
+  setMeshCutActive: (on: boolean) => void;
   openMaterialCard: (materialId?: string) => void;
   closeMaterialCard: () => void;
 };
@@ -113,6 +118,7 @@ export const useUI = create<UIState>()((set, get) => ({
   elementMode: "vertex",
   meshSelection: emptyMeshSelection(),
   hoveredElement: null,
+  meshCutActive: false,
   setTool: (tool) => set({ tool }),
   select: (selectedId) => {
     const selectedIds = selectedId ? [selectedId] : [];
@@ -202,6 +208,7 @@ export const useUI = create<UIState>()((set, get) => ({
       elementMode: "vertex",
       meshSelection: emptyMeshSelection(),
       hoveredElement: null,
+      meshCutActive: false,
     }),
   exitMeshEdit: () => {
     // Escape mid-drag unmounts the gizmo before onMouseUp can clear the
@@ -213,9 +220,12 @@ export const useUI = create<UIState>()((set, get) => ({
   // element mode change invalidates picks from the other layer — stale
   // cross-mode selection would silently skew the gizmo centroid otherwise
   setElementMode: (elementMode) =>
-    set({ elementMode, meshSelection: emptyMeshSelection(), hoveredElement: null }),
+    // switching element mode drops the cut tool too — they're separate "tools"
+    set({ elementMode, meshSelection: emptyMeshSelection(), hoveredElement: null, meshCutActive: false }),
   setMeshSelection: (meshSelection) => set({ meshSelection }),
   setHoveredElement: (hoveredElement) => set({ hoveredElement }),
+  // clear hover on toggle so no stale vertex/edge/face tint sits under the cut line
+  setMeshCutActive: (meshCutActive) => set({ meshCutActive, hoveredElement: null }),
   openMaterialCard: (materialId) =>
     set((s) => ({
       materialCardOpen: true,

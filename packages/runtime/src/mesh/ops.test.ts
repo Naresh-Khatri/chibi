@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { buildTopology } from "./topology";
 import { subdivideCatmullClark } from "./catmullClark";
 import { boxCage } from "./primitives";
-import { deleteFaces, extrudeFaces } from "./ops";
+import { applyLoopCut, computeEdgeLoop, deleteFaces, extrudeFaces } from "./ops";
+import { planeCage } from "./primitives";
 
 describe("extrudeFaces", () => {
   it("extrudes a single box face: cap face + 4 side quads, verts duplicated at distance 0", () => {
@@ -123,5 +124,78 @@ describe("deleteFaces", () => {
   it("never throws on out-of-range indices", () => {
     const cage = boxCage(1, 1, 1);
     expect(() => deleteFaces(cage, [99, -1])).not.toThrow();
+  });
+});
+
+describe("computeEdgeLoop + applyLoopCut", () => {
+  it("cuts a full ring around a box (4 quads) into 8, adding 4 midpoints", () => {
+    const cage = boxCage(1, 1, 1);
+    const topo = buildTopology(cage);
+    // any edge of any box quad seeds a closed 4-face ring
+    const startEdge = topo.faceEdges[0][0];
+    const loop = computeEdgeLoop(topo, 0, startEdge)!;
+
+    expect(loop).not.toBeNull();
+    expect(loop.faces.length).toBe(4); // front/right/back/left band
+    expect(loop.edges.length).toBe(4); // 4 ring edges (closed)
+
+    const { cage: out, newEdgeKeys } = applyLoopCut(cage, loop);
+    expect(out.positions.length / 3).toBe(8 + 4); // 4 new midpoints
+    expect(out.faces.length).toBe(6 + 4); // 4 quads each split in two
+    expect(out.faces.every((f) => f.length === 4)).toBe(true); // stays all quads
+    expect(newEdgeKeys.length).toBe(4);
+
+    expect(() => buildTopology(out)).not.toThrow();
+    expect(() => subdivideCatmullClark(out, 1)).not.toThrow();
+  });
+
+  it("cuts a lone quad (plane) in half — ring dead-ends at the boundary", () => {
+    const cage = planeCage(1, 1);
+    const topo = buildTopology(cage);
+    const loop = computeEdgeLoop(topo, 0, topo.faceEdges[0][0])!;
+
+    expect(loop.faces.length).toBe(1); // no quad neighbours -> just this face
+    const { cage: out } = applyLoopCut(cage, loop);
+    expect(out.faces.length).toBe(2);
+    expect(out.positions.length / 3).toBe(4 + 2);
+    expect(out.faces.every((f) => f.length === 4)).toBe(true);
+    expect(() => subdivideCatmullClark(out, 1)).not.toThrow();
+  });
+
+  it("propagates the midpoint into a non-quad neighbour where the ring stops", () => {
+    // quad (0-3) sharing edge (1,2) with a triangle (1,2,4). ring can't enter
+    // the tri, but the cut still splits edge (1,2), so the tri must gain the
+    // midpoint too or subdivision cracks along the seam.
+    const cage = {
+      positions: [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 2, 0.5, 0],
+      faces: [
+        [0, 1, 2, 3], // quad
+        [1, 4, 2], // triangle sharing edge (1,2)
+      ],
+    };
+    const topo = buildTopology(cage);
+    // cross edge (0,1)/(2,3) so the opposite pair includes shared edge (1,2)?
+    // pick the edge whose opposite is the shared (1,2) edge:
+    const shared = "1_2";
+    const keys = topo.faceEdges[0];
+    const startIdx = (keys.indexOf(shared) + 2) % 4; // enter opposite the shared edge
+    const loop = computeEdgeLoop(topo, 0, keys[startIdx])!;
+    expect(loop.edges).toContain(shared);
+
+    const { cage: out } = applyLoopCut(cage, loop);
+    const tri = out.faces.find((f) => f.includes(4))!;
+    // the triangle grew a midpoint vertex (index >= 5, the originals were 0-4)
+    // on the shared edge -> now a quad, no crack along the seam
+    expect(tri.length).toBeGreaterThan(3);
+    expect(tri.some((v) => v >= 5)).toBe(true);
+    expect(() => subdivideCatmullClark(out, 1)).not.toThrow();
+  });
+
+  it("returns null when the start face isn't a quad or edge isn't on it", () => {
+    const tri = { positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], faces: [[0, 1, 2]] };
+    const topo = buildTopology(tri);
+    expect(computeEdgeLoop(topo, 0, "0_1")).toBeNull(); // triangle, no opposite edge
+    const box = buildTopology(boxCage(1, 1, 1));
+    expect(computeEdgeLoop(box, 0, "99_100")).toBeNull(); // edge not on face 0
   });
 });

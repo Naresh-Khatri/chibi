@@ -93,13 +93,24 @@ export function getOrbitControls(): OrbitLike | null {
 const CLICK_SLOP_PX = 6;
 
 let pointerDownAt: { x: number; y: number } | null = null;
+// set by OrbitControls' change event — a camera gesture (orbit/pan/dolly) is
+// never a click, even a slow one that stays within CLICK_SLOP_PX. reset on
+// each pointer-down so only movement within the current gesture counts.
+let cameraMovedSincePointerDown = false;
 
 export function setPointerDownAt(pos: { x: number; y: number } | null) {
   pointerDownAt = pos;
+  cameraMovedSincePointerDown = false;
+}
+
+/** OrbitControls moved the camera — call from its onChange while dragging. */
+export function markCameraMoved() {
+  cameraMovedSincePointerDown = true;
 }
 
 /** Whether (x, y) is close enough to the last pointer-down to count as a click, not a drag. */
 export function isClick(x: number, y: number): boolean {
+  if (cameraMovedSincePointerDown) return false; // orbit/pan/dolly gesture
   if (!pointerDownAt) return true;
   return (
     Math.abs(x - pointerDownAt.x) < CLICK_SLOP_PX &&
