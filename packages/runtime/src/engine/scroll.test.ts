@@ -3,8 +3,8 @@ import { createDocument } from "../schema";
 import type { AnimationClip, ChibiDocument, Vec3 } from "../schema/types";
 import { EASING } from "./easing";
 import { makeTargetKey } from "./sampler";
+import { clampProgress } from "./bindings";
 import {
-  clampProgress,
   docUsesScroll,
   elementScrollProgress,
   sampleScrollBindings,

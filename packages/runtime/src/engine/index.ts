@@ -3,5 +3,7 @@ export * from "./sampler";
 export * from "./player";
 export * from "./state";
 export * from "./transition";
+export * from "./bindings";
 export * from "./scroll";
+export * from "./pointer";
 export * from "./interactions";

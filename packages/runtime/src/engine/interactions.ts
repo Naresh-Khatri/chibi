@@ -1,7 +1,14 @@
 import { BASE_STATE_ID } from "../schema/create";
 import type { Action, ChibiDocument, Easing, Trigger } from "../schema/types";
+import { clampProgress } from "./bindings";
 import { ClipPlayer } from "./player";
-import { clampProgress, sampleScrollBindings } from "./scroll";
+import {
+  dampProgress,
+  docUsesPointer,
+  POINTER_REST,
+  samplePointerBindings,
+} from "./pointer";
+import { sampleScrollBindings } from "./scroll";
 import type { SampleMap } from "./sampler";
 import { resolveStateValues } from "./state";
 import { createTransition, type Transition } from "./transition";
@@ -57,6 +64,11 @@ export class InteractionRuntime {
   private transitions = new Map<string, Transition>(); // nodeId -> in-flight
   private players = new Map<string, ClipPlayer>();
   private scrollProgress = 0;
+  // damped pointer progress chases the raw target (see engine/pointer.ts)
+  private pointerX = POINTER_REST;
+  private pointerY = POINTER_REST;
+  private pointerTargetX = POINTER_REST;
+  private pointerTargetY = POINTER_REST;
 
   constructor(doc: ChibiDocument) {
     this.doc = doc;
@@ -158,6 +170,27 @@ export class InteractionRuntime {
     if (this.doc.scrollBindings.length > 0) this.onWake?.();
   }
 
+  /** feed the normalized pointer position over the canvas ([0,1] per axis,
+   * y = 0 at top). bindings + camera parallax chase it with damping */
+  pointerMove(x: number, y: number): void {
+    const nx = clampProgress(x);
+    const ny = clampProgress(y);
+    if (nx === this.pointerTargetX && ny === this.pointerTargetY) return;
+    this.pointerTargetX = nx;
+    this.pointerTargetY = ny;
+    if (docUsesPointer(this.doc)) this.onWake?.();
+  }
+
+  /** pointer left the canvas — ease back to rest (center) */
+  pointerLeave(): void {
+    this.pointerMove(POINTER_REST, POINTER_REST);
+  }
+
+  /** damped pointer progress, [0,1] per axis; {0.5, 0.5} at rest */
+  getPointer(): { x: number; y: number } {
+    return { x: this.pointerX, y: this.pointerY };
+  }
+
   /** freeze/unfreeze all motion; paused advance() applies nothing */
   setPaused(paused: boolean): void {
     this.paused = paused;
@@ -171,12 +204,19 @@ export class InteractionRuntime {
     for (const player of this.players.values()) {
       if (player.playing) return true;
     }
-    return false;
+    return (
+      docUsesPointer(this.doc) &&
+      (this.pointerX !== this.pointerTargetX || this.pointerY !== this.pointerTargetY)
+    );
   }
 
-  /** values to apply this frame; clip samples layer over state values, scroll bindings layer over both (see docs/specs/13-scroll-interactions.md) */
+  /** values to apply this frame, layered states < clips < pointer bindings <
+   * scroll bindings — scroll is a deliberate navigation gesture, ambient
+   * cursor drift shouldn't fight it (see docs/specs/13, 16) */
   advance(delta: number): SampleMap {
     if (this.paused) return new Map();
+    this.pointerX = dampProgress(this.pointerX, this.pointerTargetX, delta);
+    this.pointerY = dampProgress(this.pointerY, this.pointerTargetY, delta);
     for (const [nodeId, transition] of this.transitions) {
       for (const [key, value] of transition.advance(delta)) {
         this.current.set(key, value);
@@ -186,6 +226,9 @@ export class InteractionRuntime {
     const out = new Map(this.current);
     for (const player of this.players.values()) {
       for (const [key, value] of player.advance(delta)) out.set(key, value);
+    }
+    for (const [key, value] of samplePointerBindings(this.doc, this.pointerX, this.pointerY)) {
+      out.set(key, value);
     }
     for (const [key, value] of sampleScrollBindings(this.doc, this.scrollProgress)) {
       out.set(key, value);

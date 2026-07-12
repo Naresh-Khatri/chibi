@@ -246,22 +246,39 @@ export const interactionSchema = z.object({
 });
 export type Interaction = z.infer<typeof interactionSchema>;
 
-// continuous scroll-scrub: global progress -> [start,end] -> eased -> samples a
-// clip playhead or base→state blend. position-driven sibling of `scroll` trigger
-export const scrollBindingTargetSchema = z.discriminatedUnion("type", [
+// shared target vocabulary for continuous bindings (scroll + pointer):
+// progress -> [start,end] -> eased -> samples a clip playhead or base→state blend
+export const bindingTargetSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("animation"), animationId: z.string() }),
   z.object({ type: z.literal("state"), nodeId: z.string(), stateId: z.string() }),
 ]);
-export type ScrollBindingTarget = z.infer<typeof scrollBindingTargetSchema>;
+export type BindingTarget = z.infer<typeof bindingTargetSchema>;
+export const scrollBindingTargetSchema = bindingTargetSchema;
+export type ScrollBindingTarget = BindingTarget;
 
 export const scrollBindingSchema = z.object({
   id: z.string(),
-  target: scrollBindingTargetSchema,
+  target: bindingTargetSchema,
   start: z.number().default(0),
   end: z.number().default(1),
   ease: easingSchema.default("linear"),
 });
 export type ScrollBinding = z.infer<typeof scrollBindingSchema>;
+
+// pointer-scrub: a scroll binding driven by one axis of the damped, normalized
+// pointer position over the canvas (x: 0=left, y: 0=top; rest = 0.5 center)
+export const pointerAxisSchema = z.enum(["x", "y"]);
+export type PointerAxis = z.infer<typeof pointerAxisSchema>;
+
+export const pointerBindingSchema = z.object({
+  id: z.string(),
+  axis: pointerAxisSchema,
+  target: bindingTargetSchema,
+  start: z.number().default(0),
+  end: z.number().default(1),
+  ease: easingSchema.default("linear"),
+});
+export type PointerBinding = z.infer<typeof pointerBindingSchema>;
 
 // "soft" is chibi's built-in studio rig (no CDN fetch); the rest are drei HDRIs
 export const ENVIRONMENT_PRESETS = [
@@ -301,6 +318,8 @@ export const cameraSchema = z.object({
   position: vec3Schema,
   target: vec3Schema,
   fov: z.number(),
+  // max pointer-driven orbit drift around `target` in radians; 0 = off
+  parallax: z.number().default(0),
 });
 export type CameraDef = z.infer<typeof cameraSchema>;
 
@@ -316,6 +335,7 @@ export const documentSchema = z.object({
   interactions: z.array(interactionSchema),
   // purely additive: no migrate.ts entry needed, zod default keeps old docs valid
   scrollBindings: z.array(scrollBindingSchema).default([]),
+  pointerBindings: z.array(pointerBindingSchema).default([]),
   environment: environmentSchema,
   camera: cameraSchema,
   editor: z.object({ grid: z.boolean() }),

@@ -179,10 +179,11 @@ export function setDocumentName(name: string) {
   });
 }
 
-/** "Set camera from view": persist the orbit camera into doc.camera */
-export function setDocCamera(camera: CameraDef) {
+/** "Set camera from view": persist the orbit camera into doc.camera (parallax untouched) */
+export function setDocCamera(camera: Omit<CameraDef, "parallax">) {
   dispatch("Set camera", (d) => {
     d.camera = {
+      ...d.camera,
       position: [...camera.position],
       target: [...camera.target],
       fov: camera.fov,

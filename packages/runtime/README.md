@@ -45,7 +45,9 @@ function Hero() {
 every stateful object) · `play(animationId)` · `pause(animationId)` ·
 `stop(animationId)` · `getState()` → `{ [nodeId]: stateId }` ·
 `setPaused(bool)` · `getScrollProgress()` → current scroll progress in
-`[0, 1]` (auto-tracked, or the `scrollProgress` prop).
+`[0, 1]` (auto-tracked, or the `scrollProgress` prop) · `getPointer()` →
+damped pointer progress over the canvas, `{x, y}` in `[0, 1]` per axis
+(`{0.5, 0.5}` at rest/center).
 
 Also exported: `loadDocument(urlOrBytes)` (zip/json loader returning
 `{ doc, resolveAsset, dispose }`), `validateDocument`, `createDocument`,
@@ -69,6 +71,12 @@ Also exported: `loadDocument(urlOrBytes)` (zip/json loader returning
   (`docUsesScroll(doc)`: a `scroll` trigger or a non-empty `scrollBindings`)
   *and* no explicit `scrollProgress` prop is passed — plain scenes never pay
   for a listener, preserving the demand-frameloop guarantee above.
+- **Pointer tracking is opt-in** the same way: `pointermove`/`pointerleave`
+  listeners attach to the canvas only when the document declares pointer
+  features (`docUsesPointer(doc)`: a non-empty `pointerBindings`, or
+  `camera.parallax > 0`). Pointer position is canvas-local and damped in the
+  engine; on pointer leave everything eases back to the centered rest pose.
+  There is no controlled prop — auto-tracking always works.
 - Scene format reference: [PRD §3.1](../../PRD.md). Documents are validated
   with zod; legacy (≤ M5) documents are migrated in-place by
   `schema/migrate.ts`.

@@ -32,6 +32,8 @@ export type ChibiSceneApi = {
   setPaused(paused: boolean): void;
   /** current scroll progress in [0, 1] (auto-tracked, or the `scrollProgress` prop) */
   getScrollProgress(): number;
+  /** damped pointer progress over the canvas, [0,1] per axis ({0.5, 0.5} = rest/center) */
+  getPointer(): { x: number; y: number };
 };
 
 export type ChibiSceneProps = {
@@ -98,6 +100,7 @@ export function ChibiScene({
       getState: () => runtimeRef.current?.getState() ?? {},
       setPaused: (paused) => runtimeRef.current?.setPaused(paused),
       getScrollProgress: () => runtimeRef.current?.getScrollProgress() ?? 0,
+      getPointer: () => runtimeRef.current?.getPointer() ?? { x: 0.5, y: 0.5 },
     }),
     [],
   );

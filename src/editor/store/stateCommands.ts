@@ -2,6 +2,7 @@ import {
   BASE_STATE_ID,
   newId,
   type Action,
+  type BindingTarget,
   type ChibiDocument,
   type PropertyValue,
   type Trigger,
@@ -73,7 +74,7 @@ function actionReferencesState(action: Action, stateId: string): boolean {
   return false;
 }
 
-/** deletes the state + any interactions/scroll bindings referencing it */
+/** deletes the state + any interactions/scroll/pointer bindings referencing it */
 export function deleteState(stateId: string) {
   dispatch("Delete state", (d) => {
     if (!d.states[stateId]) return;
@@ -81,9 +82,10 @@ export function deleteState(stateId: string) {
     d.interactions = d.interactions.filter(
       (ix) => !actionReferencesState(ix.action, stateId),
     );
-    d.scrollBindings = d.scrollBindings.filter(
-      (b) => !(b.target.type === "state" && b.target.stateId === stateId),
-    );
+    const keep = (b: { target: BindingTarget }) =>
+      !(b.target.type === "state" && b.target.stateId === stateId);
+    d.scrollBindings = d.scrollBindings.filter(keep);
+    d.pointerBindings = d.pointerBindings.filter(keep);
   });
   const ui = useUI.getState();
   if (ui.activeStateId === stateId) ui.setActiveState(BASE_STATE_ID);

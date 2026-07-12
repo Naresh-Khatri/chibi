@@ -652,9 +652,99 @@ function buildScrollScene(): ChibiDocument {
   });
 }
 
+// everything cursor-driven, nothing auto-plays: camera parallax drifts the
+// view, clouds slide opposite each other on pointer X, the spark rides
+// pointer Y, Clawd turns to face the cursor. all clips rest at their
+// midpoint = the pointer's (0.5, 0.5) rest, so the scene composes cleanly
+// with no cursor present
+function buildParallaxScene(): ChibiDocument {
+  const lerpTrack = (
+    targetId: string,
+    property: string,
+    frames: Array<[number, PropertyValue]>,
+  ): Track => ({
+    targetId,
+    property,
+    keyframes: frames.map(([t, v]) => ({ t, v })),
+  });
+  const cloud = (p: string, name: string, at: Vec3): ChibiNode[] => [
+    group(p, name, T(at), [`${p}_a`, `${p}_b`, `${p}_c`]),
+    mesh(`${p}_a`, "Puff", "sphere", sph(0.4), "mt_cloud", T([0, 0, 0])),
+    mesh(`${p}_b`, "Puff", "sphere", sph(0.3), "mt_cloud", T([0.42, -0.06, 0.05])),
+    mesh(`${p}_c`, "Puff", "sphere", sph(0.27), "mt_cloud", T([-0.4, -0.08, -0.05])),
+  ];
+  const sparkRays = [0, 0.7854, 1.5708, 2.3562].map((rz, i) =>
+    mesh(`nd_ray${i}`, "Ray", "capsule", cap(0.035, 0.16), "mt_glow", T([0, 0, 0], [0, 0, rz])),
+  );
+  const [cloudL, ...cloudLPuffs] = cloud("nd_cloudL", "Cloud left", [-1.8, 2.5, -0.9]);
+  const [cloudR, ...cloudRPuffs] = cloud("nd_cloudR", "Cloud right", [1.8, 3.0, -1.2]);
+  const roots = [
+    mesh("nd_plinth", "Sand plinth", "cylinder", cyl(2.0, 2.2, 0.5, 0.15), "mt_sand", T([0, 0.25, 0])),
+    cloudL,
+    cloudR,
+    group("nd_spark", "Claude spark", T([0, 3.8, -0.2]), sparkRays.map((n) => n.id)),
+    light("nd_key", "Key light", "directional", "#ffe0bd", 2, [4, 5, 3], true),
+    light("nd_fill", "Fill light", "point", "#ffb9a0", 4, [-4, 3, -2], false),
+  ];
+  const clawdNodes = clawd("clawd", "Clawd", T([0, 0.5, 0.4]), "happy");
+
+  return validateDocument({
+    chibi: 1,
+    name: "Clawd's parallax hero",
+    root: ["nd_clawd", ...roots.map((n) => n.id)],
+    nodes: {
+      ...clawdNodes,
+      ...nodeMap([...roots, ...cloudLPuffs, ...cloudRPuffs, ...sparkRays]),
+    },
+    materials: {
+      ...clawdMaterials(),
+      mt_cloud: clay("mt_cloud", "Cloud", "#f6efe4"),
+      mt_sand: clay("mt_sand", "Sand", "#eccf96"),
+      mt_glow: clay("mt_glow", "Orange glow", "#ffb27a", { emissive: "#ff8a4d", emissiveIntensity: 1.8, roughness: 0.5 }),
+    },
+    assets: {},
+    animations: {
+      an_clouds: clip("an_clouds", "Cloud drift", 1, [
+        lerpTrack("nd_cloudL", "transform.position", [
+          [0, [-1.45, 2.5, -0.9]],
+          [1, [-2.15, 2.5, -0.9]],
+        ]),
+        lerpTrack("nd_cloudR", "transform.position", [
+          [0, [2.15, 3.0, -1.2]],
+          [1, [1.45, 3.0, -1.2]],
+        ]),
+      ]),
+      an_spark: clip("an_spark", "Spark ride", 1, [
+        lerpTrack("nd_spark", "transform.position", [
+          [0, [0, 4.15, -0.2]],
+          [1, [0, 3.45, -0.2]],
+        ]),
+      ]),
+      an_look: clip("an_look", "Clawd looks", 1, [
+        lerpTrack("nd_clawd", "transform.rotation", [
+          [0, [0, -0.3, 0]],
+          [1, [0, 0.3, 0]],
+        ]),
+      ]),
+    },
+    states: {},
+    interactions: [],
+    scrollBindings: [],
+    pointerBindings: [
+      { id: "pb_clouds", axis: "x", target: { type: "animation", animationId: "an_clouds" }, start: 0, end: 1, ease: "linear" },
+      { id: "pb_look", axis: "x", target: { type: "animation", animationId: "an_look" }, start: 0, end: 1, ease: "linear" },
+      { id: "pb_spark", axis: "y", target: { type: "animation", animationId: "an_spark" }, start: 0, end: 1, ease: "linear" },
+    ],
+    environment: clayEnv("#e9c0ac", "#d29c88"),
+    camera: { position: [0, 2.4, 6.4], target: [0, 1.2, 0], fov: 40, parallax: 0.14 },
+    editor: { grid: true },
+  });
+}
+
 export const SCENE_TEMPLATES: SceneTemplate[] = [
   { title: "Clawd at the terminal", build: buildTerminalScene },
   { title: "Clawd's rocket launch", build: buildRocketScene },
   { title: "Clawd's moods", build: buildMoodsScene },
   { title: "Clawd's scroll story", build: buildScrollScene },
+  { title: "Clawd's parallax hero", build: buildParallaxScene },
 ];

@@ -151,6 +151,26 @@ describe("document round-trip", () => {
       },
     );
 
+    doc.pointerBindings.push(
+      {
+        id: "pb_drift",
+        axis: "x",
+        target: { type: "animation", animationId: "an_float" },
+        start: 0,
+        end: 1,
+        ease: "linear",
+      },
+      {
+        id: "pb_rise",
+        axis: "y",
+        target: { type: "state", nodeId: sphere.id, stateId: "st_hot" },
+        start: 0.1,
+        end: 0.9,
+        ease: "easeOut",
+      },
+    );
+    doc.camera.parallax = 0.14;
+
     doc.environment.fog = { color: "#0b0b0f", near: 8, far: 40 };
 
     const parsed = validateDocument(JSON.parse(JSON.stringify(doc)));
@@ -192,6 +212,15 @@ describe("document round-trip", () => {
     delete doc.scrollBindings;
     const parsed = validateDocument(doc);
     expect(parsed.scrollBindings).toEqual([]);
+  });
+
+  it("defaults pointerBindings/camera.parallax for documents predating them", () => {
+    const doc = JSON.parse(JSON.stringify(createDocument("legacy")));
+    delete doc.pointerBindings;
+    delete doc.camera.parallax;
+    const parsed = validateDocument(doc);
+    expect(parsed.pointerBindings).toEqual([]);
+    expect(parsed.camera.parallax).toBe(0);
   });
 
   it("rejects unknown format versions with a clear error", () => {

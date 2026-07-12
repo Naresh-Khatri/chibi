@@ -5,6 +5,7 @@ import {
   GEOMETRY_DEFS,
   defaultGeometryParams,
   newId,
+  type BindingTarget,
   type ChibiAsset,
   type ChibiDocument,
   type ChibiNode,
@@ -337,11 +338,13 @@ export function removeNode(nodeId: string) {
       // state actions on a removed owner (covers refs to its deleted states)
       return ix.action.type === "playAnimation" || !removed.has(ix.action.nodeId);
     });
-    // scroll bindings targeting a removed node's (now-deleted) state
-    d.scrollBindings = d.scrollBindings.filter((b) => {
+    // scroll/pointer bindings targeting a removed node's (now-deleted) state
+    const targetsLiveState = (b: { target: BindingTarget }) => {
       if (b.target.type !== "state") return true;
       return !removed.has(b.target.nodeId) && Boolean(d.states[b.target.stateId]);
-    });
+    };
+    d.scrollBindings = d.scrollBindings.filter(targetsLiveState);
+    d.pointerBindings = d.pointerBindings.filter(targetsLiveState);
   });
   const ui = useUI.getState();
   if (ui.selectedId && removed.has(ui.selectedId)) ui.select(null);

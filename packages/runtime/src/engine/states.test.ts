@@ -336,6 +336,92 @@ describe("InteractionRuntime", () => {
     const value = rt.advance(0.5).get(scaleKey);
     expect(value).toEqual([5, 5, 5]); // scroll binding wins over the in-flight transition
   });
+
+  it("pointerMove damps toward the target; isActive() while settling, idle at rest", () => {
+    const { doc, cubeId } = interactiveDoc();
+    doc.states["st_ptr"] = {
+      id: "st_ptr",
+      nodeId: cubeId,
+      name: "Ptr",
+      overrides: { [cubeId]: { "transform.scale": [3, 3, 3] } },
+    };
+    doc.pointerBindings.push({
+      id: "pb_1",
+      axis: "x",
+      target: { type: "state", nodeId: cubeId, stateId: "st_ptr" },
+      start: 0,
+      end: 1,
+      ease: "linear",
+    });
+    const rt = new InteractionRuntime(doc);
+    expect(rt.isActive()).toBe(false); // at rest
+    rt.pointerMove(1, 0.5);
+    expect(rt.isActive()).toBe(true); // settling
+    rt.advance(1 / 60);
+    const { x } = rt.getPointer();
+    expect(x).toBeGreaterThan(0.5);
+    expect(x).toBeLessThan(1); // damped, not snapped
+    for (let i = 0; i < 600 && rt.isActive(); i++) rt.advance(1 / 60);
+    expect(rt.getPointer().x).toBe(1); // settled exactly (snap)
+    expect(rt.isActive()).toBe(false);
+  });
+
+  it("pointerLeave eases back to the (0.5, 0.5) rest", () => {
+    const { doc } = interactiveDoc();
+    doc.camera.parallax = 0.1; // pointer feature via parallax alone
+    const rt = new InteractionRuntime(doc);
+    rt.pointerMove(1, 0);
+    for (let i = 0; i < 600 && rt.isActive(); i++) rt.advance(1 / 60);
+    rt.pointerLeave();
+    expect(rt.isActive()).toBe(true);
+    for (let i = 0; i < 600 && rt.isActive(); i++) rt.advance(1 / 60);
+    expect(rt.getPointer()).toEqual({ x: 0.5, y: 0.5 });
+  });
+
+  it("pointer movement never activates a doc without pointer features", () => {
+    const { doc } = interactiveDoc();
+    const rt = new InteractionRuntime(doc);
+    rt.pointerMove(1, 1);
+    expect(rt.isActive()).toBe(false);
+  });
+
+  it("advance() layers pointer bindings over clips/transitions, but under scroll bindings", () => {
+    const { doc, cubeId, scaleKey } = interactiveDoc();
+    doc.states["st_ptr"] = {
+      id: "st_ptr",
+      nodeId: cubeId,
+      name: "Ptr",
+      overrides: { [cubeId]: { "transform.scale": [3, 3, 3] } },
+    };
+    doc.states["st_scroll"] = {
+      id: "st_scroll",
+      nodeId: cubeId,
+      name: "Scroll",
+      overrides: { [cubeId]: { "transform.scale": [5, 5, 5] } },
+    };
+    doc.pointerBindings.push({
+      id: "pb_1",
+      axis: "x",
+      target: { type: "state", nodeId: cubeId, stateId: "st_ptr" },
+      start: 0,
+      end: 1,
+      ease: "linear",
+    });
+    const rt = new InteractionRuntime(doc);
+    rt.pointer("hoverEnter", cubeId); // transition toward [2,2,2]
+    rt.pointerMove(1, 0.5);
+    for (let i = 0; i < 600 && rt.getPointer().x !== 1; i++) rt.advance(1 / 60);
+    expect(rt.advance(0).get(scaleKey)).toEqual([3, 3, 3]); // pointer wins over transition
+    doc.scrollBindings.push({
+      id: "sb_1",
+      target: { type: "state", nodeId: cubeId, stateId: "st_scroll" },
+      start: 0,
+      end: 1,
+      ease: "linear",
+    });
+    rt.scroll(1);
+    expect(rt.advance(0).get(scaleKey)).toEqual([5, 5, 5]); // scroll wins over pointer
+  });
 });
 
 describe("interactiveNodeIds", () => {

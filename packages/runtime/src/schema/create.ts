@@ -72,6 +72,7 @@ export function createDocument(name = "Untitled"): ChibiDocument {
     states: {},
     interactions: [],
     scrollBindings: [],
+    pointerBindings: [],
     environment: {
       background: "#0b0b0f",
       preset: "city",
@@ -88,7 +89,7 @@ export function createDocument(name = "Untitled"): ChibiDocument {
       bloom: false,
       vignette: false,
     },
-    camera: { position: [4, 3, 6], target: [0, 0.5, 0], fov: 45 },
+    camera: { position: [4, 3, 6], target: [0, 0.5, 0], fov: 45, parallax: 0 },
     editor: { grid: true },
   };
 }

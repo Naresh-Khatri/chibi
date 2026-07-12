@@ -18,8 +18,11 @@ import {
   DoubleSide,
   MeshPhysicalMaterial,
   NoColorSpace,
+  Spherical,
   SRGBColorSpace,
   TextureLoader,
+  Vector3,
+  type Camera,
   type Group,
   type Mesh,
   type Object3D,
@@ -38,6 +41,8 @@ import {
   type PropertyValue,
 } from "../schema";
 import {
+  CAMERA_PARALLAX_VERTICAL,
+  docUsesPointer,
   docUsesScroll,
   elementScrollProgress,
   InteractionRuntime,
@@ -202,6 +207,7 @@ function InteractiveScene({
 }: SceneHostProps) {
   const invalidate = useThree((s) => s.invalidate);
   const domElement = useThree((s) => s.gl.domElement);
+  const camera = useThree((s) => s.camera);
   // latest-callback ref so a new onEvent identity doesn't remount the engine
   const onEventRef = useRef(onEvent);
   useEffect(() => {
@@ -274,12 +280,51 @@ function InteractiveScene({
     };
   }, [ctx, domElement, scrollProgress]);
 
+  // pointer wiring: canvas-local, so auto-tracking always works (no controlled
+  // prop like scroll's). listener gated on docUsesPointer — same "cursor never
+  // wakes scenes that don't use it" guarantee as the scroll listener above
+  useEffect(() => {
+    if (!docUsesPointer(ctx.doc)) return;
+    const onMove = (e: PointerEvent) => {
+      const rect = domElement.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+      ctx.runtime.pointerMove(
+        (e.clientX - rect.left) / rect.width,
+        (e.clientY - rect.top) / rect.height,
+      );
+    };
+    const onLeave = () => ctx.runtime.pointerLeave();
+    domElement.addEventListener("pointermove", onMove, { passive: true });
+    domElement.addEventListener("pointerleave", onLeave);
+    return () => {
+      domElement.removeEventListener("pointermove", onMove);
+      domElement.removeEventListener("pointerleave", onLeave);
+    };
+  }, [ctx, domElement]);
+
   const wasActiveRef = useRef(false);
+  const parallaxRef = useRef({ yaw: 0, pitch: 0 });
   useFrame((_, delta) => {
     // demand frames after an idle stretch arrive with a huge delta — clamp
     // so a transition doesn't jump straight to its end
     for (const [key, value] of ctx.runtime.advance(Math.min(delta, 0.1))) {
       applyValue(ctx, key, value);
+    }
+    const amount = ctx.doc.camera.parallax;
+    if (amount > 0) {
+      const { x, y } = ctx.runtime.getPointer();
+      const yaw = (x - 0.5) * 2 * amount;
+      const pitch = (y - 0.5) * 2 * amount * CAMERA_PARALLAX_VERTICAL;
+      const prev = parallaxRef.current;
+      if (yaw !== prev.yaw || pitch !== prev.pitch) {
+        applyCameraParallax(
+          camera,
+          ctx.doc.camera.target,
+          yaw - prev.yaw,
+          pitch - prev.pitch,
+        );
+        parallaxRef.current = { yaw, pitch };
+      }
     }
     const active = ctx.runtime.isActive();
     // one extra settle frame once motion stops: siblings mounted earlier in
@@ -298,6 +343,30 @@ function InteractiveScene({
       ))}
     </Ctx.Provider>
   );
+}
+
+const P_TARGET = new Vector3();
+const P_OFFSET = new Vector3();
+const P_SPHERICAL = new Spherical();
+
+// camera parallax: rotate the camera around the scene target by the *change*
+// in pointer-driven yaw/pitch since last frame. Delta-applied so it composes
+// with OrbitControls (Preview) instead of fighting it — orbiting just re-bases
+// where the drift happens from. Radius preserved; makeSafe clamps the poles.
+function applyCameraParallax(
+  camera: Camera,
+  target: readonly [number, number, number],
+  dYaw: number,
+  dPitch: number,
+) {
+  P_TARGET.set(target[0], target[1], target[2]);
+  P_OFFSET.copy(camera.position).sub(P_TARGET);
+  P_SPHERICAL.setFromVector3(P_OFFSET);
+  P_SPHERICAL.theta += dYaw; // cursor right -> camera orbits right
+  P_SPHERICAL.phi += dPitch; // cursor up (y->0, pitch<0) -> phi shrinks -> camera rises
+  P_SPHERICAL.makeSafe();
+  camera.position.copy(P_TARGET).add(P_OFFSET.setFromSpherical(P_SPHERICAL));
+  camera.lookAt(P_TARGET);
 }
 
 function applyValue(ctx: SceneCtx, key: string, value: PropertyValue) {

@@ -58,6 +58,8 @@ import {
 import { confirmAndDeleteMaterial } from "./MaterialCard";
 import { InteractionList } from "./InteractionList";
 import { ScrollBindingList } from "./ScrollBindingList";
+import { PointerBindingList } from "./PointerBindingList";
+import { setCameraParallax } from "../store/pointerCommands";
 import { StatesSection } from "./StatesSection";
 import { LabeledRow, ResetDot, Section, useOverrides } from "./inspectorShared";
 import {
@@ -797,7 +799,12 @@ function SceneInspector() {
   const name = useDoc((s) => s.doc?.name ?? "");
   const env = useDoc((s) => s.doc?.environment);
   const grid = useDoc((s) => s.doc?.editor.grid ?? true);
+  const parallax = useDoc((s) => s.doc?.camera.parallax ?? 0);
   if (!env) return null;
+
+  const parallaxDeg = Number((parallax * RAD2DEG).toFixed(1));
+  const commitParallax = (v: number, merge: boolean) =>
+    setCameraParallax(v * DEG2RAD, merge ? { mergeKey: "cam:parallax" } : undefined);
 
   const presetItems: MenuItem[] = [
     {
@@ -1015,6 +1022,21 @@ function SceneInspector() {
       </Section>
       <Section title="Scroll bindings">
         <ScrollBindingList />
+      </Section>
+      <Section title="Pointer">
+        <LabeledRow
+          label="Parallax"
+          scrub={{ value: parallaxDeg, onCommit: commitParallax, step: 0.5, min: 0, max: 45 }}
+        >
+          <DragNumber
+            value={parallaxDeg}
+            min={0}
+            max={45}
+            step={0.5}
+            onCommit={commitParallax}
+          />
+        </LabeledRow>
+        <PointerBindingList />
       </Section>
       <div className="px-3 py-4 text-xs text-muted-foreground/70">
         Select an object to edit its transform, geometry and material.
