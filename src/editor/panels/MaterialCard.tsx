@@ -21,9 +21,10 @@ import {
 import { Checkbox, ColorInput, DragNumber, Slider, TextInput } from "./controls";
 import { MaterialPreviewSphere } from "./MaterialPreviewSphere";
 
-// card target: selection wins (mesh -> material ?? Default, model -> assigned,
-// else none); no selection -> pinned id from Materials list. re-reads
-// doc.materials so a deleted target hides vs going stale
+// card target: a material-bearing selection wins (mesh -> material ?? Default,
+// model -> assigned); otherwise (group/light/no selection) fall back to the
+// pinned id from a Materials list — lets the group Materials list open the
+// card. re-reads doc.materials so a deleted target hides vs going stale
 function useCardMaterial(): ChibiMaterial | undefined {
   const selectedId = useUI((s) => s.selectedId);
   const pinnedId = useUI((s) => s.materialCardPinnedId);
@@ -31,14 +32,10 @@ function useCardMaterial(): ChibiMaterial | undefined {
     const doc = s.doc;
     if (!doc) return undefined;
     let materialId: string | undefined;
-    if (selectedId) {
-      const node = doc.nodes[selectedId];
-      if (node?.type === "mesh") materialId = node.materialId ?? DEFAULT_MATERIAL_ID;
-      else if (node?.type === "model") materialId = node.materialId;
-      else materialId = undefined;
-    } else {
-      materialId = pinnedId ?? undefined;
-    }
+    const node = selectedId ? doc.nodes[selectedId] : undefined;
+    if (node?.type === "mesh") materialId = node.materialId ?? DEFAULT_MATERIAL_ID;
+    else if (node?.type === "model") materialId = node.materialId;
+    else materialId = pinnedId ?? undefined;
     return materialId ? doc.materials[materialId] : undefined;
   });
 }

@@ -24,6 +24,7 @@ import {
   ENVIRONMENT_PRESETS,
   GEOMETRY_DEFS,
   TONE_MAPPINGS,
+  type ChibiMaterial,
   type LightNode,
   type MeshNode,
   type ModelNode,
@@ -290,6 +291,7 @@ function NodeInspector({ nodeId }: { nodeId: string }) {
       )}
       {node.type === "light" && <LightSection node={node} />}
       {node.type === "model" && <ModelSection node={node} />}
+      {node.type === "group" && <GroupMaterialsSection groupId={nodeId} />}
     </>
   );
 }
@@ -670,6 +672,45 @@ function edgeTint(background: string): string {
   return `#${color.getHexString()}`;
 }
 
+function MaterialRow({
+  material,
+  count,
+  onOpen,
+}: {
+  material: ChibiMaterial;
+  count: number;
+  onOpen: () => void;
+}) {
+  return (
+    <div
+      className="group flex h-6 cursor-default items-center gap-2 rounded px-1.5 text-xs text-foreground hover:bg-muted"
+      onClick={onOpen}
+    >
+      <span
+        className="size-3.5 shrink-0 rounded-full border border-border/60"
+        style={{ backgroundColor: material.color }}
+      />
+      <span className="min-w-0 flex-1 truncate">{material.name}</span>
+      <span className="shrink-0 text-[10px] tabular-nums text-muted-foreground">
+        {count}×
+      </span>
+      {material.id !== DEFAULT_MATERIAL_ID && (
+        <button
+          type="button"
+          title="Delete material"
+          className="hidden shrink-0 text-muted-foreground hover:text-destructive group-hover:block"
+          onClick={(e) => {
+            e.stopPropagation();
+            confirmAndDeleteMaterial(material.id);
+          }}
+        >
+          <Trash2 className="size-3" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 function MaterialsSection() {
   const materials = useDoc((s) => s.doc?.materials);
   const nodes = useDoc((s) => s.doc?.nodes);
@@ -690,33 +731,12 @@ function MaterialsSection() {
     <Section title="Materials">
       <div className="flex flex-col gap-0.5">
         {Object.values(materials).map((m) => (
-          <div
+          <MaterialRow
             key={m.id}
-            className="group flex h-6 cursor-default items-center gap-2 rounded px-1.5 text-xs text-foreground hover:bg-muted"
-            onClick={() => openMaterialCard(m.id)}
-          >
-            <span
-              className="size-3.5 shrink-0 rounded-full border border-border/60"
-              style={{ backgroundColor: m.color }}
-            />
-            <span className="min-w-0 flex-1 truncate">{m.name}</span>
-            <span className="shrink-0 text-[10px] tabular-nums text-muted-foreground">
-              {counts.get(m.id) ?? 0}×
-            </span>
-            {m.id !== DEFAULT_MATERIAL_ID && (
-              <button
-                type="button"
-                title="Delete material"
-                className="hidden shrink-0 text-muted-foreground hover:text-destructive group-hover:block"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  confirmAndDeleteMaterial(m.id);
-                }}
-              >
-                <Trash2 className="size-3" />
-              </button>
-            )}
-          </div>
+            material={m}
+            count={counts.get(m.id) ?? 0}
+            onOpen={() => openMaterialCard(m.id)}
+          />
         ))}
       </div>
       <Button
@@ -728,6 +748,47 @@ function MaterialsSection() {
         <Plus />
         New material
       </Button>
+    </Section>
+  );
+}
+
+// materials used by a group's descendants, counts scoped to the subtree
+function GroupMaterialsSection({ groupId }: { groupId: string }) {
+  const nodes = useDoc((s) => s.doc?.nodes);
+  const materials = useDoc((s) => s.doc?.materials);
+  const openMaterialCard = useUI((s) => s.openMaterialCard);
+  const rows = useMemo(() => {
+    if (!nodes || !materials) return [];
+    const counts = new Map<string, number>();
+    const stack = [...(nodes[groupId]?.children ?? [])]; // skip group itself
+    while (stack.length) {
+      const n = nodes[stack.pop()!];
+      if (!n) continue;
+      stack.push(...n.children);
+      if ((n.type === "mesh" || n.type === "model") && n.materialId) {
+        counts.set(n.materialId, (counts.get(n.materialId) ?? 0) + 1);
+      }
+    }
+    return [...counts.entries()]
+      .map(([id, count]) => ({ material: materials[id], count }))
+      .filter((r): r is { material: ChibiMaterial; count: number } =>
+        Boolean(r.material),
+      );
+  }, [nodes, materials, groupId]);
+  if (!rows.length) return null;
+
+  return (
+    <Section title="Materials">
+      <div className="flex flex-col gap-0.5">
+        {rows.map(({ material, count }) => (
+          <MaterialRow
+            key={material.id}
+            material={material}
+            count={count}
+            onOpen={() => openMaterialCard(material.id)}
+          />
+        ))}
+      </div>
     </Section>
   );
 }
