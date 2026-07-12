@@ -124,6 +124,9 @@ export const useUI = create<UIState>()((set, get) => ({
     set({
       selectedId,
       selectedIds,
+      // drop pin so the card follows the new selection (or hides on deselect)
+      // vs staying stuck on a material pinned from a prior group/scene list
+      materialCardPinnedId: null,
       ...(exitingMeshEdit ? meshEditExitState() : null),
     });
   },
@@ -134,6 +137,7 @@ export const useUI = create<UIState>()((set, get) => ({
     set({
       selectedIds: ids,
       selectedId: ids[0] ?? null,
+      materialCardPinnedId: null,
       ...(exitingMeshEdit ? meshEditExitState() : null),
     });
   },
@@ -173,6 +177,7 @@ export const useUI = create<UIState>()((set, get) => ({
     set({
       selectedId: id,
       selectedIds: [id],
+      materialCardPinnedId: null,
       inspectorOpen: true,
       inspectorTab: "interactions",
     }),
