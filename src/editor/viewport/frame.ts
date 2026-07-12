@@ -3,17 +3,21 @@ import { useUI } from "../store/ui";
 import { getOrbitControls, getSceneObject } from "./objectRegistry";
 
 export function frameSelected() {
-  const id = useUI.getState().selectedId;
-  if (!id) return;
-  const object = getSceneObject(id);
+  const objects = useUI
+    .getState()
+    .selectedIds.map(getSceneObject)
+    .filter((o): o is NonNullable<typeof o> => o !== null);
   const controls = getOrbitControls();
-  if (!object || !controls) return;
+  if (objects.length === 0 || !controls) return;
 
-  const box = new Box3().setFromObject(object);
+  const box = new Box3();
+  for (const object of objects) {
+    box.union(new Box3().setFromObject(object));
+  }
   let center: Vector3;
   let radius: number;
   if (box.isEmpty()) {
-    center = object.getWorldPosition(new Vector3());
+    center = objects[0].getWorldPosition(new Vector3());
     radius = 1;
   } else {
     const sphere = box.getBoundingSphere(new Sphere());

@@ -65,6 +65,7 @@ type UIState = {
   setTool: (tool: Tool) => void;
   select: (id: string | null) => void;
   selectMany: (ids: string[]) => void;
+  toggleSelect: (id: string) => void;
   toggleSnap: () => void;
   toggleTimeline: () => void;
   toggleHierarchy: () => void;
@@ -137,6 +138,20 @@ export const useUI = create<UIState>()((set, get) => ({
     set({
       selectedIds: ids,
       selectedId: ids[0] ?? null,
+      materialCardPinnedId: null,
+      ...(exitingMeshEdit ? meshEditExitState() : null),
+    });
+  },
+  // additive toggle; primary = last added (or last remaining)
+  toggleSelect: (id) => {
+    const { selectedIds, meshEditNodeId } = get();
+    const had = selectedIds.includes(id);
+    const ids = had ? selectedIds.filter((x) => x !== id) : [...selectedIds, id];
+    const exitingMeshEdit = meshEditNodeId !== null && !ids.includes(meshEditNodeId);
+    if (exitingMeshEdit) useMeshPreview.getState().setPreview(null);
+    set({
+      selectedIds: ids,
+      selectedId: had ? (ids[ids.length - 1] ?? null) : id,
       materialCardPinnedId: null,
       ...(exitingMeshEdit ? meshEditExitState() : null),
     });

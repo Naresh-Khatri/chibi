@@ -134,6 +134,8 @@ export function Hierarchy() {
   const selectedId = useUI((s) => s.selectedId);
   const selectedIds = useUI((s) => s.selectedIds);
   const select = useUI((s) => s.select);
+  const selectMany = useUI((s) => s.selectMany);
+  const toggleSelect = useUI((s) => s.toggleSelect);
   const openNodeInteractions = useUI((s) => s.openNodeInteractions);
   const activeStateId = useUI((s) => s.activeStateId);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
@@ -307,7 +309,20 @@ export function Hierarchy() {
                 setDropTarget(null);
               }}
               tabIndex={0}
-              onClick={() => select(id)}
+              onClick={(e) => {
+                // shift = range from primary over visible rows, ctrl/cmd = toggle
+                if (e.shiftKey && selectedId) {
+                  const a = rows.findIndex((r) => r.id === selectedId);
+                  const b = rows.findIndex((r) => r.id === id);
+                  if (a !== -1 && b !== -1) {
+                    const [lo, hi] = a < b ? [a, b] : [b, a];
+                    selectMany(rows.slice(lo, hi + 1).map((r) => r.id));
+                    return;
+                  }
+                }
+                if (e.ctrlKey || e.metaKey) toggleSelect(id);
+                else select(id);
+              }}
               onDoubleClick={() => setEditingId(id)}
               className={`group flex h-7 cursor-default items-center gap-1 pr-2 pl-2 text-xs outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-primary ${
                 isSelected

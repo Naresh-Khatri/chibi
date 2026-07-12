@@ -1,4 +1,4 @@
-import { Euler, type Mesh, type Object3D } from "three";
+import { Euler, Matrix4, Quaternion, Vector3, type Mesh, type Object3D } from "three";
 import {
   BASE_STATE_ID,
   DEFAULT_MATERIAL_ID,
@@ -76,6 +76,17 @@ export function subtreeIds(doc: ChibiDocument, nodeId: string): string[] {
     stack.push(...node.children);
   }
   return ids;
+}
+
+/** nodes with no selected ancestor (deduped, unknown ids dropped) — multi-node ops act on these so a subtree isn't applied twice via parent + child */
+export function topMostIds(doc: ChibiDocument, ids: string[]): string[] {
+  const set = new Set(ids.filter((id) => doc.nodes[id]));
+  return [...set].filter((id) => {
+    for (let p = findParentId(doc, id); p; p = findParentId(doc, p)) {
+      if (set.has(p)) return false;
+    }
+    return true;
+  });
 }
 
 export function uniqueName(doc: ChibiDocument, base: string): string {
@@ -309,15 +320,23 @@ export function splitModelNode(nodeId: string, gltfScene: Object3D): boolean {
 }
 
 export function removeNode(nodeId: string) {
+  removeNodes([nodeId]);
+}
+
+export function removeNodes(nodeIds: string[]) {
   if (!requireBaseState("delete objects")) return;
   const doc = useDoc.getState().doc;
-  if (!doc || !doc.nodes[nodeId]) return;
-  const removed = new Set(subtreeIds(doc, nodeId));
+  if (!doc) return;
+  const roots = topMostIds(doc, nodeIds);
+  if (roots.length === 0) return;
+  const removed = new Set(roots.flatMap((id) => subtreeIds(doc, id)));
   dispatch("Delete", (d) => {
-    const parentId = findParentId(d, nodeId);
-    const siblings = siblingsOf(d, parentId);
-    const idx = siblings.indexOf(nodeId);
-    if (idx >= 0) siblings.splice(idx, 1);
+    for (const nodeId of roots) {
+      const parentId = findParentId(d, nodeId);
+      const siblings = siblingsOf(d, parentId);
+      const idx = siblings.indexOf(nodeId);
+      if (idx >= 0) siblings.splice(idx, 1);
+    }
     for (const id of removed) delete d.nodes[id];
     // drop states owned by removed nodes, and orphaned overrides/interactions
     for (const [stateId, state] of Object.entries(d.states)) {
@@ -347,7 +366,9 @@ export function removeNode(nodeId: string) {
     d.pointerBindings = d.pointerBindings.filter(targetsLiveState);
   });
   const ui = useUI.getState();
-  if (ui.selectedId && removed.has(ui.selectedId)) ui.select(null);
+  if (ui.selectedIds.some((id) => removed.has(id))) {
+    ui.selectMany(ui.selectedIds.filter((id) => !removed.has(id)));
+  }
   if (
     ui.activeStateId !== BASE_STATE_ID &&
     !useDoc.getState().doc?.states[ui.activeStateId]
@@ -485,6 +506,58 @@ export function setTransformComponent(
   );
 }
 
+/** all nodes in one undo entry; active-state owner (at most one — states are per-object) routes via setTransform's override path as its own entry */
+export function setTransforms(
+  entries: { nodeId: string; t: Transform }[],
+  opts?: DispatchOpts,
+) {
+  const active = activeOverrideState();
+  const owner = active ? entries.find((e) => e.nodeId === active.nodeId) : undefined;
+  if (owner) setTransform(owner.nodeId, owner.t, opts);
+  const base = entries.filter((e) => e !== owner);
+  if (base.length === 0) return;
+  dispatch(
+    "Transform",
+    (d) => {
+      for (const { nodeId, t } of base) {
+        const node = d.nodes[nodeId];
+        if (!node) continue;
+        node.transform = {
+          position: [...t.position],
+          rotation: [...t.rotation],
+          scale: [...t.scale],
+        };
+      }
+    },
+    opts,
+  );
+}
+
+/** setTransformComponent across many nodes, one undo entry (same owner-state split as setTransforms) */
+export function setTransformComponentMany(
+  nodeIds: string[],
+  field: "position" | "rotation" | "scale",
+  axis: 0 | 1 | 2,
+  value: number,
+  opts?: DispatchOpts,
+) {
+  const active = activeOverrideState();
+  const ownerId = active && nodeIds.includes(active.nodeId) ? active.nodeId : null;
+  if (ownerId) setTransformComponent(ownerId, field, axis, value, opts);
+  const base = nodeIds.filter((id) => id !== ownerId);
+  if (base.length === 0) return;
+  dispatch(
+    "Transform",
+    (d) => {
+      for (const id of base) {
+        const node = d.nodes[id];
+        if (node) node.transform[field][axis] = value;
+      }
+    },
+    opts,
+  );
+}
+
 export function setGeometryParam(
   nodeId: string,
   key: string,
@@ -504,34 +577,162 @@ export function setGeometryParam(
 }
 
 export function duplicateNode(nodeId: string): string | null {
-  if (!requireBaseState("duplicate objects")) return null;
+  return duplicateNodes([nodeId])[0] ?? null;
+}
+
+export function duplicateNodes(nodeIds: string[]): string[] {
+  if (!requireBaseState("duplicate objects")) return [];
   const doc = useDoc.getState().doc;
-  const src = doc?.nodes[nodeId];
-  if (!doc || !src) return null;
+  if (!doc) return [];
+  const roots = topMostIds(doc, nodeIds);
+  if (roots.length === 0) return [];
 
-  const idMap = new Map<string, string>();
-  for (const id of subtreeIds(doc, nodeId)) idMap.set(id, newId("nd"));
-
-  const clones: ChibiNode[] = subtreeIds(doc, nodeId).map((id) => {
-    const original = doc.nodes[id];
-    const clone = structuredClone(original) as ChibiNode;
-    clone.id = idMap.get(id)!;
-    clone.children = original.children.map((cid) => idMap.get(cid)!);
-    return clone;
+  const sets = roots.map((nodeId) => {
+    const idMap = new Map<string, string>();
+    for (const id of subtreeIds(doc, nodeId)) idMap.set(id, newId("nd"));
+    const clones: ChibiNode[] = subtreeIds(doc, nodeId).map((id) => {
+      const original = doc.nodes[id];
+      const clone = structuredClone(original) as ChibiNode;
+      clone.id = idMap.get(id)!;
+      clone.children = original.children.map((cid) => idMap.get(cid)!);
+      return clone;
+    });
+    return {
+      srcId: nodeId,
+      rootId: idMap.get(nodeId)!,
+      baseName: doc.nodes[nodeId].name.replace(/ \d+$/, ""),
+      clones,
+    };
   });
 
-  const newRootId = idMap.get(nodeId)!;
-  const baseName = src.name.replace(/ \d+$/, "");
   dispatch("Duplicate", (d) => {
-    for (const clone of clones) d.nodes[clone.id] = clone;
-    d.nodes[newRootId].name = uniqueName(d, baseName);
-    const parentId = findParentId(d, nodeId);
-    const siblings = siblingsOf(d, parentId);
-    const idx = siblings.indexOf(nodeId);
-    siblings.splice(idx + 1, 0, newRootId);
+    for (const { srcId, rootId, baseName, clones } of sets) {
+      for (const clone of clones) d.nodes[clone.id] = clone;
+      d.nodes[rootId].name = uniqueName(d, baseName);
+      const parentId = findParentId(d, srcId);
+      const siblings = siblingsOf(d, parentId);
+      const idx = siblings.indexOf(srcId);
+      siblings.splice(idx + 1, 0, rootId);
+    }
   });
-  useUI.getState().select(newRootId);
-  return newRootId;
+  useUI.getState().selectMany(sets.map((s) => s.rootId));
+  return sets.map((s) => s.rootId);
+}
+
+function localMatrixOf(node: ChibiNode): Matrix4 {
+  const t = node.transform;
+  return new Matrix4().compose(
+    new Vector3(...t.position),
+    new Quaternion().setFromEuler(new Euler(...t.rotation, "XYZ")),
+    new Vector3(...t.scale),
+  );
+}
+
+/** base-transform world matrix composed from the document tree (no state overrides) */
+function worldMatrixOf(doc: ChibiDocument, nodeId: string): Matrix4 {
+  const m = localMatrixOf(doc.nodes[nodeId]);
+  for (let p = findParentId(doc, nodeId); p; p = findParentId(doc, p)) {
+    m.premultiply(localMatrixOf(doc.nodes[p]));
+  }
+  return m;
+}
+
+function transformFromMatrix(m: Matrix4): Transform {
+  const p = new Vector3();
+  const q = new Quaternion();
+  const s = new Vector3();
+  m.decompose(p, q, s);
+  const e = new Euler().setFromQuaternion(q, "XYZ");
+  return {
+    position: [p.x, p.y, p.z],
+    rotation: [e.x, e.y, e.z],
+    scale: [s.x, s.y, s.z],
+  };
+}
+
+/** root-first ancestors (excluding the node itself) */
+function ancestorPath(doc: ChibiDocument, nodeId: string): string[] {
+  const path: string[] = [];
+  for (let p = findParentId(doc, nodeId); p; p = findParentId(doc, p)) {
+    path.unshift(p);
+  }
+  return path;
+}
+
+function commonAncestorId(doc: ChibiDocument, ids: string[]): string | null {
+  const paths = ids.map((id) => ancestorPath(doc, id));
+  let common: string | null = null;
+  for (let i = 0; ; i++) {
+    const candidate = paths[0][i];
+    if (candidate === undefined) break;
+    if (paths.some((p) => p[i] !== candidate)) break;
+    common = candidate;
+  }
+  return common;
+}
+
+/**
+ * Wraps top-most selected nodes in one group under their deepest common
+ * ancestor; pivot = world centroid, member transforms recomputed so nothing
+ * moves (TRS decompose can't express shear -> rotated non-uniform-scaled
+ * parents may drift slightly, same limit as every TRS editor).
+ */
+export function groupNodes(nodeIds: string[]): string | null {
+  const doc = useDoc.getState().doc;
+  if (!doc) return null;
+  const roots = topMostIds(doc, nodeIds);
+  if (roots.length === 0) return null;
+  if (roots.length === 1) return groupNode(roots[0]);
+  if (!requireBaseState("group objects")) return null;
+
+  const parentId = commonAncestorId(doc, roots);
+  const parentWorld = parentId ? worldMatrixOf(doc, parentId) : new Matrix4();
+  const worlds = new Map(roots.map((id) => [id, worldMatrixOf(doc, id)]));
+  const centroid = new Vector3();
+  for (const m of worlds.values()) {
+    centroid.add(new Vector3().setFromMatrixPosition(m));
+  }
+  centroid.divideScalar(roots.length);
+  const localPos = centroid.clone().applyMatrix4(parentWorld.clone().invert());
+  const groupWorldInverse = parentWorld
+    .clone()
+    .multiply(new Matrix4().makeTranslation(localPos.x, localPos.y, localPos.z))
+    .invert();
+  const childTransforms = new Map(
+    roots.map((id) => [
+      id,
+      transformFromMatrix(groupWorldInverse.clone().multiply(worlds.get(id)!)),
+    ]),
+  );
+
+  const groupId = newId("nd");
+  dispatch("Group", (d) => {
+    // group lands in first root's slot if direct child of common parent, else appended
+    const firstIdx = siblingsOf(d, parentId).indexOf(roots[0]);
+    for (const id of roots) {
+      const sibs = siblingsOf(d, findParentId(d, id));
+      const i = sibs.indexOf(id);
+      if (i >= 0) sibs.splice(i, 1);
+    }
+    const group: GroupNode = {
+      id: groupId,
+      name: uniqueName(d, "Group"),
+      type: "group",
+      transform: {
+        position: [localPos.x, localPos.y, localPos.z],
+        rotation: [0, 0, 0],
+        scale: [1, 1, 1],
+      },
+      visible: true,
+      children: [...roots],
+    };
+    d.nodes[groupId] = group;
+    for (const id of roots) d.nodes[id].transform = childTransforms.get(id)!;
+    const target = siblingsOf(d, parentId);
+    target.splice(firstIdx >= 0 ? Math.min(firstIdx, target.length) : target.length, 0, groupId);
+  });
+  useUI.getState().select(groupId);
+  return groupId;
 }
 
 export function groupNode(nodeId: string): string | null {

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useDoc } from "./store/document";
 import { useUI } from "./store/ui";
-import { duplicateNode, groupNode, removeNode } from "./store/commands";
+import { duplicateNodes, groupNodes, removeNodes } from "./store/commands";
 import { deleteSelectedFaces } from "./store/meshCommands";
 import { frameSelected } from "./viewport/frame";
 
@@ -37,12 +37,12 @@ export function useShortcuts() {
       }
       if (meta && key === "d") {
         e.preventDefault();
-        if (ui.selectedId) duplicateNode(ui.selectedId);
+        if (ui.selectedIds.length > 0) duplicateNodes(ui.selectedIds);
         return;
       }
       if (meta && key === "g") {
         e.preventDefault();
-        if (ui.selectedId) groupNode(ui.selectedId);
+        if (ui.selectedIds.length > 0) groupNodes(ui.selectedIds);
         return;
       }
       if (meta || e.altKey) return;
@@ -105,7 +105,7 @@ export function useShortcuts() {
           break;
         case "delete":
         case "backspace":
-          if (ui.selectedId) removeNode(ui.selectedId);
+          if (ui.selectedIds.length > 0) removeNodes(ui.selectedIds);
           break;
       }
     };

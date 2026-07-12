@@ -149,6 +149,8 @@ export function Viewport() {
           if (e.button !== 0) return;
           if (isGizmoActive()) return;
           if (!isClick(e.clientX, e.clientY)) return;
+          // shift = building an additive selection; a missed click keeps it
+          if (e.shiftKey) return;
           if (useUI.getState().meshEditNodeId) {
             useUI.getState().setMeshSelection({ vertices: new Set(), edges: new Set(), faces: new Set() });
           } else {

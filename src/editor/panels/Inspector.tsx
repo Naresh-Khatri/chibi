@@ -38,6 +38,7 @@ import {
   setNodeShadow,
   setNodeVisible,
   setTransformComponent,
+  setTransformComponentMany,
   splitModelNode,
 } from "../store/commands";
 import {
@@ -116,6 +117,7 @@ function Vec3Row({
 
 export function Inspector() {
   const selectedId = useUI((s) => s.selectedId);
+  const multi = useUI((s) => s.selectedIds.length > 1);
   const hasNode = useDoc((s) =>
     selectedId ? Boolean(s.doc?.nodes[selectedId]) : false,
   );
@@ -126,13 +128,67 @@ export function Inspector() {
         <SlidersHorizontal className="size-3" />
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {hasNode && selectedId ? (
+        {multi ? (
+          <MultiNodeInspector />
+        ) : hasNode && selectedId ? (
           <NodeInspector nodeId={selectedId} />
         ) : (
           <SceneInspector />
         )}
       </div>
     </div>
+  );
+}
+
+// rows show primary's values; commits set that component on every selected node
+function MultiNodeInspector() {
+  const selectedIds = useUI((s) => s.selectedIds);
+  const primaryId = useUI((s) => s.selectedId);
+  const doc = useDoc((s) => s.doc);
+  if (!doc) return null;
+  const ids = selectedIds.filter((id) => doc.nodes[id]);
+  const primary = doc.nodes[primaryId ?? ""] ?? doc.nodes[ids[0]];
+  if (!primary) return null;
+
+  const commitTf =
+    (field: "position" | "rotation" | "scale") =>
+    (axis: 0 | 1 | 2, v: number, merge: boolean) =>
+      setTransformComponentMany(
+        ids,
+        field,
+        axis,
+        v,
+        merge ? { mergeKey: `tf-multi:${field}:${axis}` } : undefined,
+      );
+
+  return (
+    <>
+      <Section title={`${ids.length} objects selected`}>
+        <p className="px-1 text-xs leading-snug text-muted-foreground">
+          Showing “{primary.name}” — edits apply to all selected objects.
+        </p>
+      </Section>
+      <Section title="Transform">
+        <Vec3Row
+          label="Position"
+          value={primary.transform.position}
+          onCommit={commitTf("position")}
+        />
+        <Vec3Row
+          label="Rotation"
+          value={primary.transform.rotation}
+          step={1}
+          toDisplay={(v) => Number((v * RAD2DEG).toFixed(1))}
+          fromDisplay={(v) => v * DEG2RAD}
+          onCommit={commitTf("rotation")}
+        />
+        <Vec3Row
+          label="Scale"
+          value={primary.transform.scale}
+          onCommit={commitTf("scale")}
+        />
+      </Section>
+    </>
   );
 }
 

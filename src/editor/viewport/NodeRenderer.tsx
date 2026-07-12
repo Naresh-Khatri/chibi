@@ -139,6 +139,15 @@ function useNodeRef<T extends Object3D>(id: string) {
   );
 }
 
+/** root-level ancestor first, hit node last */
+function ancestorChain(doc: ChibiDocument, hitId: string): string[] {
+  const chain = [hitId];
+  for (let cur = hitId, parent = findParentId(doc, cur); parent; cur = parent, parent = findParentId(doc, cur)) {
+    chain.unshift(parent);
+  }
+  return chain;
+}
+
 // clicking always hits the deepest node under the cursor (groups have no
 // geometry to raycast against); walk that hit up to its root-level ancestor
 // and step one level deeper per click so the first click selects the whole
@@ -148,10 +157,7 @@ function resolveClickSelection(
   hitId: string,
   currentId: string | null,
 ): string {
-  const chain = [hitId];
-  for (let cur = hitId, parent = findParentId(doc, cur); parent; cur = parent, parent = findParentId(doc, cur)) {
-    chain.unshift(parent);
-  }
+  const chain = ancestorChain(doc, hitId);
   const idx = currentId ? chain.indexOf(currentId) : -1;
   if (idx === -1) return chain[0];
   if (idx === chain.length - 1) return currentId as string;
@@ -174,7 +180,14 @@ function useSelect(id: string) {
       if (!isClick(e.clientX, e.clientY)) return;
       const doc = useDoc.getState().doc;
       if (!doc) return;
-      const { selectedId, select } = useUI.getState();
+      const { selectedId, selectedIds, select, toggleSelect } = useUI.getState();
+      if (e.shiftKey) {
+        // shift: toggle the selected ancestor if click lands in one, else add
+        // the hit's root-level object; no drill-down while extending
+        const chain = ancestorChain(doc, id);
+        toggleSelect(chain.find((cid) => selectedIds.includes(cid)) ?? chain[0]);
+        return;
+      }
       select(resolveClickSelection(doc, id, selectedId));
     },
     [id],
