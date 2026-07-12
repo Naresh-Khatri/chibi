@@ -8,6 +8,7 @@ import { Toolbar } from "./panels/Toolbar";
 import { Hierarchy } from "./panels/Hierarchy";
 import { Inspector } from "./panels/Inspector";
 import { AiChat, AskAiButton } from "./panels/AiChat";
+import { MaterialCard } from "./panels/MaterialCard";
 import { MeshEditToolbar } from "./panels/MeshEditToolbar";
 import { Timeline } from "./panels/Timeline";
 import { Viewport } from "./viewport/Viewport";
@@ -93,6 +94,7 @@ export function EditorLayout() {
           <FloatingPanel side="right" open={inspectorOpen} onToggle={toggleInspector}>
             <Inspector />
           </FloatingPanel>
+          <MaterialCard />
           <AiChat />
           <AskAiButton />
         </main>

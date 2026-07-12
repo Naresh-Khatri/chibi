@@ -14,13 +14,7 @@ const MAP_SLOTS = [
   ["roughnessMap", false],
 ] as const;
 
-export function getSharedMaterial(def: ChibiMaterial): MeshPhysicalMaterial {
-  let mat = cache.get(def.id);
-  if (!mat) {
-    mat = new MeshPhysicalMaterial();
-    mat.side = DoubleSide;
-    cache.set(def.id, mat);
-  }
+export function applyMaterialDef(mat: MeshPhysicalMaterial, def: ChibiMaterial): void {
   mat.color.set(def.color);
   mat.metalness = def.metalness;
   mat.roughness = def.roughness;
@@ -36,11 +30,25 @@ export function getSharedMaterial(def: ChibiMaterial): MeshPhysicalMaterial {
     mat.flatShading = def.flatShading;
     mat.needsUpdate = true;
   }
+}
+
+export function getSharedMaterial(def: ChibiMaterial): MeshPhysicalMaterial {
+  let mat = cache.get(def.id);
+  if (!mat) {
+    mat = new MeshPhysicalMaterial();
+    mat.side = DoubleSide;
+    cache.set(def.id, mat);
+  }
+  applyMaterialDef(mat, def);
   syncMaps(mat, def);
   return mat;
 }
 
-function syncMaps(mat: MeshPhysicalMaterial, def: ChibiMaterial) {
+export function syncMaps(
+  mat: MeshPhysicalMaterial,
+  def: ChibiMaterial,
+  onTextureLoaded?: () => void,
+) {
   const doc = useDoc.getState().doc;
   for (const [slot, srgb] of MAP_SLOTS) {
     const assetId = def.maps[slot];
@@ -66,6 +74,7 @@ function syncMaps(mat: MeshPhysicalMaterial, def: ChibiMaterial) {
           if (current?.maps[slot] === assetId) {
             mat[slot] = texture;
             mat.needsUpdate = true;
+            onTextureLoaded?.();
           }
         })
         .catch((err) =>

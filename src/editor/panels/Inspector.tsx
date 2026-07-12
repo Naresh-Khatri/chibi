@@ -1,11 +1,11 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   Boxes,
   Palette,
   Pencil,
   Plus,
-  RotateCcw,
   SlidersHorizontal,
   Trash2,
   Ungroup,
@@ -20,16 +20,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  BASE_STATE_ID,
   DEFAULT_MATERIAL_ID,
   ENVIRONMENT_PRESETS,
   GEOMETRY_DEFS,
   TONE_MAPPINGS,
-  type ChibiMaterial,
   type LightNode,
   type MeshNode,
   type ModelNode,
-  type PropertyValue,
   type Vec3,
 } from "@/runtime/schema";
 import { useDoc } from "../store/document";
@@ -52,21 +49,16 @@ import { clearOverride, requireBaseState } from "../store/stateCommands";
 import {
   addMaterial,
   assignMaterial,
-  deleteMaterial,
-  materialUsageCount,
-  renameMaterial,
   setDocumentName,
   setEnvironment,
   setGridVisible,
   setLightProp,
-  setMaterialMap,
-  setMaterialProp,
 } from "../store/materialCommands";
-import { importAssetFile } from "../store/assets";
-import { disposeMaterial } from "../viewport/materials";
+import { confirmAndDeleteMaterial } from "./MaterialCard";
 import { InteractionList } from "./InteractionList";
 import { ScrollBindingList } from "./ScrollBindingList";
 import { StatesSection } from "./StatesSection";
+import { LabeledRow, ResetDot, Section, useOverrides } from "./inspectorShared";
 import {
   Checkbox,
   ColorInput,
@@ -74,7 +66,6 @@ import {
   Dropdown,
   Slider,
   TextInput,
-  useDragScrub,
   type MenuItem,
 } from "./controls";
 
@@ -82,90 +73,6 @@ const RAD2DEG = 180 / Math.PI;
 const DEG2RAD = Math.PI / 180;
 const AXIS_LABELS = ["X", "Y", "Z"] as const;
 const AXIS_CLASSES = ["text-red-400", "text-green-400", "text-blue-400"];
-
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="border-b border-border px-3 py-2.5">
-      <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {title}
-      </div>
-      <div className="flex flex-col gap-1.5">{children}</div>
-    </div>
-  );
-}
-
-/** active-state overrides for a target (node or material id); undefined in base */
-function useOverrides(targetId: string): Record<string, PropertyValue> | undefined {
-  const activeStateId = useUI((s) => s.activeStateId);
-  return useDoc((s) =>
-    activeStateId === BASE_STATE_ID
-      ? undefined
-      : s.doc?.states[activeStateId]?.overrides[targetId],
-  );
-}
-
-function ResetDot({ onReset }: { onReset: () => void }) {
-  return (
-    <button
-      type="button"
-      title="Reset override to base value"
-      onClick={onReset}
-      className="shrink-0 text-primary transition-colors hover:text-destructive"
-    >
-      <RotateCcw className="size-3" />
-    </button>
-  );
-}
-
-type ScrubConfig = {
-  value: number;
-  onCommit: (v: number, merge: boolean) => void;
-  step?: number;
-  min?: number;
-  max?: number;
-};
-
-function LabeledRow({
-  label,
-  children,
-  overridden,
-  onReset,
-  scrub,
-}: {
-  label: string;
-  children: React.ReactNode;
-  overridden?: boolean;
-  onReset?: () => void;
-  scrub?: ScrubConfig;
-}) {
-  const scrubHandlers = useDragScrub(
-    scrub ?? { value: 0, onCommit: () => {} },
-  );
-  return (
-    <div
-      className={`flex items-center gap-2 ${
-        overridden ? "-mx-1 rounded px-1 ring-1 ring-primary/60" : ""
-      }`}
-    >
-      <span
-        className={`w-16 shrink-0 text-xs text-muted-foreground ${
-          scrub ? "cursor-ew-resize select-none" : ""
-        }`}
-        {...(scrub ? scrubHandlers : undefined)}
-      >
-        {label}
-      </span>
-      {children}
-      {overridden && onReset && <ResetDot onReset={onReset} />}
-    </div>
-  );
-}
 
 function Vec3Row({
   label,
@@ -601,8 +508,7 @@ function MaterialSection({ node }: { node: MeshNode | ModelNode }) {
         : undefined,
   );
   const materialList = useDoc((s) => s.doc?.materials);
-  const activeStateId = useUI((s) => s.activeStateId);
-  const overrides = useOverrides(material?.id ?? "");
+  const openMaterialCard = useUI((s) => s.openMaterialCard);
   if (!materialList) return null;
 
   if (!material) {
@@ -631,33 +537,6 @@ function MaterialSection({ node }: { node: MeshNode | ModelNode }) {
     );
   }
 
-  const effColor = (overrides?.color as string | undefined) ?? material.color;
-  const effOpacity =
-    (overrides?.opacity as number | undefined) ?? material.opacity;
-
-  const mk = (prop: string) => ({ mergeKey: `mat:${material.id}:${prop}` });
-  const commitMetalness = (v: number, merge: boolean) =>
-    setMaterialProp(material.id, { metalness: v }, merge ? mk("metalness") : undefined);
-  const commitRoughness = (v: number, merge: boolean) =>
-    setMaterialProp(material.id, { roughness: v }, merge ? mk("roughness") : undefined);
-  const commitOpacity = (v: number, merge: boolean) =>
-    setMaterialProp(material.id, { opacity: v }, merge ? mk("opacity") : undefined);
-  const commitEmissiveIntensity = (v: number, merge: boolean) =>
-    setMaterialProp(
-      material.id,
-      { emissiveIntensity: v },
-      merge ? mk("emissiveIntensity") : undefined,
-    );
-  const commitClearcoat = (v: number, merge: boolean) =>
-    setMaterialProp(material.id, { clearcoat: v }, merge ? mk("clearcoat") : undefined);
-  const commitClearcoatRoughness = (v: number, merge: boolean) =>
-    setMaterialProp(
-      material.id,
-      { clearcoatRoughness: v },
-      merge ? mk("clearcoatRoughness") : undefined,
-    );
-  const commitSheen = (v: number, merge: boolean) =>
-    setMaterialProp(material.id, { sheen: v }, merge ? mk("sheen") : undefined);
   const pickerItems: MenuItem[] = [
     ...(isPart
       ? ([
@@ -681,217 +560,31 @@ function MaterialSection({ node }: { node: MeshNode | ModelNode }) {
     },
   ];
 
-  const onDelete = () => {
-    const used = materialUsageCount(material.id);
-    const others = used - 1;
-    if (
-      others > 0 &&
-      !window.confirm(
-        `"${material.name}" is used by ${others} other object${others > 1 ? "s" : ""}. Reassign them to Default and delete?`,
-      )
-    ) {
-      return;
-    }
-    deleteMaterial(material.id);
-    disposeMaterial(material.id);
-  };
-
   return (
     <Section title="Material">
       <div className="flex items-center gap-1">
-        <Dropdown button={<>{material.name}</>} items={pickerItems} />
-        <span className="flex-1" />
-        {material.id !== DEFAULT_MATERIAL_ID && (
-          <button
-            type="button"
-            title="Delete material"
-            className="text-muted-foreground transition-colors hover:text-destructive"
-            onClick={onDelete}
-          >
-            <Trash2 className="size-3.5" />
-          </button>
-        )}
-      </div>
-      <LabeledRow label="Name">
-        <TextInput
-          value={material.name}
-          onCommit={(v) => renameMaterial(material.id, v)}
-        />
-      </LabeledRow>
-      <LabeledRow
-        label="Color"
-        overridden={overrides?.color !== undefined}
-        onReset={() => clearOverride(activeStateId, material.id, "color")}
-      >
-        <ColorInput
-          value={effColor}
-          onCommit={(v, merge) =>
-            setMaterialProp(
-              material.id,
-              { color: v },
-              merge ? mk("color") : undefined,
-            )
-          }
-        />
-      </LabeledRow>
-      <LabeledRow
-        label="Metalness"
-        scrub={{ value: material.metalness, onCommit: commitMetalness, step: 0.01, min: 0, max: 1 }}
-      >
-        <Slider value={material.metalness} onCommit={commitMetalness} />
-      </LabeledRow>
-      <LabeledRow
-        label="Roughness"
-        scrub={{ value: material.roughness, onCommit: commitRoughness, step: 0.01, min: 0, max: 1 }}
-      >
-        <Slider value={material.roughness} onCommit={commitRoughness} />
-      </LabeledRow>
-      <LabeledRow
-        label="Clearcoat"
-        scrub={{ value: material.clearcoat, onCommit: commitClearcoat, step: 0.01, min: 0, max: 1 }}
-      >
-        <Slider value={material.clearcoat} onCommit={commitClearcoat} />
-      </LabeledRow>
-      <LabeledRow
-        label="Coat rough"
-        scrub={{ value: material.clearcoatRoughness, onCommit: commitClearcoatRoughness, step: 0.01, min: 0, max: 1 }}
-      >
-        <Slider value={material.clearcoatRoughness} onCommit={commitClearcoatRoughness} />
-      </LabeledRow>
-      <LabeledRow
-        label="Sheen"
-        scrub={{ value: material.sheen, onCommit: commitSheen, step: 0.01, min: 0, max: 1 }}
-      >
-        <Slider value={material.sheen} onCommit={commitSheen} />
-      </LabeledRow>
-      {material.sheen > 0 && (
-        <LabeledRow label="Sheen tint">
-          <ColorInput
-            value={material.sheenColor}
-            onCommit={(v, merge) =>
-              setMaterialProp(
-                material.id,
-                { sheenColor: v },
-                merge ? mk("sheenColor") : undefined,
-              )
-            }
+        <button
+          type="button"
+          title="Edit material"
+          onClick={() => openMaterialCard()}
+          className="flex min-w-0 flex-1 items-center gap-2 rounded-md border border-input bg-input/30 px-1.5 py-1 text-left hover:bg-input/50"
+        >
+          <span
+            className="size-3.5 shrink-0 rounded-full border border-border/60"
+            style={{ backgroundColor: material.color }}
           />
-        </LabeledRow>
-      )}
-      <LabeledRow
-        label="Opacity"
-        overridden={overrides?.opacity !== undefined}
-        onReset={() => clearOverride(activeStateId, material.id, "opacity")}
-        scrub={{ value: effOpacity, onCommit: commitOpacity, step: 0.01, min: 0, max: 1 }}
-      >
-        <Slider value={effOpacity} onCommit={commitOpacity} />
-      </LabeledRow>
-      <LabeledRow label="Emissive">
-        <ColorInput
-          value={material.emissive}
-          onCommit={(v, merge) =>
-            setMaterialProp(
-              material.id,
-              { emissive: v },
-              merge ? mk("emissive") : undefined,
-            )
-          }
-        />
-      </LabeledRow>
-      <LabeledRow
-        label="Intensity"
-        scrub={{ value: material.emissiveIntensity, onCommit: commitEmissiveIntensity, step: 0.1, min: 0 }}
-      >
-        <DragNumber
-          value={material.emissiveIntensity}
-          min={0}
-          step={0.1}
-          onCommit={commitEmissiveIntensity}
-        />
-      </LabeledRow>
-      <div className="flex gap-4 pl-18">
-        <Checkbox
-          label="Transparent"
-          checked={material.transparent}
-          onChange={(v) => setMaterialProp(material.id, { transparent: v })}
-        />
-        <Checkbox
-          label="Flat"
-          checked={material.flatShading}
-          onChange={(v) => setMaterialProp(material.id, { flatShading: v })}
-        />
-      </div>
-      {TEXTURE_SLOTS.map(({ slot, label }) => (
-        <TextureSlotRow
-          key={slot}
-          material={material}
-          slot={slot}
-          label={label}
-        />
-      ))}
-    </Section>
-  );
-}
-
-const TEXTURE_SLOTS = [
-  { slot: "map", label: "Albedo" },
-  { slot: "normalMap", label: "Normal" },
-  { slot: "roughnessMap", label: "Roughness" },
-] as const;
-
-const IMAGE_TYPES = /^image\/(png|jpeg|webp)$/;
-
-function TextureSlotRow({
-  material,
-  slot,
-  label,
-}: {
-  material: ChibiMaterial;
-  slot: keyof ChibiMaterial["maps"];
-  label: string;
-}) {
-  const assets = useDoc((s) => s.doc?.assets);
-  const textures = assets
-    ? Object.values(assets).filter((a) => a.kind === "texture")
-    : [];
-  const currentId = material.maps[slot];
-  const current = currentId && assets ? assets[currentId] : undefined;
-
-  const items: MenuItem[] = [
-    {
-      label: "None",
-      checked: !currentId,
-      onSelect: () => setMaterialMap(material.id, slot, null),
-    },
-    ...textures.map((t) => ({
-      label: t.name,
-      checked: t.id === currentId,
-      onSelect: () => setMaterialMap(material.id, slot, t.id),
-    })),
-  ];
-
-  return (
-    <LabeledRow label={label}>
-      <div
-        className="min-w-0 flex-1 rounded border border-dashed border-border"
-        title="Pick a texture or drop an image here"
-        onDragOver={(e) => {
-          if (e.dataTransfer.types.includes("Files")) e.preventDefault();
-        }}
-        onDrop={async (e) => {
-          e.preventDefault();
-          const file = e.dataTransfer.files[0];
-          if (!file || !IMAGE_TYPES.test(file.type)) return;
-          const asset = await importAssetFile(file, "texture");
-          setMaterialMap(material.id, slot, asset.id);
-        }}
-      >
+          <span className="min-w-0 flex-1 truncate text-xs text-foreground">
+            {material.name}
+          </span>
+        </button>
         <Dropdown
-          button={<span className="truncate">{current?.name ?? "None"}</span>}
-          items={items}
+          button={<></>}
+          items={pickerItems}
+          title="Switch material"
+          triggerClassName="shrink-0 px-1"
         />
       </div>
-    </LabeledRow>
+    </Section>
   );
 }
 
@@ -977,6 +670,68 @@ function edgeTint(background: string): string {
   return `#${color.getHexString()}`;
 }
 
+function MaterialsSection() {
+  const materials = useDoc((s) => s.doc?.materials);
+  const nodes = useDoc((s) => s.doc?.nodes);
+  const openMaterialCard = useUI((s) => s.openMaterialCard);
+  // hooks rule: memo before the !materials early return
+  const counts = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const n of Object.values(nodes ?? {})) {
+      if ((n.type === "mesh" || n.type === "model") && n.materialId) {
+        map.set(n.materialId, (map.get(n.materialId) ?? 0) + 1);
+      }
+    }
+    return map;
+  }, [nodes]);
+  if (!materials) return null;
+
+  return (
+    <Section title="Materials">
+      <div className="flex flex-col gap-0.5">
+        {Object.values(materials).map((m) => (
+          <div
+            key={m.id}
+            className="group flex h-6 cursor-default items-center gap-2 rounded px-1.5 text-xs text-foreground hover:bg-muted"
+            onClick={() => openMaterialCard(m.id)}
+          >
+            <span
+              className="size-3.5 shrink-0 rounded-full border border-border/60"
+              style={{ backgroundColor: m.color }}
+            />
+            <span className="min-w-0 flex-1 truncate">{m.name}</span>
+            <span className="shrink-0 text-[10px] tabular-nums text-muted-foreground">
+              {counts.get(m.id) ?? 0}×
+            </span>
+            {m.id !== DEFAULT_MATERIAL_ID && (
+              <button
+                type="button"
+                title="Delete material"
+                className="hidden shrink-0 text-muted-foreground hover:text-destructive group-hover:block"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  confirmAndDeleteMaterial(m.id);
+                }}
+              >
+                <Trash2 className="size-3" />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+      <Button
+        variant="secondary"
+        size="xs"
+        className="self-start"
+        onClick={() => openMaterialCard(addMaterial())}
+      >
+        <Plus />
+        New material
+      </Button>
+    </Section>
+  );
+}
+
 function SceneInspector() {
   const name = useDoc((s) => s.doc?.name ?? "");
   const env = useDoc((s) => s.doc?.environment);
@@ -1003,6 +758,7 @@ function SceneInspector() {
           <TextInput value={name} onCommit={setDocumentName} />
         </LabeledRow>
       </Section>
+      <MaterialsSection />
       <Section title="Environment">
         <LabeledRow label="Background">
           <ColorInput

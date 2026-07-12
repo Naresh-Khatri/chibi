@@ -47,6 +47,8 @@ type UIState = {
   hierarchyOpen: boolean;
   inspectorOpen: boolean;
   aiChatOpen: boolean;
+  materialCardOpen: boolean;
+  materialCardPinnedId: string | null;
   toast: string | null;
   activeClipId: string | null;
   playback: Playback;
@@ -82,6 +84,8 @@ type UIState = {
   setElementMode: (mode: ElementMode) => void;
   setMeshSelection: (selection: MeshSelection) => void;
   setHoveredElement: (el: HoveredElement | null) => void;
+  openMaterialCard: (materialId?: string) => void;
+  closeMaterialCard: () => void;
 };
 
 const TOAST_MS = 4000;
@@ -95,6 +99,8 @@ export const useUI = create<UIState>()((set, get) => ({
   hierarchyOpen: true,
   inspectorOpen: true,
   aiChatOpen: false,
+  materialCardOpen: false,
+  materialCardPinnedId: null,
   toast: null,
   activeClipId: null,
   playback: "stopped",
@@ -190,4 +196,11 @@ export const useUI = create<UIState>()((set, get) => ({
     set({ elementMode, meshSelection: emptyMeshSelection(), hoveredElement: null }),
   setMeshSelection: (meshSelection) => set({ meshSelection }),
   setHoveredElement: (hoveredElement) => set({ hoveredElement }),
+  openMaterialCard: (materialId) =>
+    set((s) => ({
+      materialCardOpen: true,
+      materialCardPinnedId:
+        materialId !== undefined ? materialId : s.materialCardPinnedId,
+    })),
+  closeMaterialCard: () => set({ materialCardOpen: false, materialCardPinnedId: null }),
 }));
