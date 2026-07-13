@@ -252,6 +252,7 @@ describe("document round-trip", () => {
         ],
         faces: [[0, 1, 2, 3]],
         subdivisions: 1,
+        sharpEdges: ["0_1"],
       },
       materialId: "mt_default",
       transform: identity(),

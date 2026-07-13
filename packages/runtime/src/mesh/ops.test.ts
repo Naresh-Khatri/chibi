@@ -71,6 +71,18 @@ describe("extrudeFaces", () => {
     expect(out).toEqual(cage);
     expect(() => extrudeFaces(cage, [99, -1])).not.toThrow();
   });
+
+  it("keeps surviving sharp edges and creases the cap where its source edges were sharp", () => {
+    const cage = boxCage(1, 1, 1); // all 12 edges sharp
+    const { cage: out } = extrudeFaces(cage, [4]); // top face
+    const sharp = new Set(out.sharpEdges);
+    // originals all survive: top-rim edges still exist between walls and sides
+    for (const k of cage.sharpEdges!) expect(sharp.has(k)).toBe(true);
+    // the 4 cap edges (between duplicated verts) inherit sharpness: 12 + 4
+    expect(sharp.size).toBe(16);
+    const edges = buildTopology(out).edgeVerts;
+    for (const k of sharp) expect(edges.has(k)).toBe(true);
+  });
 });
 
 describe("deleteFaces", () => {
@@ -124,6 +136,24 @@ describe("deleteFaces", () => {
   it("never throws on out-of-range indices", () => {
     const cage = boxCage(1, 1, 1);
     expect(() => deleteFaces(cage, [99, -1])).not.toThrow();
+  });
+
+  it("remaps sharp edges through vertex renumbering and drops dangling ones", () => {
+    // two disconnected quads, far edge of each sharp
+    const cage = {
+      positions: [
+        0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, // quad A: verts 0-3
+        5, 0, 0, 6, 0, 0, 6, 1, 0, 5, 1, 0, // quad B: verts 4-7
+      ],
+      faces: [
+        [0, 1, 2, 3],
+        [4, 5, 6, 7],
+      ],
+      sharpEdges: ["0_1", "6_7"],
+    };
+    const out = deleteFaces(cage, [0]);
+    // quad A's key dies with its verts; quad B's remaps 6_7 -> 2_3
+    expect(out.sharpEdges).toEqual(["2_3"]);
   });
 });
 
@@ -189,6 +219,20 @@ describe("computeEdgeLoop + applyLoopCut", () => {
     expect(tri.length).toBeGreaterThan(3);
     expect(tri.some((v) => v >= 5)).toBe(true);
     expect(() => subdivideCatmullClark(out, 1)).not.toThrow();
+  });
+
+  it("keeps both halves of a cut sharp edge sharp and leaves the new loop smooth", () => {
+    const cage = boxCage(1, 1, 1); // all 12 edges sharp
+    const topo = buildTopology(cage);
+    const loop = computeEdgeLoop(topo, 0, topo.faceEdges[0][0])!;
+    const { cage: out, newEdgeKeys } = applyLoopCut(cage, loop);
+
+    // 4 ring edges split into 2 sharp halves each: 12 - 4 + 8
+    expect(out.sharpEdges).toHaveLength(16);
+    const sharp = new Set(out.sharpEdges);
+    for (const k of newEdgeKeys) expect(sharp.has(k)).toBe(false);
+    const edges = buildTopology(out).edgeVerts;
+    for (const k of sharp) expect(edges.has(k)).toBe(true);
   });
 
   it("returns null when the start face isn't a quad or edge isn't on it", () => {

@@ -105,3 +105,58 @@ describe("subdivideCatmullClark", () => {
     expect(() => subdivideCatmullClark(degenerate, 2)).not.toThrow();
   });
 });
+
+describe("sharp (creased) edges", () => {
+  const allCubeEdges = () => [...buildTopology(CUBE).edgeVerts.keys()];
+
+  it("a fully creased cube stays exactly a cube (corners pinned, verts on the surface)", () => {
+    const out = subdivideCatmullClark({ ...CUBE, sharpEdges: allCubeEdges() }, 2);
+    // every vertex still lies on the unit-cube surface: max |coord| == 1
+    for (let i = 0; i < out.positions.length / 3; i++) {
+      const m = Math.max(
+        Math.abs(out.positions[i * 3]),
+        Math.abs(out.positions[i * 3 + 1]),
+        Math.abs(out.positions[i * 3 + 2]),
+      );
+      expect(m).toBeCloseTo(1, 10);
+    }
+    // corner rule (3 creases meet): the 8 original corners are untouched
+    for (let v = 0; v < 8; v++) {
+      expect(out.positions[v * 3]).toBe(CUBE.positions[v * 3]);
+      expect(out.positions[v * 3 + 1]).toBe(CUBE.positions[v * 3 + 1]);
+      expect(out.positions[v * 3 + 2]).toBe(CUBE.positions[v * 3 + 2]);
+    }
+    // ...while the uncreased cube rounds off (sanity contrast)
+    const smooth = subdivideCatmullClark(CUBE, 2);
+    expect(Math.abs(smooth.positions[0])).toBeLessThan(1);
+  });
+
+  it("propagates sharpness to both halves of each split edge", () => {
+    const l1 = subdivideCatmullClark({ ...CUBE, sharpEdges: allCubeEdges() }, 1);
+    expect(l1.sharpEdges).toHaveLength(24); // 12 creases -> 2 children each
+    const l2 = subdivideCatmullClark(l1, 1);
+    expect(l2.sharpEdges).toHaveLength(48);
+    // propagated keys are real edges of the child mesh
+    const edges = buildTopology(l1).edgeVerts;
+    for (const k of l1.sharpEdges!) expect(edges.has(k)).toBe(true);
+  });
+
+  it("crease rule: a vertex between exactly 2 creases stays on the crease line", () => {
+    // crease only the top rim (y=1 square: verts 2,3,6,7)
+    const topRim = ["2_3", "3_7", "6_7", "2_6"];
+    const out = subdivideCatmullClark({ ...CUBE, sharpEdges: topRim }, 1);
+    // each top corner has exactly 2 creases -> crease rule blends only along
+    // the rim, so it must stay in the y=1 plane (smooth rule would sink it)
+    for (const v of [2, 3, 6, 7]) {
+      expect(out.positions[v * 3 + 1]).toBeCloseTo(1, 10);
+    }
+    const smooth = subdivideCatmullClark(CUBE, 1);
+    expect(smooth.positions[2 * 3 + 1]).toBeLessThan(1);
+  });
+
+  it("ignores sharp keys that aren't edges of the cage", () => {
+    const out = subdivideCatmullClark({ ...CUBE, sharpEdges: ["0_6", "99_100"] }, 1);
+    expect(out.sharpEdges).toHaveLength(0);
+    expect(out.faces).toHaveLength(24);
+  });
+});

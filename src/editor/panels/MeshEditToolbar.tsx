@@ -1,10 +1,15 @@
 "use client";
 
-import { ArrowUpFromLine, Check, Dot, Minus, Scissors, Trash2, Triangle } from "lucide-react";
+import { ArrowUpFromLine, Check, Diamond, Dot, Minus, Scissors, Trash2, Triangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useDoc } from "../store/document";
 import { useUI, type ElementMode } from "../store/ui";
-import { deleteSelectedFaces, extrudeSelectedFaces } from "../store/meshCommands";
+import {
+  deleteSelectedFaces,
+  extrudeSelectedFaces,
+  toggleSelectedEdgesSharp,
+} from "../store/meshCommands";
 
 // hotkey hints mirror useShortcuts (1/2/3) so the panel doubles as a legend
 const ELEMENT_MODES: {
@@ -43,11 +48,20 @@ export function MeshEditToolbar() {
   const exitMeshEdit = useUI((s) => s.exitMeshEdit);
   const cutActive = useUI((s) => s.meshCutActive);
   const setMeshCutActive = useUI((s) => s.setMeshCutActive);
+  const sharpEdges = useDoc((s) => {
+    const node = nodeId ? s.doc?.nodes[nodeId] : undefined;
+    return node?.type === "mesh" && node.geometry.kind === "editableMesh"
+      ? node.geometry.sharpEdges
+      : null;
+  });
 
   if (!nodeId) return null;
 
   const count = selectedCount(elementMode, selection);
   const showFaceOps = elementMode === "face" && selection.faces.size > 0 && !cutActive;
+  const showEdgeOps = elementMode === "edge" && selection.edges.size > 0 && !cutActive;
+  const allSharp =
+    showEdgeOps && !!sharpEdges && [...selection.edges].every((k) => sharpEdges.includes(k));
   const activeMode = ELEMENT_MODES.find((m) => m.mode === elementMode);
 
   return (
@@ -98,6 +112,20 @@ export function MeshEditToolbar() {
           Cut
         </Button>
       </div>
+
+      {showEdgeOps && (
+        <div className="flex items-center gap-1 border-l pl-2">
+          <Button
+            variant={allSharp ? "default" : "secondary"}
+            size="xs"
+            title="Toggle sharp — creased edges stay crisp under subdivision"
+            onClick={() => toggleSelectedEdgesSharp(nodeId)}
+          >
+            <Diamond />
+            Sharp
+          </Button>
+        </div>
+      )}
 
       {showFaceOps && (
         <div className="flex items-center gap-1 border-l pl-2">

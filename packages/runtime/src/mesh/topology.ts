@@ -7,6 +7,9 @@
 export type Cage = {
   positions: number[];
   faces: number[][];
+  /** crease edge keys (see edgeKey) — CC applies boundary-style rules along
+   * them so they stay crisp under subdivision (OpenSubdiv semi-sharp, weight ∞) */
+  sharpEdges?: string[];
 };
 
 export type Topology = {

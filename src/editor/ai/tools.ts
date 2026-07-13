@@ -1,5 +1,6 @@
 import { tool, type ToolSet } from "ai";
 import { z } from "zod";
+import { edgeKey } from "@/runtime/mesh";
 import {
   BASE_STATE_ID,
   GEOMETRY_KINDS,
@@ -426,10 +427,16 @@ export function buildTools(): ToolSet {
           .min(1)
           .describe("polygon loops (quads preferred), CCW seen from outside"),
         subdivisions: z.number().int().min(0).max(4).default(1),
+        sharpEdges: z
+          .array(z.string())
+          .optional()
+          .describe(
+            'crease edge keys "a_b" (a<b, both endpoints of an existing cage edge) — creased edges stay crisp under subdivision (table edges, box corners, rims)',
+          ),
         transform: transformInput.optional(),
         materialId: z.string().optional(),
       }),
-      execute: async ({ name, positions, faces, subdivisions, transform, materialId }) => {
+      execute: async ({ name, positions, faces, subdivisions, sharpEdges, transform, materialId }) => {
         assertBaseState("add objects");
         if (positions.length < 9 || positions.length % 3 !== 0) {
           throw new Error(
@@ -449,10 +456,25 @@ export function buildTools(): ToolSet {
             throw new Error(`face [${face.join(",")}] repeats a vertex`);
           }
         }
+        if (sharpEdges) {
+          const present = new Set<string>();
+          for (const face of faces) {
+            for (let i = 0; i < face.length; i++) {
+              present.add(edgeKey(face[i], face[(i + 1) % face.length]));
+            }
+          }
+          for (const key of sharpEdges) {
+            if (!present.has(key)) {
+              throw new Error(
+                `sharpEdges key "${key}" is not an edge of any face (keys are "a_b" with a<b)`,
+              );
+            }
+          }
+        }
         if (materialId && !getDoc().materials[materialId]) {
           throw new Error(`No material with id "${materialId}"`);
         }
-        const id = ai(() => addEditableMeshNode({ positions, faces }, subdivisions));
+        const id = ai(() => addEditableMeshNode({ positions, faces, sharpEdges }, subdivisions));
         if (!id) throw new Error("add_editable_mesh was refused by the editor");
         if (name) ai(() => setNodeName(id, name));
         if (transform) applyTransform(id, transform);
@@ -466,7 +488,7 @@ export function buildTools(): ToolSet {
 
     convert_to_editable_mesh: tool({
       description:
-        "Convert a parametric primitive mesh into an editable subdivision-surface cage (destructive: its geometry params are dropped, undo to revert). Works for box/plane/cylinder/cone/sphere/torus; capsule and text3d have no cage generator. The node keeps its transform/material; smoothing is controlled by set_subdivisions afterward.",
+        "Convert a parametric primitive mesh into an editable subdivision-surface cage (destructive: its geometry params are dropped, undo to revert). Works for box/plane/cylinder/cone/sphere/torus; capsule and text3d have no cage generator. Shape is preserved: box edges and cylinder/cone rims are marked as sharp creases so subdivision doesn't round them. The node keeps its transform/material; smoothing is controlled by set_subdivisions afterward.",
       inputSchema: z.object({ nodeId: z.string() }),
       execute: async ({ nodeId }) => {
         assertBaseState("convert to editable mesh");
@@ -499,7 +521,7 @@ export function buildTools(): ToolSet {
 
     set_subdivisions: tool({
       description:
-        "Set the render-time Catmull-Clark subdivision level (0-4) of an editable-mesh node. 0 shows the faceted cage; 1-2 is usually enough for smooth organic shapes.",
+        "Set the render-time Catmull-Clark subdivision level (0-4) of an editable-mesh node. 0 shows the faceted cage; 1-2 is usually enough for smooth organic shapes. Sharp (creased) edges stay crisp at every level.",
       inputSchema: z.object({
         nodeId: z.string(),
         level: z.number().int().min(0).max(4),

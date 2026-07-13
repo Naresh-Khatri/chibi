@@ -7,10 +7,20 @@
 // normals for every generator below before writing this file.
 
 import { numParam, type GeometryKind, type GeometryParams } from "../schema";
-import type { Cage } from "./topology";
+import { edgeKey, type Cage } from "./topology";
 
 function clamp(v: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, v));
+}
+
+function allEdgeKeys(faces: number[][]): string[] {
+  const out = new Set<string>();
+  for (const face of faces) {
+    for (let i = 0; i < face.length; i++) {
+      out.add(edgeKey(face[i], face[(i + 1) % face.length]));
+    }
+  }
+  return [...out];
 }
 
 /** 8 verts / 6 quads, centered on origin — matches RoundedBoxGeometry's box arm */
@@ -36,7 +46,9 @@ export function boxCage(width: number, height: number, depth: number): Cage {
     [3, 7, 6, 2], // top    (+y)
     [0, 1, 5, 4], // bottom (-y)
   ];
-  return { positions, faces };
+  // all 12 edges creased -> converting a box keeps it exactly a box at any
+  // subdivision level; the user un-sharpens edges to opt into rounding
+  return { positions, faces, sharpEdges: allEdgeKeys(faces) };
 }
 
 /** 4 verts / 1 quad, in the XY plane facing +Z — matches three's planeGeometry */
@@ -85,14 +97,21 @@ export function cylinderCage(
     // [bottom(i), top(i), top(i+1), bottom(i+1)] — verified outward via Newell normal
     faces.push([b0, t0, t1, b1]);
   }
+  // capped rims creased so caps stay flat and the rim crisp under CC (a
+  // zero-radius apex ring has no cap and its edges are degenerate — skip)
+  const sharpEdges: string[] = [];
   if (radiusBottom > 0) {
     faces.push(Array.from({ length: segs }, (_, i) => i));
+    for (let i = 0; i < segs; i++) sharpEdges.push(edgeKey(i, (i + 1) % segs));
   }
   if (radiusTop > 0) {
     // reversed order flips the winding so the top cap's normal points +y
     faces.push(Array.from({ length: segs }, (_, i) => segs + (segs - 1 - i)));
+    for (let i = 0; i < segs; i++) {
+      sharpEdges.push(edgeKey(segs + i, segs + ((i + 1) % segs)));
+    }
   }
-  return { positions, faces };
+  return { positions, faces, sharpEdges };
 }
 
 /** dedupe verts that land on (near-)identical positions, remapping face indices */

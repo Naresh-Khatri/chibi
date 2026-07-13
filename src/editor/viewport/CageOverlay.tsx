@@ -50,6 +50,7 @@ function edgeMidpoint(topo: Topology, pos: number[], key: string): [number, numb
 const BASE_RGB = new Color("#22d3ee").toArray(); // cyan — idle cage
 const SELECTED_RGB = new Color("#f59e0b").toArray(); // amber — picked
 const HOVER_RGB = new Color("#ffffff").toArray(); // white — pointer-over
+const SHARP_RGB = new Color("#e879f9").toArray(); // fuchsia — creased edge (Blender-style)
 
 // three.js's raycaster only picks Points/Line hits within these thresholds
 // (world units), but the overlay renders points/lines at a constant pixel
@@ -98,10 +99,22 @@ function pointColors(count: number, selected: Set<number>, hovered: number | nul
   return arr;
 }
 
-function edgeColors(keys: string[], selected: Set<string>, hovered: string | null) {
+function edgeColors(
+  keys: string[],
+  selected: Set<string>,
+  hovered: string | null,
+  sharp: Set<string>,
+) {
   const arr = new Float32Array(keys.length * 6);
   keys.forEach((key, i) => {
-    const rgb = key === hovered ? HOVER_RGB : selected.has(key) ? SELECTED_RGB : BASE_RGB;
+    const rgb =
+      key === hovered
+        ? HOVER_RGB
+        : selected.has(key)
+          ? SELECTED_RGB
+          : sharp.has(key)
+            ? SHARP_RGB
+            : BASE_RGB;
     for (let j = 0; j < 2; j++) {
       const o = (i * 2 + j) * 3;
       arr[o] = rgb[0];
@@ -226,6 +239,7 @@ export function CageOverlay() {
     () => (topology ? Array.from(topology.edgeVerts.keys()) : []),
     [topology],
   );
+  const sharpSet = useMemo(() => new Set(geometry?.sharpEdges ?? []), [geometry]);
 
   const pointsGeo = useMemo(() => {
     if (!positions) return null;
@@ -256,9 +270,15 @@ export function CageOverlay() {
     });
     const g = new BufferGeometry();
     g.setAttribute("position", new Float32BufferAttribute(arr, 3));
-    g.setAttribute("color", new Float32BufferAttribute(edgeColors(edgeKeys, selection.edges, hoveredEdge(hovered)), 3));
+    g.setAttribute(
+      "color",
+      new Float32BufferAttribute(
+        edgeColors(edgeKeys, selection.edges, hoveredEdge(hovered), sharpSet),
+        3,
+      ),
+    );
     return g;
-  }, [positions, topology, edgeKeys, selection.edges, hovered]);
+  }, [positions, topology, edgeKeys, selection.edges, hovered, sharpSet]);
   useEffect(() => () => linesGeo?.dispose(), [linesGeo]);
 
   const triangulated = useMemo(() => {

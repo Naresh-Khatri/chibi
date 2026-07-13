@@ -40,6 +40,23 @@ describe("boxCage", () => {
     assertIndicesInRange(cage.faces, 8);
     expect(eulerCharacteristic(cage)).toBe(2);
   });
+
+  it("creases all 12 edges so a converted cube stays a cube under CC", () => {
+    const cage = boxCage(2, 2, 2);
+    const topo = buildTopology(cage);
+    expect(cage.sharpEdges).toHaveLength(12);
+    for (const k of cage.sharpEdges!) expect(topo.edgeVerts.has(k)).toBe(true);
+
+    const out = subdivideCatmullClark(cage, 2);
+    for (let i = 0; i < out.positions.length / 3; i++) {
+      const m = Math.max(
+        Math.abs(out.positions[i * 3]),
+        Math.abs(out.positions[i * 3 + 1]),
+        Math.abs(out.positions[i * 3 + 2]),
+      );
+      expect(m).toBeCloseTo(1, 10); // half-extent 1 -> every vert on the surface
+    }
+  });
 });
 
 describe("planeCage", () => {
@@ -83,6 +100,30 @@ describe("cylinderCage", () => {
     const capFace = cage.faces[cage.faces.length - 1];
     expect(capFace.length).toBe(segs);
     assertIndicesInRange(cage.faces, segs * 2);
+  });
+
+  it("creases capped rims only: cylinder both rings, cone just the base", () => {
+    const segs = 8;
+    const cyl = cylinderCage(1, 1, 2, segs);
+    expect(cyl.sharpEdges).toHaveLength(segs * 2);
+    const topo = buildTopology(cyl);
+    for (const k of cyl.sharpEdges!) expect(topo.edgeVerts.has(k)).toBe(true);
+    // creased rims keep the caps flat AT the original height: rim vertex/edge
+    // points + cap face point all stay on y=1 (uncreased, everything sinks)
+    const out = subdivideCatmullClark(cyl, 1);
+    const atTop = (cage: { positions: number[] }) => {
+      let n = 0;
+      for (let i = 0; i < cage.positions.length / 3; i++) {
+        if (Math.abs(cage.positions[i * 3 + 1] - 1) < 1e-9) n++;
+      }
+      return n;
+    };
+    expect(atTop(out)).toBe(segs * 2 + 1);
+    // uncreased, only the cap's face point (a pure centroid) stays — the
+    // rim vertex/edge points all sink
+    expect(atTop(subdivideCatmullClark({ ...cyl, sharpEdges: [] }, 1))).toBe(1);
+
+    expect(cylinderCage(0, 1, 2, segs).sharpEdges).toHaveLength(segs);
   });
 });
 
@@ -142,6 +183,11 @@ describe("cageFromGeometry", () => {
     expect(cageFromGeometry("cone", {})).not.toBeNull();
     expect(cageFromGeometry("sphere", {})).not.toBeNull();
     expect(cageFromGeometry("torus", {})).not.toBeNull();
+  });
+
+  it("leaves smooth-by-design cages (sphere, torus) uncreased", () => {
+    expect(cageFromGeometry("sphere", {})?.sharpEdges ?? []).toHaveLength(0);
+    expect(cageFromGeometry("torus", {})?.sharpEdges ?? []).toHaveLength(0);
   });
 });
 

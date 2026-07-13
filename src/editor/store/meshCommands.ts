@@ -48,6 +48,9 @@ export function convertToEditableMesh(nodeId: string): void {
       positions: cage.positions,
       faces: cage.faces,
       subdivisions: 1,
+      // primitive creases (box edges, cylinder rims) -> converting doesn't
+      // visibly change the shape; un-sharpen edges to opt into rounding
+      sharpEdges: cage.sharpEdges ?? [],
     };
   });
 }
@@ -71,6 +74,7 @@ export function addEditableMeshNode(cage: Cage, subdivisions = 1): string | null
         positions: cage.positions.slice(),
         faces: cage.faces.map((f) => f.slice()),
         subdivisions: level,
+        sharpEdges: cage.sharpEdges?.slice() ?? [],
       },
       materialId: DEFAULT_MATERIAL_ID,
       transform: identityTransform(),
@@ -129,9 +133,13 @@ export function increaseBaseSubdivision(nodeId: string): void {
     const node = d.nodes[nodeId];
     if (node?.type !== "mesh" || node.geometry.kind !== "editableMesh") return;
     const geo = node.geometry;
-    const baked = subdivideCatmullClark({ positions: geo.positions, faces: geo.faces }, steps);
+    const baked = subdivideCatmullClark(
+      { positions: geo.positions, faces: geo.faces, sharpEdges: geo.sharpEdges },
+      steps,
+    );
     geo.positions = baked.positions;
     geo.faces = baked.faces;
+    geo.sharpEdges = baked.sharpEdges ?? [];
     // the modifier level already showed this smoothing live — consume the
     // baked steps so baking denser geometry doesn't also visibly
     // double-smooth the result
@@ -192,7 +200,11 @@ export function extrudeSelectedFaces(nodeId: string): void {
   }
 
   const { cage, newFaceIndices } = extrudeFaces(
-    { positions: node.geometry.positions, faces: node.geometry.faces },
+    {
+      positions: node.geometry.positions,
+      faces: node.geometry.faces,
+      sharpEdges: node.geometry.sharpEdges,
+    },
     faceIndices,
   );
   dispatch("Extrude faces", (d) => {
@@ -200,6 +212,7 @@ export function extrudeSelectedFaces(nodeId: string): void {
     if (n?.type !== "mesh" || n.geometry.kind !== "editableMesh") return;
     n.geometry.positions = cage.positions;
     n.geometry.faces = cage.faces;
+    n.geometry.sharpEdges = cage.sharpEdges ?? [];
   });
   useUI.getState().setMeshSelection({
     vertices: new Set(),
@@ -233,7 +246,11 @@ export function deleteSelectedFaces(nodeId: string): void {
   }
 
   const cage = deleteFaces(
-    { positions: node.geometry.positions, faces: node.geometry.faces },
+    {
+      positions: node.geometry.positions,
+      faces: node.geometry.faces,
+      sharpEdges: node.geometry.sharpEdges,
+    },
     faceIndices,
   );
   dispatch("Delete faces", (d) => {
@@ -241,6 +258,7 @@ export function deleteSelectedFaces(nodeId: string): void {
     if (n?.type !== "mesh" || n.geometry.kind !== "editableMesh") return;
     n.geometry.positions = cage.positions;
     n.geometry.faces = cage.faces;
+    n.geometry.sharpEdges = cage.sharpEdges ?? [];
   });
   useUI.getState().setMeshSelection({ vertices: new Set(), edges: new Set(), faces: new Set() });
 }
@@ -257,7 +275,11 @@ export function loopCutMesh(nodeId: string, startFace: number, startEdgeKey: str
   const node = doc?.nodes[nodeId];
   if (!node || node.type !== "mesh" || node.geometry.kind !== "editableMesh") return;
 
-  const cage = { positions: node.geometry.positions, faces: node.geometry.faces };
+  const cage = {
+    positions: node.geometry.positions,
+    faces: node.geometry.faces,
+    sharpEdges: node.geometry.sharpEdges,
+  };
   const loop = computeEdgeLoop(buildTopology(cage), startFace, startEdgeKey);
   if (!loop || loop.faces.length === 0) {
     useUI.getState().showToast("Can't cut here — hover an edge of a quad face");
@@ -270,10 +292,45 @@ export function loopCutMesh(nodeId: string, startFace: number, startEdgeKey: str
     if (n?.type !== "mesh" || n.geometry.kind !== "editableMesh") return;
     n.geometry.positions = out.positions;
     n.geometry.faces = out.faces;
+    n.geometry.sharpEdges = out.sharpEdges ?? [];
   });
 
   const ui = useUI.getState();
   ui.setMeshCutActive(false);
   ui.setElementMode("edge"); // clears selection; show the new cut edges below
   ui.setMeshSelection({ vertices: new Set(), edges: new Set(newEdgeKeys), faces: new Set() });
+}
+
+/**
+ * Edge-mode Sharp toggle: sharp (creased) edges resist Catmull-Clark
+ * smoothing and stay crisp at any subdivision level. All-selected-sharp →
+ * unmark, otherwise mark the whole selection. Reads the selection from the
+ * UI store like extrude/delete do.
+ */
+export function toggleSelectedEdgesSharp(nodeId: string): void {
+  if (!requireBaseState("edit sharp edges")) return;
+  const doc = useDoc.getState().doc;
+  const node = doc?.nodes[nodeId];
+  if (!node || node.type !== "mesh" || node.geometry.kind !== "editableMesh") return;
+
+  const topo = buildTopology({ positions: node.geometry.positions, faces: node.geometry.faces });
+  // stale selection may hold keys a prior op renumbered away
+  const valid = [...useUI.getState().meshSelection.edges].filter((k) => topo.edgeVerts.has(k));
+  if (valid.length === 0) {
+    useUI.getState().showToast("Select at least one edge to toggle sharp");
+    return;
+  }
+
+  const current = new Set(node.geometry.sharpEdges);
+  const allSharp = valid.every((k) => current.has(k));
+  dispatch(allSharp ? "Clear sharp edges" : "Mark edges sharp", (d) => {
+    const n = d.nodes[nodeId];
+    if (n?.type !== "mesh" || n.geometry.kind !== "editableMesh") return;
+    const set = new Set(n.geometry.sharpEdges);
+    for (const k of valid) {
+      if (allSharp) set.delete(k);
+      else set.add(k);
+    }
+    n.geometry.sharpEdges = [...set];
+  });
 }

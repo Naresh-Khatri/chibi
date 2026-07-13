@@ -1,5 +1,6 @@
 export { buildTopology, edgeKey, type Cage, type Topology } from "./topology";
 export { subdivideCatmullClark } from "./catmullClark";
+export { splitVerticesAtSharpEdges } from "./splitSharp";
 export { triangulate, type Triangulated } from "./triangulate";
 export {
   extrudeFaces,

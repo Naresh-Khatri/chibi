@@ -4,6 +4,17 @@
 
 import { edgeKey, type Cage, type Topology } from "./topology";
 
+/** every edge key present in `faces` — for filtering carried-over sharp keys */
+function faceEdgeKeys(faces: number[][]): Set<string> {
+  const out = new Set<string>();
+  for (const face of faces) {
+    for (let i = 0; i < face.length; i++) {
+      out.add(edgeKey(face[i], face[(i + 1) % face.length]));
+    }
+  }
+  return out;
+}
+
 /** dedupe + drop out-of-range indices — stale UI selection must never throw */
 function sanitizeFaceIndices(faceIndices: number[], faceCount: number): number[] {
   const seen = new Set<number>();
@@ -34,7 +45,11 @@ export function extrudeFaces(
   const selected = sanitizeFaceIndices(faceIndices, cage.faces.length);
   if (selected.length === 0) {
     return {
-      cage: { positions: cage.positions.slice(), faces: cage.faces.map((f) => f.slice()) },
+      cage: {
+        positions: cage.positions.slice(),
+        faces: cage.faces.map((f) => f.slice()),
+        ...(cage.sharpEdges ? { sharpEdges: cage.sharpEdges.slice() } : {}),
+      },
       newFaceIndices: [],
     };
   }
@@ -90,7 +105,30 @@ export function extrudeFaces(
     faces.push([a, b, bDup, aDup]);
   }
 
-  return { cage: { positions, faces }, newFaceIndices: selected };
+  // sharpness follows the verts: a surviving original edge keeps it, and a
+  // cap edge whose endpoints were both duplicated inherits it — region-
+  // interior sharp edges migrate to the cap instead of vanishing
+  let sharpEdges: string[] | undefined;
+  if (cage.sharpEdges) {
+    const present = faceEdgeKeys(faces);
+    const out = new Set<string>();
+    for (const key of cage.sharpEdges) {
+      if (present.has(key)) out.add(key);
+      const [a, b] = endpointsOf(key);
+      const aDup = dupOf.get(a);
+      const bDup = dupOf.get(b);
+      if (aDup !== undefined && bDup !== undefined) {
+        const dupKey = edgeKey(aDup, bDup);
+        if (present.has(dupKey)) out.add(dupKey);
+      }
+    }
+    sharpEdges = [...out];
+  }
+
+  return {
+    cage: { positions, faces, ...(sharpEdges ? { sharpEdges } : {}) },
+    newFaceIndices: selected,
+  };
 }
 
 /**
@@ -257,7 +295,24 @@ export function applyLoopCut(
     newEdgeKeys.push(edgeKey(mIn, mOut));
   }
 
-  return { cage: { positions, faces }, newEdgeKeys };
+  // a cut sharp edge stays sharp on both halves; the new dividing loop is smooth
+  let sharpEdges: string[] | undefined;
+  if (cage.sharpEdges) {
+    const out = new Set<string>();
+    for (const key of cage.sharpEdges) {
+      const m = midOf.get(key);
+      if (m === undefined) {
+        out.add(key);
+        continue;
+      }
+      const [a, b] = endpointsOf(key);
+      out.add(edgeKey(a, m));
+      out.add(edgeKey(b, m));
+    }
+    sharpEdges = [...out];
+  }
+
+  return { cage: { positions, faces, ...(sharpEdges ? { sharpEdges } : {}) }, newEdgeKeys };
 }
 
 /**
@@ -283,5 +338,20 @@ export function deleteFaces(cage: Cage, faceIndices: number[]): Cage {
   }
 
   const faces = keptFaces.map((face) => face.map((v) => remap.get(v)!));
-  return { positions, faces };
+
+  let sharpEdges: string[] | undefined;
+  if (cage.sharpEdges) {
+    const present = faceEdgeKeys(faces);
+    sharpEdges = [];
+    for (const key of cage.sharpEdges) {
+      const [a, b] = endpointsOf(key);
+      const ra = remap.get(a);
+      const rb = remap.get(b);
+      if (ra === undefined || rb === undefined) continue;
+      const remappedKey = edgeKey(ra, rb);
+      // both verts can survive while the edge itself died with its faces
+      if (present.has(remappedKey)) sharpEdges.push(remappedKey);
+    }
+  }
+  return { positions, faces, ...(sharpEdges ? { sharpEdges } : {}) };
 }

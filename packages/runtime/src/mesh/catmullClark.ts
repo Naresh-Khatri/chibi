@@ -1,4 +1,4 @@
-import { buildTopology, type Cage } from "./topology";
+import { buildTopology, edgeKey, type Cage } from "./topology";
 
 type Vec3 = [number, number, number];
 
@@ -50,28 +50,39 @@ function subdivideOnce(cage: Cage): Cage {
   const { positions } = cage;
   const vertexCount = positions.length / 3;
   const faces = sanitizeFaces(cage.faces, vertexCount);
-  if (faces.length === 0) return { positions: positions.slice(), faces: [] };
+  if (faces.length === 0) {
+    return { positions: positions.slice(), faces: [], sharpEdges: [] };
+  }
 
   const topo = buildTopology({ positions, faces });
+
+  // creases: user-marked sharp edges + boundary (1 adj face) + non-manifold
+  // (>2, treated boundary-like) — all share the same crease rules below, the
+  // unification OpenSubdiv's boundary interpolation uses.
+  const sharp = new Set<string>();
+  if (cage.sharpEdges) {
+    for (const k of cage.sharpEdges) if (topo.edgeVerts.has(k)) sharp.add(k);
+  }
+  const isCrease = (key: string) =>
+    sharp.has(key) || (topo.edgeFaces.get(key)?.length ?? 0) !== 2;
 
   // face points: centroid of each face's verts
   const facePoints: Vec3[] = faces.map((f) => centroid(positions, f));
 
-  // edge points: interior (2 adj faces) -> avg(2 endpoints, 2 face points);
-  // boundary (1 adj) or non-manifold (>2 adj, treated as boundary-like) -> midpoint
+  // edge points: smooth interior -> avg(2 endpoints, 2 face points); crease -> midpoint
   const edgePointIndex = new Map<string, number>(); // edge key -> index into edgePoints
   const edgePoints: Vec3[] = [];
   for (const [key, [a, b]] of topo.edgeVerts) {
     const adjFaces = topo.edgeFaces.get(key) ?? [];
     const pt: Vec3 =
-      adjFaces.length === 2
-        ? avg3([
+      isCrease(key)
+        ? midpoint(positions, a, b)
+        : avg3([
             getVec3(positions, a),
             getVec3(positions, b),
             facePoints[adjFaces[0]],
             facePoints[adjFaces[1]],
-          ])
-        : midpoint(positions, a, b);
+          ]);
     edgePointIndex.set(key, edgePoints.length);
     edgePoints.push(pt);
   }
@@ -85,11 +96,10 @@ function subdivideOnce(cage: Cage): Cage {
       vertexPoints[v] = P; // isolated vertex — nothing to average, keep as-is
       continue;
     }
-    const boundaryEdges = [...edges].filter(
-      (k) => (topo.edgeFaces.get(k)?.length ?? 0) !== 2,
-    );
-    if (boundaryEdges.length === 0) {
-      // interior vertex: (F_avg + 2*R_avg + (n-3)*P) / n
+    const creaseEdges = [...edges].filter(isCrease);
+    if (creaseEdges.length <= 1) {
+      // smooth vertex (a single crease = dart, also smooth):
+      // (F_avg + 2*R_avg + (n-3)*P) / n
       // F_avg = avg adjacent face points, R_avg = avg ORIGINAL edge midpoints
       const faceIds = topo.vertexFaces.get(v) ?? [];
       const n = edges.size;
@@ -105,16 +115,22 @@ function subdivideOnce(cage: Cage): Cage {
         (Favg[1] + 2 * Ravg[1] + (n - 3) * P[1]) / n,
         (Favg[2] + 2 * Ravg[2] + (n - 3) * P[2]) / n,
       ];
-    } else {
-      // boundary vertex: blend only along the boundary loop (ignore interior
-      // faces) so open cages keep sharp borders. defensive avg over however
-      // many boundary-like edges are present — a manifold boundary loop has
-      // exactly 2, but never assume it.
-      const midpoints = boundaryEdges.map((k) => {
+    } else if (creaseEdges.length === 2) {
+      // crease vertex: blend only along the crease/boundary line so open
+      // cages and sharp loops keep their borders — (A + 6P + B)/8 where A/B
+      // are the far endpoints of the two crease edges
+      const [A, B] = creaseEdges.map((k) => {
         const [a, b] = topo.edgeVerts.get(k)!;
-        return midpoint(positions, a, b);
+        return getVec3(positions, a === v ? b : a);
       });
-      vertexPoints[v] = avg3([P, ...midpoints]);
+      vertexPoints[v] = [
+        (A[0] + 6 * P[0] + B[0]) / 8,
+        (A[1] + 6 * P[1] + B[1]) / 8,
+        (A[2] + 6 * P[2] + B[2]) / 8,
+      ];
+    } else {
+      // corner (3+ creases meet, e.g. a cube corner): pinned in place
+      vertexPoints[v] = P;
     }
   }
 
@@ -147,7 +163,18 @@ function subdivideOnce(cage: Cage): Cage {
     }
   });
 
-  return { positions: newPositions, faces: newFaces };
+  // sharpness propagates: both halves of a split sharp edge stay sharp, so a
+  // creased loop survives every level (boundary edges need no marking — they
+  // stay boundary in the child mesh)
+  const newSharpEdges: string[] = [];
+  for (const key of sharp) {
+    const e = edgePointIndex.get(key);
+    if (e === undefined) continue;
+    const [a, b] = topo.edgeVerts.get(key)!;
+    newSharpEdges.push(edgeKey(a, edgeOffset + e), edgeKey(b, edgeOffset + e));
+  }
+
+  return { positions: newPositions, faces: newFaces, sharpEdges: newSharpEdges };
 }
 
 /** standard Catmull-Clark, `levels` steps. same implementation powers the
@@ -157,6 +184,7 @@ export function subdivideCatmullClark(cage: Cage, levels: number): Cage {
   let current: Cage = {
     positions: cage.positions.slice(),
     faces: cage.faces.map((f) => f.slice()),
+    sharpEdges: cage.sharpEdges?.slice() ?? [],
   };
   for (let i = 0; i < clamped; i++) {
     current = subdivideOnce(current);

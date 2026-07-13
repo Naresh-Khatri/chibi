@@ -16,7 +16,12 @@ import {
   type GeometryParams,
   type MeshGeometry,
 } from "../schema";
-import { subdivideCatmullClark, triangulate, type Cage } from "../mesh";
+import {
+  splitVerticesAtSharpEdges,
+  subdivideCatmullClark,
+  triangulate,
+  type Cage,
+} from "../mesh";
 
 /** host app must ship this font in public/ (text3d meshes) */
 export const FONT_URL = "/fonts/helvetiker_regular.typeface.json";
@@ -158,9 +163,16 @@ function FilletedFrustumGeom({
  * mirrors the RoundedBoxGeom/FilletedFrustumGeom memo+dispose idiom above. */
 function SubdividedMeshGeom({ geometry }: { geometry: EditableMeshGeometry }) {
   const geo = useMemo(() => {
-    const cage: Cage = { positions: geometry.positions, faces: geometry.faces };
+    const cage: Cage = {
+      positions: geometry.positions,
+      faces: geometry.faces,
+      sharpEdges: geometry.sharpEdges,
+    };
     const subdivided = subdivideCatmullClark(cage, geometry.subdivisions);
-    const { positions, index } = triangulate(subdivided);
+    // creases survive subdivision as sharp edge chains — split verts along
+    // them so indexed smooth normals don't average across the crease (a
+    // creased cube would otherwise shade like a beveled one)
+    const { positions, index } = triangulate(splitVerticesAtSharpEdges(subdivided));
     const g = new BufferGeometry();
     g.setAttribute("position", new Float32BufferAttribute(positions, 3));
     g.setIndex(index);
@@ -176,7 +188,7 @@ function SubdividedMeshGeom({ geometry }: { geometry: EditableMeshGeometry }) {
     }
     g.computeVertexNormals();
     return g;
-  }, [geometry.positions, geometry.faces, geometry.subdivisions]);
+  }, [geometry.positions, geometry.faces, geometry.subdivisions, geometry.sharpEdges]);
   useEffect(() => () => geo.dispose(), [geo]);
   return <primitive object={geo} attach="geometry" />;
 }

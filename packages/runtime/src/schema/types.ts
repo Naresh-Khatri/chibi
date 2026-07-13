@@ -48,6 +48,10 @@ export const editableMeshGeometrySchema = z.object({
   positions: z.array(z.number()).min(9), // flat [x,y,z,...]
   faces: z.array(z.array(z.number().int().nonnegative()).min(3)).min(1),
   subdivisions: z.number().int().min(0).max(4).default(1),
+  // crease edge keys ("a_b", a<b — mesh/topology.ts edgeKey): Catmull-Clark
+  // keeps them crisp at any level (converted boxes stay boxes). additive
+  // default -> old docs stay valid, no migrate.ts entry
+  sharpEdges: z.array(z.string()).default([]),
 });
 export type EditableMeshGeometry = z.infer<typeof editableMeshGeometrySchema>;
 
