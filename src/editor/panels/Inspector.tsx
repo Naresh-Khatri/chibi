@@ -32,6 +32,7 @@ import {
 } from "@/runtime/schema";
 import { useDoc } from "../store/document";
 import { useUI } from "../store/ui";
+import { SceneStatsSection } from "./SceneStats";
 import {
   setGeometryParam,
   setNodeName,
@@ -1094,6 +1095,7 @@ function SceneInspector() {
         </LabeledRow>
         <PointerBindingList />
       </Section>
+      <SceneStatsSection />
       <div className="px-3 py-4 text-xs text-muted-foreground/70">
         Select an object to edit its transform, geometry and material.
       </div>
