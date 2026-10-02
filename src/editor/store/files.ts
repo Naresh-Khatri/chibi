@@ -5,7 +5,7 @@ import { useDoc } from "./document";
 import { getAssetBlob, storeAssetBlob } from "./assets";
 import { useUI } from "./ui";
 
-function downloadBlob(blob: Blob, filename: string) {
+export function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
