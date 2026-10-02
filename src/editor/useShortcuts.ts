@@ -3,22 +3,65 @@
 import { useEffect } from "react";
 import { useDoc } from "./store/document";
 import { useUI } from "./store/ui";
-import { duplicateNodes, groupNodes, removeNodes } from "./store/commands";
+import {
+  duplicateNodes,
+  groupNodes,
+  nudgeNodes,
+  removeNodes,
+  setNodesVisible,
+} from "./store/commands";
+import { copySelection, cutSelection, pasteFromText } from "./store/clipboard";
 import { deleteSelectedFaces } from "./store/meshCommands";
 import { frameSelected } from "./viewport/frame";
 
+const NUDGE_STEP = 0.1;
+const NUDGE_STEP_LARGE = 1;
+
+// widgets that own their arrow keys (sliders, menus, selects)
+const ARROW_OWNERS = '[role="slider"],[role="menu"],[role="menuitem"],[role="listbox"],[role="option"],[role="radiogroup"],[role="tablist"],select';
+
+// text fields + open dialogs/popovers keep their keys (Delete in Export ≠ delete nodes)
+function ownsKeys(target: EventTarget | null): boolean {
+  const el = target as HTMLElement | null;
+  return Boolean(
+    el &&
+      (el.tagName === "INPUT" ||
+        el.tagName === "TEXTAREA" ||
+        el.isContentEditable ||
+        el.closest?.('[role="dialog"]')),
+  );
+}
+
+// clipboard events: page text selection / fields keep native behavior
+function clipboardBlocked(e: ClipboardEvent): boolean {
+  const ui = useUI.getState();
+  return (
+    ownsKeys(e.target) ||
+    Boolean(window.getSelection()?.toString()) ||
+    ui.previewing ||
+    Boolean(ui.meshEditNodeId)
+  );
+}
+
 export function useShortcuts() {
   useEffect(() => {
+    const onCopy = (e: ClipboardEvent) => {
+      if (clipboardBlocked(e)) return;
+      const text = e.type === "cut" ? cutSelection() : copySelection();
+      if (!text) return;
+      e.preventDefault();
+      e.clipboardData?.setData("text/plain", text);
+    };
+    const onPaste = (e: ClipboardEvent) => {
+      if (clipboardBlocked(e)) return;
+      if (pasteFromText(e.clipboardData?.getData("text/plain")).length > 0) {
+        e.preventDefault();
+      }
+    };
+
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
-      if (
-        target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.isContentEditable)
-      ) {
-        return;
-      }
+      if (ownsKeys(target)) return;
       const meta = e.metaKey || e.ctrlKey;
       const ui = useUI.getState();
       const key = e.key.toLowerCase();
@@ -43,6 +86,33 @@ export function useShortcuts() {
       if (meta && key === "g") {
         e.preventDefault();
         if (ui.selectedIds.length > 0) groupNodes(ui.selectedIds);
+        return;
+      }
+      if (meta && key === "a") {
+        if (ui.meshEditNodeId) return;
+        e.preventDefault();
+        const root = useDoc.getState().doc?.root ?? [];
+        if (root.length > 0) ui.selectMany(root);
+        return;
+      }
+      if (e.key === "?") {
+        ui.setShortcutsOpen(true);
+        return;
+      }
+
+      const arrow = e.key.startsWith("Arrow") ? e.key.slice(5) : null;
+      if (arrow && !meta && !ui.meshEditNodeId && ui.selectedIds.length > 0) {
+        if (e.defaultPrevented || target?.closest(ARROW_OWNERS)) return;
+        e.preventDefault();
+        const step = e.shiftKey ? NUDGE_STEP_LARGE : NUDGE_STEP;
+        // alt+up/down = depth; up pushes away from default camera (-z)
+        if (arrow === "Left" || arrow === "Right") {
+          nudgeNodes(ui.selectedIds, 0, arrow === "Right" ? step : -step);
+        } else if (e.altKey) {
+          nudgeNodes(ui.selectedIds, 2, arrow === "Down" ? step : -step);
+        } else {
+          nudgeNodes(ui.selectedIds, 1, arrow === "Up" ? step : -step);
+        }
         return;
       }
       if (meta || e.altKey) return;
@@ -105,6 +175,13 @@ export function useShortcuts() {
         case "f":
           frameSelected();
           break;
+        case "h":
+          if (ui.selectedIds.length > 0) {
+            const nodes = useDoc.getState().doc?.nodes ?? {};
+            const anyVisible = ui.selectedIds.some((id) => nodes[id]?.visible);
+            setNodesVisible(ui.selectedIds, !anyVisible);
+          }
+          break;
         case "escape":
           ui.select(null);
           break;
@@ -115,6 +192,14 @@ export function useShortcuts() {
       }
     };
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    window.addEventListener("copy", onCopy);
+    window.addEventListener("cut", onCopy);
+    window.addEventListener("paste", onPaste);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("copy", onCopy);
+      window.removeEventListener("cut", onCopy);
+      window.removeEventListener("paste", onPaste);
+    };
   }, []);
 }

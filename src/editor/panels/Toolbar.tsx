@@ -12,6 +12,7 @@ import {
   Flashlight,
   FolderOpen,
   Group,
+  Keyboard,
   Lightbulb,
   Magnet,
   MousePointer2,
@@ -55,6 +56,7 @@ import { saveImportedDocument } from "../store/persistence";
 import { getOrbitControls } from "../viewport/objectRegistry";
 import { Dropdown, type MenuItem } from "./controls";
 import { ExportDialog } from "./ExportDialog";
+import { ShortcutsDialog } from "./ShortcutsDialog";
 
 export const GEOMETRY_ICONS: Record<GeometryKind, LucideIcon> = {
   box: Box,
@@ -224,6 +226,15 @@ export function Toolbar() {
       >
         <Redo2 />
       </Button>
+      <Button
+        variant="ghost"
+        size="icon-xs"
+        title="Keyboard shortcuts (?)"
+        onClick={() => useUI.getState().setShortcutsOpen(true)}
+      >
+        <Keyboard />
+      </Button>
+      <ShortcutsDialog />
 
       <div className="flex-1" />
 

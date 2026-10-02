@@ -13,7 +13,9 @@ import { useUI } from "./ui";
 import {
   duplicateNodes,
   groupNodes,
+  nudgeNodes,
   removeNodes,
+  setNodesVisible,
   setTransforms,
   topMostIds,
 } from "./commands";
@@ -162,5 +164,25 @@ describe("groupNodes", () => {
     groupNodes(["nd_child", "nd_a"]);
     const after = worldPos(doc(), "nd_child");
     expect(after.distanceTo(before)).toBeLessThan(1e-9);
+  });
+});
+
+describe("nudgeNodes", () => {
+  it("offsets top-most nodes only; repeated nudges merge into one undo entry", () => {
+    nudgeNodes(["nd_parent", "nd_child", "nd_a"], 0, 0.5);
+    nudgeNodes(["nd_parent", "nd_child", "nd_a"], 0, 0.5);
+    expect(doc().nodes["nd_a"].transform.position).toEqual([2, 0, 0]);
+    expect(doc().nodes["nd_parent"].transform.position).toEqual([1, 2, 0]);
+    expect(doc().nodes["nd_child"].transform.position).toEqual([3, 0, 0]);
+    expect(useDoc.getState().undoStack).toHaveLength(1);
+  });
+});
+
+describe("setNodesVisible", () => {
+  it("hides several nodes in one undo entry", () => {
+    setNodesVisible(["nd_a", "nd_b"], false);
+    expect(doc().nodes["nd_a"].visible).toBe(false);
+    expect(doc().nodes["nd_b"].visible).toBe(false);
+    expect(useDoc.getState().undoStack).toHaveLength(1);
   });
 });

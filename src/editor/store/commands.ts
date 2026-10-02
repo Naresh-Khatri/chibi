@@ -396,6 +396,21 @@ export function setNodeVisible(nodeId: string, visible: boolean) {
   });
 }
 
+/** one undo entry; active-state owner records an override like setNodeVisible */
+export function setNodesVisible(nodeIds: string[], visible: boolean) {
+  const active = activeOverrideState();
+  const ownerId = active && nodeIds.includes(active.nodeId) ? active.nodeId : null;
+  if (ownerId) setNodeVisible(ownerId, visible);
+  const base = nodeIds.filter((id) => id !== ownerId);
+  if (base.length === 0) return;
+  dispatch(visible ? "Show" : "Hide", (d) => {
+    for (const id of base) {
+      const node = d.nodes[id];
+      if (node) node.visible = visible;
+    }
+  });
+}
+
 export function setNodeShadow(
   nodeId: string,
   key: "castShadow" | "receiveShadow",
@@ -533,6 +548,24 @@ export function setTransforms(
   );
 }
 
+/** offset local position of the top-most nodes; held keys merge into one undo entry */
+export function nudgeNodes(nodeIds: string[], axis: 0 | 1 | 2, delta: number) {
+  const doc = useDoc.getState().doc;
+  if (!doc) return;
+  const active = activeOverrideState();
+  const entries = topMostIds(doc, nodeIds).map((nodeId) => {
+    // owner of the active state: start from what the viewport shows
+    const field = (f: (typeof TRANSFORM_FIELDS)[number]): Vec3 =>
+      (active?.nodeId === nodeId &&
+        effectiveTransformField(doc, active.stateId, nodeId, f)) ||
+      doc.nodes[nodeId].transform[f];
+    const position: Vec3 = [...field("position")];
+    position[axis] += delta;
+    return { nodeId, t: { position, rotation: field("rotation"), scale: field("scale") } };
+  });
+  setTransforms(entries, { mergeKey: "nudge" });
+}
+
 /** setTransformComponent across many nodes, one undo entry (same owner-state split as setTransforms) */
 export function setTransformComponentMany(
   nodeIds: string[],
@@ -629,7 +662,7 @@ function localMatrixOf(node: ChibiNode): Matrix4 {
 }
 
 /** base-transform world matrix composed from the document tree (no state overrides) */
-function worldMatrixOf(doc: ChibiDocument, nodeId: string): Matrix4 {
+export function worldMatrixOf(doc: ChibiDocument, nodeId: string): Matrix4 {
   const m = localMatrixOf(doc.nodes[nodeId]);
   for (let p = findParentId(doc, nodeId); p; p = findParentId(doc, p)) {
     m.premultiply(localMatrixOf(doc.nodes[p]));
@@ -637,7 +670,7 @@ function worldMatrixOf(doc: ChibiDocument, nodeId: string): Matrix4 {
   return m;
 }
 
-function transformFromMatrix(m: Matrix4): Transform {
+export function transformFromMatrix(m: Matrix4): Transform {
   const p = new Vector3();
   const q = new Quaternion();
   const s = new Vector3();

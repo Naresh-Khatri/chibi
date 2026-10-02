@@ -66,6 +66,7 @@ type UIState = {
   // loop-cut tool active within mesh-edit — hover previews a ring cut, click
   // commits. mutually exclusive with the transform gizmo (it hides).
   meshCutActive: boolean;
+  shortcutsOpen: boolean;
   setTool: (tool: Tool) => void;
   select: (id: string | null) => void;
   selectMany: (ids: string[]) => void;
@@ -92,6 +93,7 @@ type UIState = {
   setMeshCutActive: (on: boolean) => void;
   openMaterialCard: (materialId?: string) => void;
   closeMaterialCard: () => void;
+  setShortcutsOpen: (open: boolean) => void;
 };
 
 const TOAST_MS = 4000;
@@ -119,6 +121,7 @@ export const useUI = create<UIState>()((set, get) => ({
   meshSelection: emptyMeshSelection(),
   hoveredElement: null,
   meshCutActive: false,
+  shortcutsOpen: false,
   setTool: (tool) => set({ tool }),
   select: (selectedId) => {
     const selectedIds = selectedId ? [selectedId] : [];
@@ -172,6 +175,7 @@ export const useUI = create<UIState>()((set, get) => ({
   toggleHierarchy: () => set((s) => ({ hierarchyOpen: !s.hierarchyOpen })),
   toggleInspector: () => set((s) => ({ inspectorOpen: !s.inspectorOpen })),
   toggleAiChat: () => set((s) => ({ aiChatOpen: !s.aiChatOpen })),
+  setShortcutsOpen: (shortcutsOpen) => set({ shortcutsOpen }),
   setActiveClip: (activeClipId) =>
     set({ activeClipId, playback: "stopped", playhead: 0 }),
   // Scrubbing pauses at the new playhead so the sampled pose stays visible.
