@@ -15,9 +15,11 @@ import { createTransition, type Transition } from "./transition";
 
 export type PointerTriggerType = "click" | "hoverEnter" | "hoverExit";
 
-/** surfaced to the host app via <ChibiScene onEvent>; "ready" comes from the react layer */
+/** surfaced to the host app via <ChibiScene onEvent>; "ready" + context events come from the react layer */
 export type RuntimeEvent =
   | { type: "ready" }
+  | { type: "contextLost" }
+  | { type: "contextRestored" }
   | { type: "interaction"; trigger: Trigger; action: Action }
   | { type: "stateChange"; nodeId: string; stateId: string };
 

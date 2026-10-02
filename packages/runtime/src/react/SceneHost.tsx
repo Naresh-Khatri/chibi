@@ -12,7 +12,13 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
+import {
+  Canvas,
+  useFrame,
+  useThree,
+  type RootState,
+  type ThreeEvent,
+} from "@react-three/fiber";
 import { Clone, OrbitControls, Text3D, useGLTF } from "@react-three/drei";
 import {
   DoubleSide,
@@ -59,8 +65,20 @@ import {
   SceneBackground,
   SceneEnvironment,
 } from "./EnvironmentExtras";
+import { createLoadTracker, type LoadTracker } from "./loadTracker";
 
 export type { ResolveAssetUrl } from "../assets";
+
+export type ScreenshotOpts = {
+  type?: "image/png" | "image/jpeg" | "image/webp";
+  /** jpeg/webp quality in [0, 1] */
+  quality?: number;
+  /** drop the scene background (png/webp). post fx may not keep alpha */
+  transparent?: boolean;
+};
+
+/** renders a fresh frame and encodes the canvas at its current pixel size */
+export type SceneCapture = (opts?: ScreenshotOpts) => Promise<Blob | null>;
 
 export type SceneHostProps = {
   doc: ChibiDocument;
@@ -79,8 +97,18 @@ export type SceneHostProps = {
    * auto-tracking. use when host owns scroll or none exists (e.g. Preview's
    * scrubber). omit -> auto-track this canvas vs viewport on scroll/resize */
   scrollProgress?: number;
+  /** pointer bindings + camera parallax follow the cursor (default true) */
+  pointerTracking?: boolean;
+  /** stop rendering entirely (offscreen); motion resumes where it left off */
+  suspended?: boolean;
+  /** device pixel ratio, or a [min, max] clamp (default [1, 2]) */
+  dpr?: number | [number, number];
   /** engine events + "ready" surface here */
   onEvent?: (event: RuntimeEvent) => void;
+  /** every asset (glbs, textures, font, env map) settled, loaded or failed */
+  onLoad?: () => void;
+  /** frame grabber — <ChibiScene> binds api.screenshot to it */
+  onCapture?: (capture: SceneCapture | null) => void;
   /** the live engine instance — <ChibiScene> binds its api ref to it */
   onRuntime?: (runtime: InteractionRuntime | null) => void;
 };
@@ -100,14 +128,25 @@ export function SceneHost({
   enableZoom = true,
   autoStart = true,
   scrollProgress,
+  pointerTracking = true,
+  suspended = false,
+  dpr = DEFAULT_DPR,
   onEvent,
+  onLoad,
+  onCapture,
   onRuntime,
 }: SceneHostProps) {
+  const loads = useMemo(
+    () => createLoadTracker(),
+    // one tracker per document: a new doc is a new load
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [doc],
+  );
   return (
     <Canvas
       shadows={doc.environment.shadows}
-      dpr={[1, 2]}
-      frameloop="demand"
+      dpr={dpr}
+      frameloop={suspended ? "never" : "demand"}
       camera={{
         position: doc.camera.position,
         fov: doc.camera.fov,
@@ -136,7 +175,7 @@ export function SceneHost({
       <EnvironmentFx environment={doc.environment} />
       {doc.environment.preset && (
         <PresetBoundary key={doc.environment.preset}>
-          <Suspense fallback={null}>
+          <Suspense fallback={<Pending loads={loads} />}>
             <SceneEnvironment preset={doc.environment.preset} />
           </Suspense>
         </PresetBoundary>
@@ -155,12 +194,47 @@ export function SceneHost({
           interactive={interactive}
           autoStart={autoStart}
           scrollProgress={scrollProgress}
+          pointerTracking={pointerTracking}
           onEvent={onEvent}
+          onLoad={onLoad}
+          onCapture={onCapture}
           onRuntime={onRuntime}
+          loads={loads}
         />
       </Suspense>
     </Canvas>
   );
+}
+
+const DEFAULT_DPR: [number, number] = [1, 2];
+
+// holds a load token while mounted — as a Suspense fallback it spans exactly
+// the time the boundary is suspended
+function Pending({ loads }: { loads: LoadTracker }) {
+  useEffect(() => loads.begin(), [loads]);
+  return null;
+}
+
+function captureFrame(
+  get: () => RootState,
+  opts: ScreenshotOpts = {},
+): Promise<Blob | null> {
+  const { gl, scene, advance, clock, invalidate } = get();
+  const background = scene.background;
+  if (opts.transparent) scene.background = null;
+  // sync frames through the full pipeline (post fx incl.); twice because
+  // contact shadows bake from the previous frame's scene state
+  advance(clock.elapsedTime);
+  advance(clock.elapsedTime);
+  // toBlob snapshots the drawing buffer now, before the browser clears it
+  const blob = new Promise<Blob | null>((resolve) =>
+    gl.domElement.toBlob(resolve, opts.type ?? "image/png", opts.quality),
+  );
+  if (opts.transparent) {
+    scene.background = background;
+    invalidate();
+  }
+  return blob;
 }
 
 // preset HDRIs come from a CDN; offline failure drops the env, not the canvas
@@ -184,6 +258,7 @@ type SceneCtx = {
   materials: Map<string, MeshPhysicalMaterial>;
   interactive: { click: Set<string>; hover: Set<string> };
   resolveAsset?: ResolveAssetUrl;
+  loads: LoadTracker;
   /** re-render request for out-of-band loads (textures) under frameloop="demand" */
   invalidate: () => void;
 };
@@ -202,17 +277,25 @@ function InteractiveScene({
   interactive = true,
   autoStart = true,
   scrollProgress,
+  pointerTracking = true,
   onEvent,
+  onLoad,
+  onCapture,
   onRuntime,
-}: SceneHostProps) {
+  loads,
+}: SceneHostProps & { loads: LoadTracker }) {
   const invalidate = useThree((s) => s.invalidate);
+  const get = useThree((s) => s.get);
+  const frameloop = useThree((s) => s.frameloop);
   const domElement = useThree((s) => s.gl.domElement);
   const camera = useThree((s) => s.camera);
-  // latest-callback ref so a new onEvent identity doesn't remount the engine
+  // latest-callback refs so a new handler identity doesn't remount the engine
   const onEventRef = useRef(onEvent);
+  const onLoadRef = useRef(onLoad);
   useEffect(() => {
     onEventRef.current = onEvent;
-  }, [onEvent]);
+    onLoadRef.current = onLoad;
+  }, [onEvent, onLoad]);
 
   const ctx = useMemo<SceneCtx>(() => {
     // engine hooks wired at construction — the memoized value is never
@@ -229,22 +312,31 @@ function InteractiveScene({
         ? interactiveNodeIds(doc)
         : { click: new Set<string>(), hover: new Set<string>() },
       resolveAsset,
+      loads,
       invalidate: () => invalidate(),
     };
-  }, [doc, resolveAsset, interactive, invalidate]);
+  }, [doc, resolveAsset, interactive, invalidate, loads]);
 
   useEffect(() => {
     onRuntime?.(ctx.runtime);
+    onCapture?.((opts) => captureFrame(get, opts));
     if (autoStart) ctx.runtime.start();
     onEventRef.current?.({ type: "ready" });
+    ctx.loads.arm(() => {
+      ctx.invalidate();
+      onLoadRef.current?.();
+    });
     ctx.invalidate();
     const materials = ctx.materials;
+    const tracker = ctx.loads;
     return () => {
+      tracker.disarm();
       onRuntime?.(null);
+      onCapture?.(null);
       for (const mat of materials.values()) mat.dispose();
       materials.clear();
     };
-    // autoStart/onRuntime are mount-time concerns; ctx is the real dependency
+    // autoStart/onRuntime/onCapture are mount-time concerns; ctx is the real dependency
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctx]);
 
@@ -284,7 +376,7 @@ function InteractiveScene({
   // prop like scroll's). listener gated on docUsesPointer — same "cursor never
   // wakes scenes that don't use it" guarantee as the scroll listener above
   useEffect(() => {
-    if (!docUsesPointer(ctx.doc)) return;
+    if (!pointerTracking || !docUsesPointer(ctx.doc)) return;
     const onMove = (e: PointerEvent) => {
       const rect = domElement.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) return;
@@ -300,7 +392,31 @@ function InteractiveScene({
       domElement.removeEventListener("pointermove", onMove);
       domElement.removeEventListener("pointerleave", onLeave);
     };
+  }, [ctx, domElement, pointerTracking]);
+
+  // gpu reset / tab eviction: three restores its own state, but a demand
+  // frameloop draws nothing until woken — the canvas would stay blank
+  useEffect(() => {
+    const onLost = (e: Event) => {
+      e.preventDefault(); // required for the browser to attempt a restore
+      onEventRef.current?.({ type: "contextLost" });
+    };
+    const onRestored = () => {
+      onEventRef.current?.({ type: "contextRestored" });
+      ctx.invalidate();
+    };
+    domElement.addEventListener("webglcontextlost", onLost);
+    domElement.addEventListener("webglcontextrestored", onRestored);
+    return () => {
+      domElement.removeEventListener("webglcontextlost", onLost);
+      domElement.removeEventListener("webglcontextrestored", onRestored);
+    };
   }, [ctx, domElement]);
+
+  // "never" drops invalidations — redraw once rendering resumes
+  useEffect(() => {
+    if (frameloop !== "never") ctx.invalidate();
+  }, [ctx, frameloop]);
 
   const wasActiveRef = useRef(false);
   const parallaxRef = useRef({ yaw: 0, pitch: 0 });
@@ -445,6 +561,7 @@ function loadMaps(ctx: SceneCtx, def: ChibiMaterial, mat: MeshPhysicalMaterial) 
     const assetId = def.maps[slot];
     const asset = assetId ? ctx.doc.assets[assetId] : undefined;
     if (!asset) continue;
+    const done = ctx.loads.begin();
     resolveAsset(asset)
       .then((url) => loader.loadAsync(url))
       .then((texture) => {
@@ -455,7 +572,8 @@ function loadMaps(ctx: SceneCtx, def: ChibiMaterial, mat: MeshPhysicalMaterial) 
       })
       .catch((err) =>
         console.warn(`chibi: texture "${asset.name}" failed to load`, err),
-      );
+      )
+      .finally(done);
   }
 }
 
@@ -681,9 +799,10 @@ function RModel({ node }: { node: ModelNode }) {
     >
       {asset && ctx.resolveAsset && (
         <ModelBoundary>
-          <Suspense fallback={null}>
+          <Suspense fallback={<Pending loads={ctx.loads} />}>
             <RGlb
               asset={asset}
+              loads={ctx.loads}
               path={node.path}
               material={material}
               resolveAsset={ctx.resolveAsset}
@@ -703,10 +822,12 @@ function RGlb({
   path,
   material,
   resolveAsset,
+  loads,
   castShadow,
   receiveShadow,
 }: {
   asset: ChibiAsset;
+  loads: LoadTracker;
   path: string | undefined;
   material: MeshPhysicalMaterial | undefined;
   resolveAsset: ResolveAssetUrl;
@@ -714,18 +835,21 @@ function RGlb({
   receiveShadow: boolean;
 }) {
   const [url, setUrl] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
   useEffect(() => {
     let active = true;
     resolveAsset(asset)
       .then((u) => active && setUrl(u))
-      .catch((err) =>
-        console.warn(`chibi: asset data missing for "${asset.name}"`, err),
-      );
+      .catch((err) => {
+        console.warn(`chibi: asset data missing for "${asset.name}"`, err);
+        if (active) setFailed(true);
+      });
     return () => {
       active = false;
     };
   }, [asset, resolveAsset]);
-  if (!url) return null;
+  if (failed) return null;
+  if (!url) return <Pending loads={loads} />;
   if (path !== undefined) {
     return (
       <GlbPart

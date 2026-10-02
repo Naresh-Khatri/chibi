@@ -6,7 +6,11 @@
 export { ChibiScene } from "./react/ChibiScene";
 export type { ChibiSceneApi, ChibiSceneProps } from "./react/ChibiScene";
 export { SceneHost } from "./react/SceneHost";
-export type { SceneHostProps } from "./react/SceneHost";
+export type {
+  SceneCapture,
+  SceneHostProps,
+  ScreenshotOpts,
+} from "./react/SceneHost";
 
 export { loadDocument } from "./load";
 export type { LoadedScene } from "./load";

@@ -36,8 +36,15 @@ function Hero() {
 | `orbit` | `boolean` | `false` | User orbit around the scene camera. |
 | `autoStart` | `boolean` | `true` | Fire `start` triggers on mount. |
 | `className` / `style` | — | — | Sizing is the host's job; the canvas fills the box. |
-| `fallback` | `ReactNode` | `null` | Shown while the scene file loads. |
-| `onEvent` | `(e: RuntimeEvent) => void` | — | `{type:"ready"}` · `{type:"interaction", trigger, action}` · `{type:"stateChange", nodeId, stateId}`. |
+| `fallback` | `ReactNode` | `null` | Shown while the scene file loads (unless `poster` is set). |
+| `poster` | `string` | — | Image URL covering the canvas until every asset has loaded, then fades out. Export one from the editor (Export → Image). |
+| `lazy` | `boolean` | `false` | Defer fetching `src` and mounting the canvas until the box is within 200px of the viewport. |
+| `pauseWhenOffscreen` | `boolean` | `true` | Stop rendering while scrolled out of view; motion resumes where it left off. |
+| `reducedMotion` | `boolean` | OS setting | Drop cursor-driven motion (pointer bindings, camera parallax). Omit to follow `prefers-reduced-motion`. Click/hover transitions still play. |
+| `dpr` | `number \| [min, max]` | `[1, 2]` | Device pixel ratio, or a clamp range. |
+| `onEvent` | `(e: RuntimeEvent) => void` | — | `{type:"ready"}` · `{type:"interaction", trigger, action}` · `{type:"stateChange", nodeId, stateId}` · `{type:"contextLost"}` / `{type:"contextRestored"}` (WebGL). |
+| `onLoad` | `() => void` | — | Scene mounted and every asset (models, textures, env map, font) settled — loaded or failed. |
+| `onError` | `(error: Error) => void` | — | Scene file failed to fetch, parse or validate. |
 | `scrollProgress` | `number` | auto-tracked | Scroll progress in `[0, 1]` fed to `scroll` triggers and scroll bindings. Omit to auto-track this component's position against the viewport; pass a number to take over (e.g. a custom smooth-scroll lib, or an overlay with no real page scroll). |
 | `api` | `Ref<ChibiSceneApi>` | — | Imperative bridge (below). |
 
@@ -47,7 +54,9 @@ every stateful object) · `play(animationId)` · `pause(animationId)` ·
 `setPaused(bool)` · `getScrollProgress()` → current scroll progress in
 `[0, 1]` (auto-tracked, or the `scrollProgress` prop) · `getPointer()` →
 damped pointer progress over the canvas, `{x, y}` in `[0, 1]` per axis
-(`{0.5, 0.5}` at rest/center).
+(`{0.5, 0.5}` at rest/center) · `screenshot({type?, quality?, transparent?})`
+→ `Promise<Blob | null>` of the current frame at the canvas's pixel size
+(`transparent` drops the background; `null` = not mounted).
 
 Also exported: `loadDocument(urlOrBytes)` (zip/json loader returning
 `{ doc, resolveAsset, dispose }`), `validateDocument`, `createDocument`,
@@ -60,7 +69,14 @@ Also exported: `loadDocument(urlOrBytes)` (zip/json loader returning
   motion is in flight. `jszip` is imported lazily — JSON-only consumers never
   download it.
 - **`ready`** fires after the document is mounted and `start` triggers ran.
-  GLBs / textures may still stream in behind their own suspense boundaries.
+  GLBs / textures may still stream in behind their own suspense boundaries —
+  use `onLoad` to know when they've all settled (it fires once per document).
+- **Offscreen = zero frames.** With `pauseWhenOffscreen` (default) the
+  frameloop stops once the box leaves the viewport (200px margin), so
+  long pages with many scenes only render what's visible.
+- **WebGL context loss** (GPU reset, too many contexts) is handled: the
+  default page reload is prevented, `contextLost` / `contextRestored` events
+  fire, and three.js re-uploads resources on restore.
 - **Multiple instances** on one page are independent — each owns its engine
   instance. (GLB parsing is cached per-URL across instances by drei's
   `useGLTF`, which is shared immutable data, not state.)
