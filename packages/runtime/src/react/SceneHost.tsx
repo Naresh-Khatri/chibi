@@ -7,6 +7,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -24,6 +25,7 @@ import {
   DoubleSide,
   MeshPhysicalMaterial,
   NoColorSpace,
+  OrthographicCamera,
   Spherical,
   SRGBColorSpace,
   TextureLoader,
@@ -76,6 +78,7 @@ import {
 import { createLoadTracker, type LoadTracker } from "./loadTracker";
 import { SceneNodes } from "./nodeOverrides";
 import { PointerPresses, type ScenePointerEvent } from "./pointerEvents";
+import { orthographicZoom } from "./cameraProjection";
 import { isOpaquePointerHit, pointerOccluderIds, pointerRemainsWithinNode } from "./pointerOcclusion";
 
 export type { ResolveAssetUrl } from "../assets";
@@ -97,14 +100,33 @@ export type ScreenshotOpts = {
 /** renders a fresh frame and encodes the canvas at its current pixel size */
 export type SceneCapture = (opts?: ScreenshotOpts) => Promise<Blob | null>;
 
+function OrthographicFraming({ doc }: { doc: ChibiDocument }) {
+  const camera = useThree((state) => state.camera);
+  const height = useThree((state) => state.size.height);
+  const invalidate = useThree((state) => state.invalidate);
+  useLayoutEffect(() => {
+    if (!(camera instanceof OrthographicCamera)) return;
+    // R3F owns a mutable Three camera; resize must update its projection.
+    // eslint-disable-next-line react-hooks/immutability
+    camera.zoom = orthographicZoom(doc.camera, height);
+    camera.updateProjectionMatrix();
+    invalidate();
+  }, [camera, height, doc.camera, invalidate]);
+  return null;
+}
+
 export type SceneHostProps = {
   doc: ChibiDocument;
+  /** Live rendering environment; defaults to the document's environment. */
+  environment?: ChibiDocument["environment"];
   /** asset record -> URL. editor: IndexedDB; runtime: zip / host callback */
   resolveAsset?: ResolveAssetUrl;
   /** pointer triggers active (default true) */
   interactive?: boolean;
   /** user orbit around the scene camera (default false) */
   orbit?: boolean;
+  /** Parallel projection, framed to match the document camera at its target. */
+  orthographic?: boolean;
   /** wheel-zoom on `orbit`'s OrbitControls (default true). false frees the
    * wheel (rotate/pan stay) — Preview scrubs scroll with it instead of zoom */
   enableZoom?: boolean;
@@ -149,9 +171,11 @@ export type SceneHostProps = {
  */
 export function SceneHost({
   doc,
+  environment = doc.environment,
   resolveAsset,
   interactive = true,
   orbit = false,
+  orthographic = false,
   enableZoom = true,
   autoStart = true,
   scrollProgress,
@@ -177,7 +201,9 @@ export function SceneHost({
   );
   return (
     <Canvas
-      shadows={doc.environment.shadows}
+      key={orthographic ? "orthographic" : "perspective"}
+      orthographic={orthographic}
+      shadows={environment.shadows}
       dpr={dpr}
       frameloop={suspended ? "never" : "demand"}
       camera={{
@@ -190,26 +216,27 @@ export function SceneHost({
         camera.lookAt(...doc.camera.target);
       }}
     >
+      {orthographic && <OrthographicFraming doc={doc} />}
       {!transparent && <SceneBackground
-        color={doc.environment.background}
-        gradient={doc.environment.backgroundGradient}
+        color={environment.background}
+        gradient={environment.backgroundGradient}
       />}
-      {doc.environment.fog && (
+      {environment.fog && (
         <fog
           attach="fog"
           args={[
-            doc.environment.fog.color,
-            doc.environment.fog.near,
-            doc.environment.fog.far,
+            environment.fog.color,
+            environment.fog.near,
+            environment.fog.far,
           ]}
         />
       )}
-      <BaseLights hasEnvironment={Boolean(doc.environment.preset)} />
-      <EnvironmentFx environment={doc.environment} />
-      {doc.environment.preset && (
-        <PresetBoundary key={doc.environment.preset}>
+      <BaseLights hasEnvironment={Boolean(environment.preset)} />
+      <EnvironmentFx environment={environment} />
+      {environment.preset && (
+        <PresetBoundary key={environment.preset}>
           <Suspense fallback={<Pending loads={loads} />}>
-            <SceneEnvironment preset={doc.environment.preset} />
+            <SceneEnvironment preset={environment.preset} />
           </Suspense>
         </PresetBoundary>
       )}
@@ -560,7 +587,8 @@ function InteractiveScene({
     // frame's applyValue mutations, so the frame a transition completes on
     // renders their effect one tick stale. Without a follow-up frame under
     // frameloop="demand" that staleness never gets a chance to clear.
-    if (active || wasActiveRef.current) ctx.invalidate();
+    const hostChanged = ctx.nodes.consumeHostChange();
+    if (active || wasActiveRef.current || hostChanged) ctx.invalidate();
     wasActiveRef.current = active;
   });
 

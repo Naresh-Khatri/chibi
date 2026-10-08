@@ -58,6 +58,8 @@ export type ChibiSceneApi = {
 export type ChibiSceneProps = {
   /** parsed scene document (validated on mount) … */
   document?: unknown;
+  /** Live rendering environment; changing it preserves engine and node state. */
+  environment?: ChibiDocument["environment"];
   /** … or a URL to a .chibi.json / .chibi.zip (fetched + validated) */
   src?: string;
   /** override asset resolution; defaults: zip-bundled assets, else error */
@@ -66,6 +68,8 @@ export type ChibiSceneProps = {
   interactive?: boolean;
   /** user orbit around the scene camera (default false) */
   orbit?: boolean;
+  /** Parallel projection, framed to match the document camera at its target. */
+  orthographic?: boolean;
   /** fire `start` triggers on mount (default true) */
   autoStart?: boolean;
   /** explicit scroll progress in [0, 1]; omit to auto-track this component's
@@ -129,10 +133,12 @@ function toError(err: unknown): Error {
  */
 export function ChibiScene({
   document: docProp,
+  environment,
   src,
   resolveAsset,
   interactive = true,
   orbit = false,
+  orthographic = false,
   autoStart = true,
   scrollProgress,
   lazy = false,
@@ -269,7 +275,9 @@ export function ChibiScene({
     const doc = loaded.doc;
     body = (
       <SceneHost
+        orthographic={orthographic}
         doc={doc}
+        environment={environment}
         resolveAsset={resolve}
         interactive={interactive}
         orbit={orbit}

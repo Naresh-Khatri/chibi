@@ -13,6 +13,44 @@ function setup() {
 }
 
 describe("host node overrides", () => {
+  it("coalesces host writes into one follow-up frame and then returns to idle", () => {
+    const { nodes, id } = setup();
+    expect(nodes.consumeHostChange()).toBe(false);
+    nodes.setTransform(id, { position: [1, 2, 3] });
+    nodes.setVisible(id, false);
+    nodes.clear(id);
+    expect(nodes.consumeHostChange()).toBe(true);
+    expect(nodes.consumeHostChange()).toBe(false);
+  });
+
+  it("keeps requesting a follow-up frame throughout an external animation", () => {
+    const { nodes, id } = setup();
+    for (let frame = 0; frame < 150; frame++) {
+      nodes.setTransform(id, { rotation: [0, frame / 75, 0] });
+      expect(nodes.consumeHostChange()).toBe(true);
+    }
+    expect(nodes.consumeHostChange()).toBe(false);
+  });
+
+  it("does not keep rendering for engine samples, late mounts, or rejected writes", () => {
+    const { nodes, id } = setup();
+    nodes.sample(id, "transform.position", [1, 2, 3]);
+    nodes.apply(id);
+    nodes.setVisible("missing", false);
+    nodes.clear("missing");
+    nodes.setTransform("missing", {});
+    expect(() => nodes.setTransform(id, { position: [NaN, 0, 0] })).toThrow();
+    expect(nodes.consumeHostChange()).toBe(false);
+  });
+
+  it("does not wake another mounted scene", () => {
+    const a = setup();
+    const b = setup();
+    a.nodes.setVisible(a.id, false);
+    expect(b.nodes.consumeHostChange()).toBe(false);
+    expect(a.nodes.consumeHostChange()).toBe(true);
+  });
+
   it("keeps host transforms while engine samples advance and restores the latest sample on clear", () => {
     const { nodes, id, object, doc, invalidate } = setup();
     const original = structuredClone(doc);

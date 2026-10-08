@@ -133,7 +133,7 @@ tsconfig path alias, so no build is needed for local dev; building is only
 required to cut an npm release:
 
 ```sh
-pnpm --filter @chibi3d/runtime build     # emits dist/ (esm + cjs + d.ts)
+npm --prefix packages/runtime run build # emits dist/ (esm + cjs + d.ts)
 cd packages/runtime && npm publish      # publishConfig.access is already "public"
 ```
 
@@ -173,3 +173,20 @@ input and sound remain the host application's responsibility.
 `transparent` composites over the host page. `onError` also reports model and
 texture failures caught by local asset boundaries; `onLoad` means assets have
 settled, so consumers should retain any failure state when it fires.
+
+Use `<ChibiScene orthographic ... />` for parallel projection. Position the
+scene camera at equal x/y/z distances from its target for an isometric view.
+Framing matches the perspective camera at the target using its distance and
+`fov`, and stays consistent on resize. The default remains perspective. This
+host option does not change the exported document format. Changing the option
+remounts the canvas and resets its runtime state.
+
+Pass `environment={renderEnvironment}` to adjust rendering quality without
+replacing `document`. This optional prop takes a complete environment object,
+usually `{ ...doc.environment, ao: false, shadows: false }`. It controls the
+background, fog, environment lighting, shadows, exposure, tone mapping, and
+postprocessing. Omitting it uses the document environment. Keep `document`,
+`resolveAsset`, and `pointerTargets` stable to preserve engine state, host node
+overrides, and loaded geometry while quality changes. The prop is a host
+rendering override, not a scene-format change; quality changes do not fire a
+new scene `onLoad` event. Both props are available in runtime 0.5.0.

@@ -8,6 +8,7 @@ type NodePatch = NodeTransformPatch & { visible?: boolean };
 export class SceneNodes {
   private overrides = new Map<string, NodePatch>();
   private samples = new Map<string, NodePatch>();
+  private hostChanged = false;
 
   constructor(
     private doc: ChibiDocument,
@@ -28,6 +29,7 @@ export class SceneNodes {
     }
     this.overrides.set(id, { ...this.overrides.get(id), ...next });
     this.apply(id);
+    this.hostChanged = true;
     this.invalidate();
     return true;
   }
@@ -36,6 +38,7 @@ export class SceneNodes {
     if (!this.doc.nodes[id]) return false;
     this.overrides.set(id, { ...this.overrides.get(id), visible });
     this.apply(id);
+    this.hostChanged = true;
     this.invalidate();
     return true;
   }
@@ -44,8 +47,16 @@ export class SceneNodes {
     if (!this.doc.nodes[id]) return false;
     this.overrides.delete(id);
     this.apply(id);
+    this.hostChanged = true;
     this.invalidate();
     return true;
+  }
+
+  /** Keep demand rendering awake for the next external animation tick. */
+  consumeHostChange(): boolean {
+    const changed = this.hostChanged;
+    this.hostChanged = false;
+    return changed;
   }
 
   /** Remember engine values even while an override owns their rendered value. */
