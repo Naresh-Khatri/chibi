@@ -65,9 +65,26 @@ import {
   SceneBackground,
   SceneEnvironment,
 } from "./EnvironmentExtras";
+import {
+  applyOverrides,
+  createOverrideStore,
+  disposeOverrideStore,
+  setMaterialOverride,
+  type MaterialOverrideStore,
+  type MaterialPatch,
+} from "./materialOverrides";
 import { createLoadTracker, type LoadTracker } from "./loadTracker";
+import { SceneNodes } from "./nodeOverrides";
+import { PointerPresses, type ScenePointerEvent } from "./pointerEvents";
+import { isOpaquePointerHit, pointerOccluderIds, pointerRemainsWithinNode } from "./pointerOcclusion";
 
 export type { ResolveAssetUrl } from "../assets";
+export type { ScenePointerEvent } from "./pointerEvents";
+
+/** host-side material tweaks on the mounted scene (see MaterialPatch) */
+export type SceneMaterials = {
+  set(target: string, patch: MaterialPatch): boolean;
+};
 
 export type ScreenshotOpts = {
   type?: "image/png" | "image/jpeg" | "image/webp";
@@ -107,10 +124,20 @@ export type SceneHostProps = {
   onEvent?: (event: RuntimeEvent) => void;
   /** every asset (glbs, textures, font, env map) settled, loaded or failed */
   onLoad?: () => void;
+  /** Asset failures are reported even when a local boundary keeps the scene mounted. */
+  onError?: (error: Error) => void;
   /** frame grabber — <ChibiScene> binds api.screenshot to it */
   onCapture?: (capture: SceneCapture | null) => void;
   /** the live engine instance — <ChibiScene> binds its api ref to it */
   onRuntime?: (runtime: InteractionRuntime | null) => void;
+  /** live material overrides — <ChibiScene> binds api.setMaterial to it */
+  onMaterials?: (materials: SceneMaterials | null) => void;
+  onNodes?: (nodes: SceneNodes | null) => void;
+  /** Host-interactive node ids, independent of document-authored actions. */
+  pointerTargets?: readonly string[];
+  onPointerEvent?: (event: ScenePointerEvent) => void;
+  /** Composite the scene over the host page instead of its document background. */
+  transparent?: boolean;
 };
 
 /**
@@ -133,8 +160,14 @@ export function SceneHost({
   dpr = DEFAULT_DPR,
   onEvent,
   onLoad,
+  onError,
   onCapture,
   onRuntime,
+  onMaterials,
+  onNodes,
+  pointerTargets,
+  onPointerEvent,
+  transparent = false,
 }: SceneHostProps) {
   const loads = useMemo(
     () => createLoadTracker(),
@@ -157,10 +190,10 @@ export function SceneHost({
         camera.lookAt(...doc.camera.target);
       }}
     >
-      <SceneBackground
+      {!transparent && <SceneBackground
         color={doc.environment.background}
         gradient={doc.environment.backgroundGradient}
-      />
+      />}
       {doc.environment.fog && (
         <fog
           attach="fog"
@@ -197,8 +230,13 @@ export function SceneHost({
           pointerTracking={pointerTracking}
           onEvent={onEvent}
           onLoad={onLoad}
+          onError={onError}
           onCapture={onCapture}
           onRuntime={onRuntime}
+          onMaterials={onMaterials}
+          onNodes={onNodes}
+          pointerTargets={pointerTargets}
+          onPointerEvent={onPointerEvent}
           loads={loads}
         />
       </Suspense>
@@ -256,7 +294,14 @@ type SceneCtx = {
   runtime: InteractionRuntime;
   registry: Map<string, Object3D>;
   materials: Map<string, MeshPhysicalMaterial>;
+  overrides: MaterialOverrideStore;
+  nodes: SceneNodes;
+  emitPointer: (event: ScenePointerEvent) => void;
+  reportError: (error: unknown) => void;
+  presses: PointerPresses;
   interactive: { click: Set<string>; hover: Set<string> };
+  pointerOccluders: Set<string>;
+  hoveredNodes: Set<string>;
   resolveAsset?: ResolveAssetUrl;
   loads: LoadTracker;
   /** re-render request for out-of-band loads (textures) under frameloop="demand" */
@@ -280,8 +325,13 @@ function InteractiveScene({
   pointerTracking = true,
   onEvent,
   onLoad,
+  onError,
   onCapture,
   onRuntime,
+  onMaterials,
+  onNodes,
+  pointerTargets,
+  onPointerEvent,
   loads,
 }: SceneHostProps & { loads: LoadTracker }) {
   const invalidate = useThree((s) => s.invalidate);
@@ -292,10 +342,14 @@ function InteractiveScene({
   // latest-callback refs so a new handler identity doesn't remount the engine
   const onEventRef = useRef(onEvent);
   const onLoadRef = useRef(onLoad);
+  const onPointerRef = useRef(onPointerEvent);
+  const onErrorRef = useRef(onError);
   useEffect(() => {
     onEventRef.current = onEvent;
     onLoadRef.current = onLoad;
-  }, [onEvent, onLoad]);
+    onPointerRef.current = onPointerEvent;
+    onErrorRef.current = onError;
+  }, [onEvent, onLoad, onPointerEvent, onError]);
 
   const ctx = useMemo<SceneCtx>(() => {
     // engine hooks wired at construction — the memoized value is never
@@ -303,22 +357,40 @@ function InteractiveScene({
     const runtime = new InteractionRuntime(doc);
     runtime.onWake = () => invalidate();
     runtime.onEvent = (e) => onEventRef.current?.(e);
+    const targets = interactive
+      ? interactiveNodeIds(doc)
+      : { click: new Set<string>(), hover: new Set<string>() };
+    if (interactive) for (const id of pointerTargets ?? []) {
+      if (!doc.nodes[id]) continue;
+      targets.click.add(id);
+      targets.hover.add(id);
+    }
+    const registry = new Map<string, Object3D>();
+    const presses = new PointerPresses();
+    presses.onEvent = (event) => onPointerRef.current?.(event);
     return {
       doc,
       runtime,
-      registry: new Map(),
+      registry,
+      nodes: new SceneNodes(doc, registry, invalidate),
+      emitPointer: (event) => onPointerRef.current?.(event),
+      reportError: (error) => onErrorRef.current?.(error instanceof Error ? error : new Error(String(error))),
+      presses,
       materials: new Map(),
-      interactive: interactive
-        ? interactiveNodeIds(doc)
-        : { click: new Set<string>(), hover: new Set<string>() },
+      overrides: createOverrideStore(),
+      interactive: targets,
+      pointerOccluders: interactive ? pointerOccluderIds(doc, targets) : new Set(),
+      hoveredNodes: new Set(),
       resolveAsset,
       loads,
       invalidate: () => invalidate(),
     };
-  }, [doc, resolveAsset, interactive, invalidate, loads]);
+  }, [doc, resolveAsset, interactive, invalidate, loads, pointerTargets]);
 
   useEffect(() => {
     onRuntime?.(ctx.runtime);
+    onNodes?.(ctx.nodes);
+    onMaterials?.({ set: (target, patch) => setMaterialOverride(ctx, target, patch) });
     onCapture?.((opts) => captureFrame(get, opts));
     if (autoStart) ctx.runtime.start();
     onEventRef.current?.({ type: "ready" });
@@ -328,15 +400,20 @@ function InteractiveScene({
     });
     ctx.invalidate();
     const materials = ctx.materials;
+    const overrides = ctx.overrides;
     const tracker = ctx.loads;
     return () => {
       tracker.disarm();
       onRuntime?.(null);
+      onNodes?.(null);
+      onMaterials?.(null);
       onCapture?.(null);
+      // dispose without clearing: StrictMode replays this effect on the same
+      // ctx with no re-render, and applyValue/setMaterial look materials up here
       for (const mat of materials.values()) mat.dispose();
-      materials.clear();
+      disposeOverrideStore(overrides);
     };
-    // autoStart/onRuntime/onCapture are mount-time concerns; ctx is the real dependency
+    // autoStart/onRuntime/onMaterials/onCapture are mount-time concerns; ctx is the real dependency
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctx]);
 
@@ -394,6 +471,41 @@ function InteractiveScene({
     };
   }, [ctx, domElement, pointerTracking]);
 
+  useEffect(() => {
+    if (!interactive) return;
+    const clearHover = (event: Event) => {
+      // Clear R3F's cache too, so returning after blur can fire pointerover again.
+      get().events.handlers?.onPointerLeave(event);
+      for (const id of [...ctx.hoveredNodes]) {
+        ctx.hoveredNodes.delete(id);
+        ctx.runtime.pointer("hoverExit", id);
+        ctx.emitPointer({ type: "hoverExit", nodeId: id, pointerId: -1, pointerType: "mouse" });
+      }
+      domElement.style.cursor = "";
+    };
+    const onBlur = (event: Event) => { clearHover(event); ctx.presses.cancelAll(); };
+    const onRelease = (event: PointerEvent) => ctx.presses.release(event.pointerId);
+    const onCancel = (event: PointerEvent) => {
+      clearHover(event);
+      ctx.presses.release(event.pointerId, "pointerCancel");
+    };
+    const onVisibility = (event: Event) => {
+      if (document.hidden) onBlur(event);
+    };
+    domElement.addEventListener("pointerleave", clearHover);
+    window.addEventListener("pointercancel", onCancel, true);
+    window.addEventListener("pointerup", onRelease, true);
+    window.addEventListener("blur", onBlur);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      domElement.removeEventListener("pointerleave", clearHover);
+      window.removeEventListener("pointercancel", onCancel, true);
+      window.removeEventListener("pointerup", onRelease, true);
+      window.removeEventListener("blur", onBlur);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [ctx, domElement, get, interactive]);
+
   // gpu reset / tab eviction: three restores its own state, but a demand
   // frameloop draws nothing until woken — the canvas would stay blank
   useEffect(() => {
@@ -421,9 +533,9 @@ function InteractiveScene({
   const wasActiveRef = useRef(false);
   const parallaxRef = useRef({ yaw: 0, pitch: 0 });
   useFrame((_, delta) => {
-    // demand frames after an idle stretch arrive with a huge delta — clamp
-    // so a transition doesn't jump straight to its end
-    for (const [key, value] of ctx.runtime.advance(Math.min(delta, 0.1))) {
+    // The first demand frame includes idle time, not elapsed animation time.
+    const waking = ctx.runtime.isActive() && !wasActiveRef.current;
+    for (const [key, value] of ctx.runtime.advance(waking ? 0 : Math.min(delta, 0.1))) {
       applyValue(ctx, key, value);
     }
     const amount = ctx.doc.camera.parallax;
@@ -488,24 +600,7 @@ function applyCameraParallax(
 function applyValue(ctx: SceneCtx, key: string, value: PropertyValue) {
   const { targetId, property } = parseTargetKey(key);
   if (ctx.doc.nodes[targetId]) {
-    const obj = ctx.registry.get(targetId);
-    if (!obj) return;
-    if (property === "visible") {
-      obj.visible = Boolean(value);
-      return;
-    }
-    if (!Array.isArray(value)) return;
-    switch (property) {
-      case "transform.position":
-        obj.position.set(value[0], value[1], value[2]);
-        break;
-      case "transform.rotation":
-        obj.rotation.set(value[0], value[1], value[2]);
-        break;
-      case "transform.scale":
-        obj.scale.set(value[0], value[1], value[2]);
-        break;
-    }
+    ctx.nodes.sample(targetId, property, value);
     return;
   }
   const def = ctx.doc.materials[targetId];
@@ -548,6 +643,7 @@ function runtimeMaterial(
     mat.sheen = def.sheen;
     mat.sheenColor.set(def.sheenColor);
     loadMaps(ctx, def, mat);
+    applyOverrides(ctx.overrides, def.id, mat, def.transparent);
     ctx.materials.set(def.id, mat);
   }
   return mat;
@@ -565,14 +661,20 @@ function loadMaps(ctx: SceneCtx, def: ChibiMaterial, mat: MeshPhysicalMaterial) 
     resolveAsset(asset)
       .then((url) => loader.loadAsync(url))
       .then((texture) => {
+        // host override owns the albedo slot — late doc map must not clobber it
+        if (slot === "map" && ctx.overrides.maps.has(def.id)) {
+          texture.dispose();
+          return;
+        }
         texture.colorSpace = srgb ? SRGBColorSpace : NoColorSpace;
         mat[slot] = texture;
         mat.needsUpdate = true;
         ctx.invalidate();
       })
-      .catch((err) =>
-        console.warn(`chibi: texture "${asset.name}" failed to load`, err),
-      )
+      .catch((err) => {
+        console.warn(`chibi: texture "${asset.name}" failed to load`, err);
+        ctx.reportError(err);
+      })
       .finally(done);
   }
 }
@@ -580,37 +682,64 @@ function loadMaps(ctx: SceneCtx, def: ChibiMaterial, mat: MeshPhysicalMaterial) 
 function useRegister(ctx: SceneCtx, id: string) {
   return useCallback(
     (obj: Object3D | null) => {
-      if (obj) ctx.registry.set(id, obj);
+      if (obj) { ctx.registry.set(id, obj); ctx.nodes.apply(id); }
       else ctx.registry.delete(id);
     },
     [ctx, id],
   );
 }
 
-// events bubble up the three hierarchy — a child hit triggers interactive
-// ancestors; nodes without interactions attach nothing, stay transparent
+// Hits bubble to interactive ancestors. Opaque geometry outside those
+// branches blocks farther hits and releases occluded hover targets.
 function usePointerHandlers(ctx: SceneCtx, id: string) {
   const isClick = ctx.interactive.click.has(id);
   const isHover = ctx.interactive.hover.has(id);
-  if (!isClick && !isHover) return {};
+  if (!isClick && !isHover) {
+    if (!ctx.pointerOccluders.has(id)) return {};
+    const block = (e: ThreeEvent<PointerEvent | MouseEvent>) => {
+      if (isOpaquePointerHit(e)) e.stopPropagation();
+    };
+    return { onPointerOver: block, onPointerMove: block, onPointerDown: block, onPointerUp: block, onClick: block };
+  }
   const setCursor = (e: ThreeEvent<PointerEvent>, cursor: string) => {
     const canvas = e.nativeEvent.target;
     if (canvas instanceof HTMLElement) canvas.style.cursor = cursor;
   };
+  const emit = (type: ScenePointerEvent["type"], e: ThreeEvent<PointerEvent | MouseEvent>) => {
+    const native = e.nativeEvent;
+    ctx.emitPointer({ type, nodeId: id, pointerId: "pointerId" in native ? native.pointerId : -1,
+      pointerType: "pointerType" in native ? native.pointerType : "mouse" });
+  };
   return {
+    onPointerDown: (e: ThreeEvent<PointerEvent>) => {
+      e.stopPropagation();
+      ctx.presses.press(e.pointerId, id, e.pointerType);
+    },
     onClick: (e: ThreeEvent<MouseEvent>) => {
       e.stopPropagation();
       ctx.runtime.pointer("click", id);
+      emit("click", e);
     },
     onPointerOver: (e: ThreeEvent<PointerEvent>) => {
       e.stopPropagation();
       if (isClick) setCursor(e, "pointer");
-      ctx.runtime.pointer("hoverEnter", id);
+      if (!ctx.hoveredNodes.has(id)) {
+        ctx.hoveredNodes.add(id);
+        ctx.runtime.pointer("hoverEnter", id);
+        emit("hoverEnter", e);
+      }
     },
     onPointerOut: (e: ThreeEvent<PointerEvent>) => {
-      e.stopPropagation();
+      const interactiveObjects = new Set<Object3D>();
+      for (const target of [...ctx.interactive.click, ...ctx.interactive.hover]) {
+        const object = ctx.registry.get(target);
+        if (object) interactiveObjects.add(object);
+      }
+      if (pointerRemainsWithinNode(ctx.registry.get(id), e.intersections, interactiveObjects)) return;
+      if (!ctx.hoveredNodes.delete(id)) return;
       if (isClick) setCursor(e, "");
       ctx.runtime.pointer("hoverExit", id);
+      emit("hoverExit", e);
     },
   };
 }
@@ -765,13 +894,14 @@ function RLight({ node }: { node: LightNode }) {
   );
 }
 
-class ModelBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+class ModelBoundary extends Component<{ children: ReactNode; onError: (error: Error) => void }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() {
     return { failed: true };
   }
-  componentDidCatch() {
-    console.warn("chibi: model failed to load");
+  componentDidCatch(error: Error) {
+    console.warn("chibi: model failed to load", error);
+    this.props.onError(error);
   }
   render() {
     return this.state.failed ? null : this.props.children;
@@ -798,7 +928,7 @@ function RModel({ node }: { node: ModelNode }) {
       {...handlers}
     >
       {asset && ctx.resolveAsset && (
-        <ModelBoundary>
+        <ModelBoundary onError={ctx.reportError}>
           <Suspense fallback={<Pending loads={ctx.loads} />}>
             <RGlb
               asset={asset}
@@ -835,20 +965,20 @@ function RGlb({
   receiveShadow: boolean;
 }) {
   const [url, setUrl] = useState<string | null>(null);
-  const [failed, setFailed] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
   useEffect(() => {
     let active = true;
     resolveAsset(asset)
       .then((u) => active && setUrl(u))
       .catch((err) => {
         console.warn(`chibi: asset data missing for "${asset.name}"`, err);
-        if (active) setFailed(true);
+        if (active) setError(err instanceof Error ? err : new Error(String(err)));
       });
     return () => {
       active = false;
     };
   }, [asset, resolveAsset]);
-  if (failed) return null;
+  if (error) throw error;
   if (!url) return <Pending loads={loads} />;
   if (path !== undefined) {
     return (

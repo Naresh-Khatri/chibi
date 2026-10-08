@@ -54,9 +54,36 @@ every stateful object) · `play(animationId)` · `pause(animationId)` ·
 `setPaused(bool)` · `getScrollProgress()` → current scroll progress in
 `[0, 1]` (auto-tracked, or the `scrollProgress` prop) · `getPointer()` →
 damped pointer progress over the canvas, `{x, y}` in `[0, 1]` per axis
-(`{0.5, 0.5}` at rest/center) · `screenshot({type?, quality?, transparent?})`
-→ `Promise<Blob | null>` of the current frame at the canvas's pixel size
+(`{0.5, 0.5}` at rest/center) · `setMaterial(target, patch)` → restyle a
+material at runtime (below) · `screenshot({type?, quality?, transparent?})` →
+`Promise<Blob | null>` of the current frame at the canvas's pixel size
 (`transparent` drops the background; `null` = not mounted).
+
+### Runtime material overrides
+
+```tsx
+api.current?.setMaterial("key:1", { color: "#f0a020" });
+api.current?.setMaterial("logo:1", { map: "/logos/react.svg", mapFit: "contain", mapColor: "#ffffff", opacity: 1 });
+```
+
+`target` is a material id, else every material with that name. `patch`:
+`color` · `emissive` · `emissiveIntensity` · `metalness` · `roughness` ·
+`opacity` · `map` (image URL — png/jpg/webp/svg — replacing the albedo map;
+`null` removes it). A patch carrying a `map` URL lands as a whole once the
+image has loaded, so nothing flashes untextured. Returns `false` when nothing
+matches or the scene isn't mounted yet — call it from the `ready` event.
+Overrides live on the mounted scene only (never written to the document), and
+state/clip-driven color or opacity wins while it animates.
+
+For square decals, pass `mapFit: "contain"` alongside `map` to center the
+image with transparent padding, preserving its aspect ratio. The default
+`"stretch"` uses the image's full UV range.
+Pass `mapColor` alongside `map` to render a monochrome image in that color
+while preserving transparency. Omitting it preserves the image's colors.
+
+Swappable logos/labels: author a thin `plane` child on the surface with its
+own transparent material at `opacity: 0`, then set `map` + `opacity: 1` from
+the host (see `/demo/keycaps`).
 
 Also exported: `loadDocument(urlOrBytes)` (zip/json loader returning
 `{ doc, resolveAsset, dispose }`), `validateDocument`, `createDocument`,
@@ -115,3 +142,34 @@ Public surface: `index.ts` (curated) plus the editor-facing subpaths
 else under `src/` is internal. `vitest run` (root) covers
 `packages/runtime/src` with no editor code on the module graph, which is the
 self-containment proof.
+
+### Host animation and input (0.4.0)
+
+Use node ids from your document to drive a scene from GSAP or another host
+animation library. Transform setters copy arrays, never mutate the document,
+and request a frame automatically:
+
+```ts
+api.current?.setNodeTransform(nodeId, { position: [x, y, z] });
+api.current?.setNodeVisible(nodeId, true);
+api.current?.transitionNodeTo(nodeId, pressedStateId, { duration: 0.1 });
+api.current?.transitionNodeTo(nodeId, "base", { duration: 0.1 });
+api.current?.clearNodeOverrides(nodeId);
+```
+
+Host transform/visibility overrides win over animation samples until cleared.
+Clearing restores the latest engine value or document base. Unknown node ids
+and calls before mount return false for setters. Use separate parent groups
+when host motion and document states need to compose. `transitionTo("base")`
+still resets all stateful nodes; `transitionNodeTo(id, "base")` resets one.
+
+Pass a stable `pointerTargets` array and `onPointerEvent` callback to receive
+`hoverEnter`, `hoverExit`, `pointerDown`, `pointerUp`, `pointerCancel`, and `click`.
+Events contain `nodeId`, `pointerId`, and `pointerType`; synthesized hover exits
+use pointer id -1. Targets don't need document-authored actions. Pointer release
+outside the canvas, window blur, and hidden tabs are handled. Physical keyboard
+input and sound remain the host application's responsibility.
+
+`transparent` composites over the host page. `onError` also reports model and
+texture failures caught by local asset boundaries; `onLoad` means assets have
+settled, so consumers should retain any failure state when it fires.
