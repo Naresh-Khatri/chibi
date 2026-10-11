@@ -2,11 +2,12 @@
 
 Web-native 3D design tool (Spline alternative): designers build interactive 3D
 scenes in a browser editor; developers consume them via a `<ChibiScene>` React
-component backed by an open JSON scene format. Prototype stage — local-only
-persistence (IndexedDB), no auth, no backend.
+component backed by an open JSON scene format. Scenes save locally in IndexedDB;
+authentication is optional, and cloud scene storage is deferred.
 
-**Read first:** [`PRD.md`](./PRD.md) (product + domain model + scene format)
-and [`specs/00-overview.md`](./specs/00-overview.md) (roadmap + conventions).
+**Read first:** local `docs/PRD.md` (product + domain model + scene format)
+and `docs/specs/00-overview.md` (roadmap + conventions). The `docs/` directory
+is Git-ignored; the checked-in `/docs` page is the public integration guide.
 `AGENTS.md` is the canonical guide for working in this repo (architecture,
 hard rules, workflow) — read it before making changes.
 
@@ -19,7 +20,10 @@ pnpm dev
 
 - `/` — landing page
 - `/editor/[docId]` — the 3D scene editor
-- `/demo` — a runtime consumer page showing `<ChibiScene>` in use
+- `/demo` — runtime states, animation controls, and performance diagnostics
+- `/demo/keyboard` — pastel keyboard with hover presses and a blinking face
+- `/demo/keycaps` — customizable keycap colors, logos, and grid layout
+- `/docs` — export, embedding, runtime APIs, and troubleshooting
 - `/components` — shadcn/ui component showcase
 
 ## Commands

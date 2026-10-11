@@ -1,8 +1,21 @@
 # @chibi3d/runtime
 
-Render and drive an exported [chibi](../../PRD.md) scene in any React app.
-This folder is the future npm package — it has **no imports from the editor or
-the Next.js app** (ESLint-enforced), so it can be extracted unchanged.
+Render and drive an exported [chibi](../../README.md) scene in any React app.
+This workspace package has **no imports from the editor or the Next.js app**
+(ESLint-enforced) and can be consumed independently.
+
+## Demo examples
+
+In the Chibi app, open `/demo` for scene states, animation controls, and runtime
+events, `/demo/keyboard` for pastel key presses and a blinking face, or
+`/demo/keycaps` for live keycap colors, logos, and grid layout.
+The demos link to the homepage and `/docs`, the in-app guide
+to exporting, embedding, interactions, and material overrides.
+
+- [Scene playground source](../../src/app/demo/page.tsx)
+- [Keyboard demo source](../../src/app/demo/keyboard/page.tsx)
+- [Keycaps configurator source](../../src/app/demo/keycaps/page.tsx)
+- [Project setup](../../README.md#getting-started)
 
 ```tsx
 import { useRef } from "react";
@@ -34,6 +47,11 @@ function Hero() {
 | `resolveAsset` | `(asset) => Promise<string>` | zip-bundled assets, else error | Maps an asset record (`{ id, hash, name, … }`) to a loadable URL. |
 | `interactive` | `boolean` | `true` | Pointer triggers (click / hover) active; click targets get `cursor: pointer`. |
 | `orbit` | `boolean` | `false` | User orbit around the scene camera. |
+| `orthographic` | `boolean` | `false` | Parallel projection matched to the document camera's target framing. Changing it remounts the canvas. |
+| `environment` | `ChibiDocument["environment"]` | document environment | Complete rendering environment override; preserves engine and interaction state. |
+| `transparent` | `boolean` | `false` | Composite over the host page without the document background. |
+| `pointerTargets` | `readonly string[]` | — | Host-interactive node ids, even without scene-authored actions. Keep the array stable. |
+| `onPointerEvent` | `(event: ScenePointerEvent) => void` | — | Host hover, press, release, cancel, and click events. |
 | `autoStart` | `boolean` | `true` | Fire `start` triggers on mount. |
 | `className` / `style` | — | — | Sizing is the host's job; the canvas fills the box. |
 | `fallback` | `ReactNode` | `null` | Shown while the scene file loads (unless `poster` is set). |
@@ -46,7 +64,7 @@ function Hero() {
 | `onPerformance` | `(sample: PerformanceSnapshot) => void` | — | Diagnostics every 500 ms while visible; also enables sampling without the overlay. |
 | `onEvent` | `(e: RuntimeEvent) => void` | — | `{type:"ready"}` · `{type:"interaction", trigger, action}` · `{type:"stateChange", nodeId, stateId}` · `{type:"contextLost"}` / `{type:"contextRestored"}` (WebGL). |
 | `onLoad` | `() => void` | — | Scene mounted and every asset (models, textures, env map, font) settled — loaded or failed. |
-| `onError` | `(error: Error) => void` | — | Scene file failed to fetch, parse or validate. |
+| `onError` | `(error: Error) => void` | — | Scene file, model, or texture failed to load or validate. Preserve error state when `onLoad` reports settled assets. |
 | `scrollProgress` | `number` | auto-tracked | Scroll progress in `[0, 1]` fed to `scroll` triggers and scroll bindings. Omit to auto-track this component's position against the viewport; pass a number to take over (e.g. a custom smooth-scroll lib, or an overlay with no real page scroll). |
 | `api` | `Ref<ChibiSceneApi>` | — | Imperative bridge (below). |
 
@@ -148,8 +166,9 @@ Also exported: `loadDocument(urlOrBytes)` (zip/json loader returning
   `camera.parallax > 0`). Pointer position is canvas-local and damped in the
   engine; on pointer leave everything eases back to the centered rest pose.
   There is no controlled prop — auto-tracking always works.
-- Scene format reference: [PRD §3.1](../../PRD.md). Documents are validated
-  with zod; legacy (≤ M5) documents are migrated in-place by
+- Scene format reference: local `docs/PRD.md` §3.1; see the app's `/docs` guide
+  for integration examples. Documents are validated with zod; legacy (≤ M5)
+  documents are migrated in-place by
   `schema/migrate.ts`.
 
 ## Publishing
@@ -161,7 +180,7 @@ tsconfig path alias, so no build is needed for local dev; building is only
 required to cut an npm release:
 
 ```sh
-npm --prefix packages/runtime run build # emits dist/ (esm + cjs + d.ts)
+pnpm --filter @chibi3d/runtime build     # emits dist/ (esm + cjs + d.ts)
 cd packages/runtime && npm publish      # publishConfig.access is already "public"
 ```
 
@@ -217,4 +236,5 @@ postprocessing. Omitting it uses the document environment. Keep `document`,
 `resolveAsset`, and `pointerTargets` stable to preserve engine state, host node
 overrides, and loaded geometry while quality changes. The prop is a host
 rendering override, not a scene-format change; quality changes do not fire a
-new scene `onLoad` event. Both props are available in runtime 0.5.0.
+new scene `onLoad` event. Orthographic projection and live environment
+overrides are available in runtime 0.5.0.

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import Link from "next/link";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { Check, Copy, Minus, Plus, Shuffle } from "lucide-react";
 import {
@@ -338,6 +339,7 @@ export default function KeycapsDemoPage() {
               )}
             </p>
           </details>
+          <Link href="/docs#materials" className="mt-6 inline-block text-sm text-primary underline underline-offset-4">Learn how live material changes work</Link>
         </div>
 
         <div className="relative aspect-[874/615] min-w-0 overflow-hidden rounded-2xl border border-border bg-background lg:sticky lg:top-6">

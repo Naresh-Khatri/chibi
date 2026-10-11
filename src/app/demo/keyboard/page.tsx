@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { ArrowLeft, Download, Pause, Play, RotateCcw } from "lucide-react";
+import { SiteHeader } from "@/components/site/SiteHeader";
+import { Download, Pause, Play, RotateCcw } from "lucide-react";
 import {
   ChibiScene,
   loadDocument,
@@ -62,15 +62,7 @@ export default function KeyboardDemoPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground selection:bg-primary/30">
-      <header className="border-b border-border">
-        <nav aria-label="Demo navigation" className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-5">
-          <Link href="/" className="text-lg font-semibold tracking-tight">chibi</Link>
-          <Link href="/demo" className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
-            <ArrowLeft aria-hidden="true" className="size-4" />
-            Back to playground
-          </Link>
-        </nav>
-      </header>
+      <SiteHeader current="keyboard" />
 
       <section className="mx-auto max-w-6xl px-6 pb-16 pt-12">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-6">

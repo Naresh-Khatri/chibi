@@ -13,6 +13,7 @@ export function SiteHeader({ current }: { current: "demo" | "keyboard" | "keycap
             ["demo", "/demo", "Playground"],
             ["keyboard", "/demo/keyboard", "Keyboard"],
             ["keycaps", "/demo/keycaps", "Keycaps"],
+            ["docs", "/docs", "Docs"],
           ] as const).map(([id, href, label]) => (
             <Link key={id} href={href} aria-current={current === id ? "page" : undefined}
               className={current === id ? "font-medium text-foreground" : "text-muted-foreground transition-colors hover:text-foreground"}>

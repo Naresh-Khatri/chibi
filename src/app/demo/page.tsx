@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { SiteHeader } from "@/components/site/SiteHeader";
 import { Check, Copy } from "lucide-react";
 import {
   ChibiScene,
@@ -24,6 +25,7 @@ export default function DemoPage() {
   const [failed, setFailed] = useState(false);
   const [log, setLog] = useState<LogEntry[]>([]);
   const [paused, setPaused] = useState(false);
+  const [debug, setDebug] = useState(false);
   const [orbit, setOrbit] = useState(true);
   const [interactive, setInteractive] = useState(false);
   const logSeq = useRef(0);
@@ -66,29 +68,9 @@ export default function DemoPage() {
   const doc = scene?.doc;
 
   return (
-    <main className="min-h-screen overflow-x-clip bg-[#0b0b0f] text-zinc-200 selection:bg-pink-500/30">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <div className="text-sm font-semibold tracking-widest text-zinc-400">
-          chibi <span className="text-pink-400">runtime demo</span>
-        </div>
-        <nav className="flex items-center gap-4 text-xs text-zinc-500">
-          {sceneSrc && (
-            <a
-              href={sceneSrc}
-              target="_blank"
-              rel="noreferrer"
-              className="transition-colors hover:text-zinc-300"
-            >
-              view scene file
-            </a>
-          )}
-          <Link href="/" className="transition-colors hover:text-zinc-300">
-            back to editor
-          </Link>
-        </nav>
-      </header>
+    <main className="min-h-screen overflow-x-clip bg-background text-foreground selection:bg-primary/30">
+      <SiteHeader current="demo" />
 
-      {/* hero: the scene IS the marketing visual */}
       <div className="mx-auto max-w-6xl px-6 pt-6">
         <Link href="/demo/keyboard" className="text-sm text-primary underline underline-offset-4">
           Try the interactive keyboard
@@ -96,39 +78,34 @@ export default function DemoPage() {
       </div>
 
       {/* min-w-0 on both columns: long log lines must scroll, not blow out the grid */}
-      <section className="mx-auto grid max-w-6xl gap-8 px-6 pb-16 pt-6 lg:grid-cols-[1fr_1.2fr] lg:items-start">
+      <section className="mx-auto grid max-w-6xl gap-8 px-6 pb-16 pt-12 lg:grid-cols-[1fr_1.5fr] lg:items-start">
         <div className="min-w-0">
-          <h1 className="text-4xl font-bold leading-tight tracking-tight text-white lg:text-5xl">
-            Your scene,
+          <h1 className="text-4xl font-bold leading-tight tracking-tight text-foreground lg:text-5xl">
+            A scene you can
             <br />
-            <span className="text-pink-400">their React app.</span>
+            <span className="text-primary">play with.</span>
           </h1>
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-zinc-400">
-            This page is a plain React consumer — no editor code on it. The
-            scene on the right is an exported{" "}
-            <code className="text-zinc-300">.chibi</code> file rendered by{" "}
-            <code className="text-zinc-300">&lt;ChibiScene /&gt;</code>. Hover
-            the cube, click it, click the torus: those interactions live in the
-            scene file, authored by a designer.
+          <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
+            Hover the cube to change its look. Click it to start an animation,
+            or click the ring to lift it. Try the controls below to change the
+            scene yourself.
           </p>
 
           {doc && (
             <>
-              <SectionLabel className="mt-8">
-                app <Arrow /> scene · every button is the literal call it makes
-              </SectionLabel>
+              <SectionLabel className="mt-8">Try an action</SectionLabel>
               <div className="mt-3 flex flex-wrap gap-2">
                 {Object.values(doc.states).map((s) => (
                   <ApiButton
                     key={s.id}
                     call={`api.transitionTo("${s.id}")`}
-                    hint={s.name}
+                    hint={`${doc.nodes[s.nodeId]?.name ?? "Object"}: ${s.name}`}
                     onClick={() => api.current?.transitionTo(s.id)}
                   />
                 ))}
                 <ApiButton
                   call={`api.transitionTo("base")`}
-                  hint="reset all"
+                  hint="Reset states"
                   onClick={() => api.current?.transitionTo("base")}
                 />
                 {Object.values(doc.animations).map((a) => (
@@ -149,45 +126,40 @@ export default function DemoPage() {
                 ))}
                 <ApiButton
                   call={`api.setPaused(${!paused})`}
-                  hint={paused ? "resume" : "freeze"}
+                  hint={paused ? "Resume motion" : "Pause motion"}
                   onClick={() => {
                     api.current?.setPaused(!paused);
                     setPaused(!paused);
                   }}
                 />
-                <ApiButton
-                  call="api.getState()"
-                  hint="log to console"
-                  onClick={() =>
-                    console.log("api.getState() →", api.current?.getState())
-                  }
-                />
               </div>
             </>
           )}
 
-          <SectionLabel className="mt-8">
-            scene <Arrow /> app · raw{" "}
-            <code className="normal-case">onEvent</code> payloads
-          </SectionLabel>
-          <div className="mt-3 h-44 overflow-x-auto overflow-y-auto rounded-lg border border-zinc-800 bg-black/40 p-3 font-mono text-[11px] leading-5">
-            {log.length === 0 && (
-              <div className="text-zinc-600">waiting for events…</div>
-            )}
-            {log.map((entry) => (
-              <div key={entry.id} className="whitespace-nowrap">
-                <span className="text-zinc-600">{entry.at}</span>{" "}
-                <span className="text-zinc-300">{entry.json}</span>
-              </div>
-            ))}
-          </div>
+          <details className="mt-8 border-t border-border pt-4">
+            <summary className="cursor-pointer text-sm text-muted-foreground">Inspect scene events</summary>
+            <p className="mt-3 text-xs text-muted-foreground">Events sent from the scene to the page as you interact.</p>
+            <div className="mt-3 h-44 overflow-x-auto overflow-y-auto rounded-lg border border-border bg-card p-3 font-mono text-[11px] leading-5">
+              {log.length === 0 && (
+                <div className="text-muted-foreground">waiting for events…</div>
+              )}
+              {log.map((entry) => (
+                <div key={entry.id} className="whitespace-nowrap">
+                  <span className="text-muted-foreground">{entry.at}</span>{" "}
+                  <span className="text-foreground">{entry.json}</span>
+                </div>
+              ))}
+            </div>
+          </details>
+          <Link href="/docs#interactions" className="mt-5 inline-block text-sm text-primary underline underline-offset-4">Learn how interactions work</Link>
         </div>
 
         <div className="min-w-0 lg:sticky lg:top-6">
-          <div className="h-[420px] overflow-hidden rounded-2xl border border-zinc-800 bg-black/40 lg:h-[480px]">
+          <div className="h-[420px] overflow-hidden rounded-2xl border border-border bg-card lg:h-[480px]">
             {doc && (
               <ChibiScene
                 document={doc}
+                debug={debug}
                 resolveAsset={scene?.resolveAsset}
                 api={api}
                 onEvent={pushEvent}
@@ -197,50 +169,56 @@ export default function DemoPage() {
             )}
             {!doc && !failed && <LoadingHint />}
             {failed && (
-              <div className="grid h-full place-items-center px-8 text-center text-sm text-zinc-500">
+              <div className="grid h-full place-items-center px-8 text-center text-sm text-muted-foreground">
                 No scene found. Export your scene from the editor as{" "}
                 <code>hero.chibi.zip</code> and drop it in{" "}
                 <code>public/scenes/</code>.
               </div>
             )}
           </div>
-          <div className="mt-2 text-right font-mono text-[10px] text-zinc-600">
-            {sceneSrc && <>src: {sceneSrc} · idles at 0 fps (frameloop=&quot;demand&quot;)</>}
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+            <label className="flex items-center gap-2">
+              <input type="checkbox" checked={debug} onChange={(e) => setDebug(e.target.checked)} className="accent-primary" />
+              Show performance
+            </label>
+            {sceneSrc && <a href={sceneSrc} target="_blank" rel="noreferrer" className="underline underline-offset-4">Open scene file</a>}
           </div>
         </div>
       </section>
 
-      {/* integration snippet */}
-      <section className="mx-auto max-w-6xl px-6 pb-16">
-        <h2 className="text-lg font-semibold text-white">Use it in your app</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-400">
-          One component, one file in your repo. The scene JSON is open and
-          diffable — commit it next to your code. Full props table in{" "}
-          <code className="text-zinc-300">src/runtime/README.md</code>.
-        </p>
-        <CodeBlock className="mt-4" code={INTEGRATION_SNIPPET} />
+      <section className="mx-auto grid max-w-6xl gap-6 px-6 pb-12 sm:grid-cols-2">
+        <Link href="/demo/keycaps" className="rounded-xl border border-border bg-card p-6 transition-colors hover:bg-muted">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Next demo</p>
+          <h2 className="mt-3 text-xl font-semibold">Make a keyboard your own</h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Choose colors, add logos, and resize the layout. Every change appears in 3D.</p>
+        </Link>
+        <Link href="/docs" className="rounded-xl border border-border bg-card p-6 transition-colors hover:bg-muted">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Documentation</p>
+          <h2 className="mt-3 text-xl font-semibold">Put a scene on your site</h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Export from the editor, render in React, and connect interactions to your app.</p>
+        </Link>
       </section>
 
       {/* second instance: proves multi-instance independence + prop toggles */}
       <section className="mx-auto max-w-6xl px-6 pb-20">
-        <div className="grid gap-6 rounded-2xl border border-zinc-800 bg-zinc-900/30 p-6 md:grid-cols-[1fr_320px] md:items-center">
+        <div className="grid gap-6 rounded-2xl border border-border bg-card p-6 md:grid-cols-[1fr_320px] md:items-center">
           <div className="min-w-0">
-            <h2 className="text-lg font-semibold text-white">
+            <h2 className="text-lg font-semibold text-foreground">
               Same file, second instance
             </h2>
-            <p className="mt-2 max-w-md text-sm leading-relaxed text-zinc-400">
+            <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
               A separate{" "}
-              <code className="text-zinc-300">&lt;ChibiScene&gt;</code> with its
+              <code className="text-foreground">&lt;ChibiScene&gt;</code> with its
               own engine — its state doesn&apos;t bleed into the hero above.
               Toggle its props and watch the JSX:
             </p>
-            <div className="mt-4 flex gap-4 text-xs text-zinc-400">
+            <div className="mt-4 flex gap-4 text-xs text-muted-foreground">
               <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
                   checked={orbit}
                   onChange={(e) => setOrbit(e.target.checked)}
-                  className="accent-pink-500"
+                  className="accent-primary"
                 />
                 <code>orbit</code>
               </label>
@@ -249,7 +227,7 @@ export default function DemoPage() {
                   type="checkbox"
                   checked={interactive}
                   onChange={(e) => setInteractive(e.target.checked)}
-                  className="accent-pink-500"
+                  className="accent-primary"
                 />
                 <code>interactive</code>
               </label>
@@ -259,7 +237,7 @@ export default function DemoPage() {
               code={secondInstanceSnippet(sceneSrc, orbit, interactive)}
             />
           </div>
-          <div className="h-64 overflow-hidden rounded-xl border border-zinc-800 bg-black/40">
+          <div className="h-64 overflow-hidden rounded-xl border border-border bg-card">
             {doc && (
               <ChibiScene
                 document={doc}
@@ -277,26 +255,6 @@ export default function DemoPage() {
   );
 }
 
-const INTEGRATION_SNIPPET = `import { useRef } from "react";
-import { ChibiScene, type ChibiSceneApi, type RuntimeEvent } from "@chibi3d/runtime";
-
-export function Hero() {
-  const api = useRef<ChibiSceneApi>(null);
-
-  return (
-    <>
-      <ChibiScene
-        src="/scenes/hero.chibi.zip"        // or document={parsedJson}
-        api={api}
-        onEvent={(e: RuntimeEvent) => console.log(e)}
-        className="h-[600px]"               // sizing is yours; canvas fills the box
-      />
-      <button onClick={() => api.current?.transitionTo("st_hot")}>Hot</button>
-      <button onClick={() => api.current?.play("an_float")}>Float</button>
-    </>
-  );
-}`;
-
 function secondInstanceSnippet(
   src: string | null,
   orbit: boolean,
@@ -313,16 +271,6 @@ function secondInstanceSnippet(
   return lines.join("\n");
 }
 
-// section labels are uppercase + letter-spaced; the arrow opts back out of
-// both so it renders as a clean glyph instead of a spaced-out artifact
-function Arrow() {
-  return (
-    <span aria-hidden className="font-sans normal-case tracking-normal text-pink-400/80">
-      {"→"}
-    </span>
-  );
-}
-
 function SectionLabel({
   children,
   className = "",
@@ -332,7 +280,7 @@ function SectionLabel({
 }) {
   return (
     <div
-      className={`text-[11px] font-semibold uppercase tracking-widest text-zinc-500 ${className}`}
+      className={`text-[11px] font-semibold uppercase tracking-widest text-muted-foreground ${className}`}
     >
       {children}
     </div>
@@ -352,12 +300,12 @@ function ApiButton({
     <button
       type="button"
       onClick={onClick}
-      title={hint}
-      className="group rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-left font-mono text-[11px] text-zinc-300 transition-colors hover:border-pink-500/60 hover:text-white"
+      title={call}
+      className="group rounded-lg border border-border bg-card px-3 py-1.5 text-left font-mono text-[11px] text-foreground transition-colors hover:border-primary hover:text-foreground"
     >
-      {call}
-      <span className="ml-2 text-[10px] text-zinc-600 transition-colors group-hover:text-pink-400/80">
-        {hint}
+      {hint}
+      <span className="mt-1 block text-[10px] text-muted-foreground transition-colors group-hover:text-primary">
+        {call}
       </span>
     </button>
   );
@@ -367,7 +315,7 @@ function CodeBlock({ code, className = "" }: { code: string; className?: string 
   const [copied, setCopied] = useState(false);
   return (
     <div
-      className={`relative rounded-xl border border-zinc-800 bg-black/50 ${className}`}
+      className={`relative rounded-xl border border-border bg-card ${className}`}
     >
       <button
         type="button"
@@ -377,12 +325,12 @@ function CodeBlock({ code, className = "" }: { code: string; className?: string 
             setTimeout(() => setCopied(false), 1500);
           });
         }}
-        className="absolute right-3 top-3 flex items-center gap-1 rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1 text-[10px] text-zinc-400 transition-colors hover:text-white"
+        className="absolute right-3 top-3 flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-[10px] text-muted-foreground transition-colors hover:text-foreground"
       >
         {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
         {copied ? "copied" : "copy"}
       </button>
-      <pre className="overflow-x-auto p-4 font-mono text-[12px] leading-5 text-zinc-300">
+      <pre className="overflow-x-auto p-4 font-mono text-[12px] leading-5 text-foreground">
         {code}
       </pre>
     </div>
@@ -391,7 +339,7 @@ function CodeBlock({ code, className = "" }: { code: string; className?: string 
 
 function LoadingHint() {
   return (
-    <div className="grid h-full place-items-center text-xs text-zinc-600">
+    <div className="grid h-full place-items-center text-xs text-muted-foreground">
       loading scene…
     </div>
   );
