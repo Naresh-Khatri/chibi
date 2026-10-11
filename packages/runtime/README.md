@@ -91,7 +91,7 @@ or GPU memory. Unsupported browsers show **N/A**. Hidden tabs reset sampling.
 
 ```tsx
 api.current?.setMaterial("key:1", { color: "#f0a020" });
-api.current?.setMaterial("logo:1", { map: "/logos/react.svg", mapFit: "contain", mapColor: "#ffffff", opacity: 1 });
+api.current?.setMaterial("logo:1", { map: "https://thesvg.org/icons/react/mono.svg", mapFit: "contain", mapColor: "#ffffff", opacity: 1 });
 ```
 
 `target` is a material id, else every material with that name. `patch`:
