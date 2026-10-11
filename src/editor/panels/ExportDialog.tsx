@@ -64,13 +64,19 @@ function InlineCode({ children }: { children: ReactNode }) {
 
 function CodeBlock({ code, lang }: { code: string; lang: BundledLanguage }) {
   const [copied, setCopied] = useState(false);
-  const [html, setHtml] = useState<string | null>(null);
+  const [highlighted, setHighlighted] = useState<{
+    code: string;
+    lang: BundledLanguage;
+    html: string;
+  } | null>(null);
+  const html = highlighted?.code === code && highlighted.lang === lang
+    ? highlighted.html
+    : null;
 
   useEffect(() => {
     let cancelled = false;
-    setHtml(null);
     highlightCode(code, lang).then((result) => {
-      if (!cancelled) setHtml(result);
+      if (!cancelled) setHighlighted({ code, lang, html: result });
     });
     return () => {
       cancelled = true;
