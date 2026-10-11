@@ -89,6 +89,12 @@ export default function DemoPage() {
       </header>
 
       {/* hero: the scene IS the marketing visual */}
+      <div className="mx-auto max-w-6xl px-6 pt-6">
+        <Link href="/demo/keyboard" className="text-sm text-primary underline underline-offset-4">
+          Try the interactive keyboard
+        </Link>
+      </div>
+
       {/* min-w-0 on both columns: long log lines must scroll, not blow out the grid */}
       <section className="mx-auto grid max-w-6xl gap-8 px-6 pb-16 pt-6 lg:grid-cols-[1fr_1.2fr] lg:items-start">
         <div className="min-w-0">

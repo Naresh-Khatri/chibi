@@ -1,0 +1,4060 @@
+{
+  "chibi": 1,
+  "name": "Cute keyboard",
+  "root": [
+    "nd_keyboard",
+    "nd_4i",
+    "nd_lights"
+  ],
+  "nodes": {
+    "nd_5": {
+      "id": "nd_5",
+      "name": "Key r0c0",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_1",
+      "transform": {
+        "position": [
+          -4.2749999999999995,
+          0.8999999999999999,
+          -1.425
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_9": {
+      "id": "nd_9",
+      "name": "Key r0c1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_1",
+      "transform": {
+        "position": [
+          -3.3249999999999997,
+          0.8999999999999999,
+          -1.425
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_d": {
+      "id": "nd_d",
+      "name": "Key r0c2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_1",
+      "transform": {
+        "position": [
+          -2.3749999999999996,
+          0.8999999999999999,
+          -1.425
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_h": {
+      "id": "nd_h",
+      "name": "Key r0c3",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_1",
+      "transform": {
+        "position": [
+          -1.4249999999999994,
+          0.8999999999999999,
+          -1.425
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_l": {
+      "id": "nd_l",
+      "name": "Key r0c4",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_1",
+      "transform": {
+        "position": [
+          -0.4749999999999992,
+          0.8999999999999999,
+          -1.425
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_p": {
+      "id": "nd_p",
+      "name": "Key r0c5",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_1",
+      "transform": {
+        "position": [
+          0.47500000000000087,
+          0.8999999999999999,
+          -1.425
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_t": {
+      "id": "nd_t",
+      "name": "Key r0c6",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_1",
+      "transform": {
+        "position": [
+          1.4250000000000007,
+          0.8999999999999999,
+          -1.425
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_x": {
+      "id": "nd_x",
+      "name": "Key r0c7",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_1",
+      "transform": {
+        "position": [
+          2.375000000000001,
+          0.8999999999999999,
+          -1.425
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_11": {
+      "id": "nd_11",
+      "name": "Key r0c8",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_1",
+      "transform": {
+        "position": [
+          3.325000000000001,
+          0.8999999999999999,
+          -1.425
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_15": {
+      "id": "nd_15",
+      "name": "Key r0c9",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_1",
+      "transform": {
+        "position": [
+          4.275000000000001,
+          0.8999999999999999,
+          -1.425
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_19": {
+      "id": "nd_19",
+      "name": "Key r1c0",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_2",
+      "transform": {
+        "position": [
+          -4.2749999999999995,
+          0.8999999999999999,
+          -0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_1d": {
+      "id": "nd_1d",
+      "name": "Key r1c1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_2",
+      "transform": {
+        "position": [
+          -3.3249999999999997,
+          0.8999999999999999,
+          -0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_1h": {
+      "id": "nd_1h",
+      "name": "Key r1c2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_2",
+      "transform": {
+        "position": [
+          -2.3749999999999996,
+          0.8999999999999999,
+          -0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_1l": {
+      "id": "nd_1l",
+      "name": "Key r1c3",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_2",
+      "transform": {
+        "position": [
+          -1.4249999999999994,
+          0.8999999999999999,
+          -0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_1p": {
+      "id": "nd_1p",
+      "name": "Key r1c4",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_2",
+      "transform": {
+        "position": [
+          -0.4749999999999992,
+          0.8999999999999999,
+          -0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_1t": {
+      "id": "nd_1t",
+      "name": "Key r1c5",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_2",
+      "transform": {
+        "position": [
+          0.47500000000000087,
+          0.8999999999999999,
+          -0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_1x": {
+      "id": "nd_1x",
+      "name": "Key r1c6",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_2",
+      "transform": {
+        "position": [
+          1.4250000000000007,
+          0.8999999999999999,
+          -0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_21": {
+      "id": "nd_21",
+      "name": "Key r1c7",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_2",
+      "transform": {
+        "position": [
+          2.375000000000001,
+          0.8999999999999999,
+          -0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_25": {
+      "id": "nd_25",
+      "name": "Key r1c8",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_2",
+      "transform": {
+        "position": [
+          3.325000000000001,
+          0.8999999999999999,
+          -0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_29": {
+      "id": "nd_29",
+      "name": "Key r1c9",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_2",
+      "transform": {
+        "position": [
+          4.275000000000001,
+          0.8999999999999999,
+          -0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_2d": {
+      "id": "nd_2d",
+      "name": "Key r2c0",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_3",
+      "transform": {
+        "position": [
+          -4.2749999999999995,
+          0.8999999999999999,
+          0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_2h": {
+      "id": "nd_2h",
+      "name": "Key r2c1",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_3",
+      "transform": {
+        "position": [
+          -3.3249999999999997,
+          0.8999999999999999,
+          0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_2l": {
+      "id": "nd_2l",
+      "name": "Key r2c2",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_3",
+      "transform": {
+        "position": [
+          -2.3749999999999996,
+          0.8999999999999999,
+          0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_2p": {
+      "id": "nd_2p",
+      "name": "Key r2c3",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_3",
+      "transform": {
+        "position": [
+          -1.4249999999999994,
+          0.8999999999999999,
+          0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_2t": {
+      "id": "nd_2t",
+      "name": "Key r2c4",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_3",
+      "transform": {
+        "position": [
+          -0.4749999999999992,
+          0.8999999999999999,
+          0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_2x": {
+      "id": "nd_2x",
+      "name": "Key r2c5",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_3",
+      "transform": {
+        "position": [
+          0.47500000000000087,
+          0.8999999999999999,
+          0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_31": {
+      "id": "nd_31",
+      "name": "Key r2c6",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_3",
+      "transform": {
+        "position": [
+          1.4250000000000007,
+          0.8999999999999999,
+          0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_35": {
+      "id": "nd_35",
+      "name": "Key r2c7",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_3",
+      "transform": {
+        "position": [
+          2.375000000000001,
+          0.8999999999999999,
+          0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_39": {
+      "id": "nd_39",
+      "name": "Key r2c8",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_3",
+      "transform": {
+        "position": [
+          3.325000000000001,
+          0.8999999999999999,
+          0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_3d": {
+      "id": "nd_3d",
+      "name": "Key r2c9",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_3",
+      "transform": {
+        "position": [
+          4.275000000000001,
+          0.8999999999999999,
+          0.47500000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_3h": {
+      "id": "nd_3h",
+      "name": "Ctrl L",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_4",
+      "transform": {
+        "position": [
+          -4.2749999999999995,
+          0.8999999999999999,
+          1.425
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_3l": {
+      "id": "nd_3l",
+      "name": "Alt L",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_4",
+      "transform": {
+        "position": [
+          -3.3249999999999997,
+          0.8999999999999999,
+          1.425
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_3p": {
+      "id": "nd_3p",
+      "name": "Space",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 5.55,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_4",
+      "transform": {
+        "position": [
+          4.440892098500626e-16,
+          0.8999999999999999,
+          1.425
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_3t": {
+      "id": "nd_3t",
+      "name": "Alt R",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_4",
+      "transform": {
+        "position": [
+          3.3250000000000006,
+          0.8999999999999999,
+          1.425
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_3x": {
+      "id": "nd_3x",
+      "name": "Ctrl R",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.8,
+          "height": 0.4,
+          "depth": 0.8,
+          "radius": 0.1,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_4",
+      "transform": {
+        "position": [
+          4.275000000000001,
+          0.8999999999999999,
+          1.425
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_42": {
+      "id": "nd_42",
+      "name": "Case",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 10.549999999999999,
+          "height": 0.7,
+          "depth": 4.8500000000000005,
+          "radius": 0.12,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_41",
+      "transform": {
+        "position": [
+          0,
+          0.35,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_44": {
+      "id": "nd_44",
+      "name": "Foot",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.28,
+          "radiusBottom": 0.28,
+          "height": 0.3,
+          "radialSegments": 16
+        }
+      },
+      "materialId": "mt_43",
+      "transform": {
+        "position": [
+          -4.874999999999999,
+          0.15,
+          -2.0250000000000004
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_45": {
+      "id": "nd_45",
+      "name": "Foot",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.28,
+          "radiusBottom": 0.28,
+          "height": 0.3,
+          "radialSegments": 16
+        }
+      },
+      "materialId": "mt_43",
+      "transform": {
+        "position": [
+          -4.874999999999999,
+          0.15,
+          2.0250000000000004
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_46": {
+      "id": "nd_46",
+      "name": "Foot",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.28,
+          "radiusBottom": 0.28,
+          "height": 0.3,
+          "radialSegments": 16
+        }
+      },
+      "materialId": "mt_43",
+      "transform": {
+        "position": [
+          4.874999999999999,
+          0.15,
+          -2.0250000000000004
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_47": {
+      "id": "nd_47",
+      "name": "Foot",
+      "type": "mesh",
+      "geometry": {
+        "kind": "cylinder",
+        "params": {
+          "radiusTop": 0.28,
+          "radiusBottom": 0.28,
+          "height": 0.3,
+          "radialSegments": 16
+        }
+      },
+      "materialId": "mt_43",
+      "transform": {
+        "position": [
+          4.874999999999999,
+          0.15,
+          2.0250000000000004
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_4a": {
+      "id": "nd_4a",
+      "name": "Eye L",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.22,
+          "widthSegments": 20,
+          "heightSegments": 16
+        }
+      },
+      "materialId": "mt_48",
+      "transform": {
+        "position": [
+          -0.9,
+          0.42,
+          2.4250000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_4b": {
+      "id": "nd_4b",
+      "name": "Eye R",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.22,
+          "widthSegments": 20,
+          "heightSegments": 16
+        }
+      },
+      "materialId": "mt_48",
+      "transform": {
+        "position": [
+          0.9,
+          0.42,
+          2.4250000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": true,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_4c": {
+      "id": "nd_4c",
+      "name": "Cheek",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.35,
+          "widthSegments": 16,
+          "heightSegments": 12
+        }
+      },
+      "materialId": "mt_49",
+      "transform": {
+        "position": [
+          -1.7,
+          0.21999999999999997,
+          2.345
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          0.6,
+          0.4
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_4d": {
+      "id": "nd_4d",
+      "name": "Cheek",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.35,
+          "widthSegments": 16,
+          "heightSegments": 12
+        }
+      },
+      "materialId": "mt_49",
+      "transform": {
+        "position": [
+          1.7,
+          0.21999999999999997,
+          2.345
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          0.6,
+          0.4
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_4e": {
+      "id": "nd_4e",
+      "name": "Mouth",
+      "type": "mesh",
+      "geometry": {
+        "kind": "box",
+        "params": {
+          "width": 0.55,
+          "height": 0.08,
+          "depth": 0.05,
+          "radius": 0.013,
+          "smoothness": 4
+        }
+      },
+      "materialId": "mt_48",
+      "transform": {
+        "position": [
+          0,
+          0.019999999999999962,
+          2.4250000000000003
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_4g": {
+      "id": "nd_4g",
+      "name": "LED",
+      "type": "mesh",
+      "geometry": {
+        "kind": "sphere",
+        "params": {
+          "radius": 0.12,
+          "widthSegments": 16,
+          "heightSegments": 12
+        }
+      },
+      "materialId": "mt_4f",
+      "transform": {
+        "position": [
+          4.7749999999999995,
+          0.75,
+          -2.075
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_4i": {
+      "id": "nd_4i",
+      "name": "Ground",
+      "type": "mesh",
+      "geometry": {
+        "kind": "plane",
+        "params": {
+          "width": 26,
+          "height": 26
+        }
+      },
+      "materialId": "mt_4h",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          -1.5707963267948966,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "castShadow": false,
+      "receiveShadow": true,
+      "children": []
+    },
+    "nd_4j": {
+      "id": "nd_4j",
+      "name": "Key light",
+      "type": "light",
+      "light": {
+        "kind": "directional",
+        "color": "#fff6e8",
+        "intensity": 1.6,
+        "castShadow": true
+      },
+      "transform": {
+        "position": [
+          4,
+          6,
+          3
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": []
+    },
+    "nd_4k": {
+      "id": "nd_4k",
+      "name": "Fill light",
+      "type": "light",
+      "light": {
+        "kind": "point",
+        "color": "#ffd6e8",
+        "intensity": 4,
+        "distance": 0,
+        "castShadow": false
+      },
+      "transform": {
+        "position": [
+          -4,
+          3,
+          3
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": []
+    },
+    "nd_4l": {
+      "id": "nd_4l",
+      "name": "Rim light",
+      "type": "light",
+      "light": {
+        "kind": "point",
+        "color": "#8fe8ff",
+        "intensity": 4,
+        "distance": 0,
+        "castShadow": false
+      },
+      "transform": {
+        "position": [
+          0,
+          3,
+          -4
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": []
+    },
+    "nd_row1": {
+      "id": "nd_row1",
+      "name": "Row 1",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_5",
+        "nd_9",
+        "nd_d",
+        "nd_h",
+        "nd_l",
+        "nd_p",
+        "nd_t",
+        "nd_x",
+        "nd_11",
+        "nd_15"
+      ]
+    },
+    "nd_row2": {
+      "id": "nd_row2",
+      "name": "Row 2",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_19",
+        "nd_1d",
+        "nd_1h",
+        "nd_1l",
+        "nd_1p",
+        "nd_1t",
+        "nd_1x",
+        "nd_21",
+        "nd_25",
+        "nd_29"
+      ]
+    },
+    "nd_row3": {
+      "id": "nd_row3",
+      "name": "Row 3",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_2d",
+        "nd_2h",
+        "nd_2l",
+        "nd_2p",
+        "nd_2t",
+        "nd_2x",
+        "nd_31",
+        "nd_35",
+        "nd_39",
+        "nd_3d"
+      ]
+    },
+    "nd_row4": {
+      "id": "nd_row4",
+      "name": "Row 4",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_3h",
+        "nd_3l",
+        "nd_3p",
+        "nd_3t",
+        "nd_3x"
+      ]
+    },
+    "nd_keys": {
+      "id": "nd_keys",
+      "name": "Keys",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_row1",
+        "nd_row2",
+        "nd_row3",
+        "nd_row4"
+      ]
+    },
+    "nd_feet": {
+      "id": "nd_feet",
+      "name": "Feet",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_44",
+        "nd_45",
+        "nd_46",
+        "nd_47"
+      ]
+    },
+    "nd_face": {
+      "id": "nd_face",
+      "name": "Face",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_4a",
+        "nd_4b",
+        "nd_4c",
+        "nd_4d",
+        "nd_4e"
+      ]
+    },
+    "nd_keyboard": {
+      "id": "nd_keyboard",
+      "name": "Keyboard",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_42",
+        "nd_keys",
+        "nd_feet",
+        "nd_face",
+        "nd_4g"
+      ]
+    },
+    "nd_lights": {
+      "id": "nd_lights",
+      "name": "Lights",
+      "type": "group",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "visible": true,
+      "children": [
+        "nd_4j",
+        "nd_4k",
+        "nd_4l"
+      ]
+    }
+  },
+  "materials": {
+    "mt_1": {
+      "id": "mt_1",
+      "name": "Key row 1",
+      "type": "standard",
+      "color": "#ff8fab",
+      "metalness": 0.05,
+      "roughness": 0.55,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_2": {
+      "id": "mt_2",
+      "name": "Key row 2",
+      "type": "standard",
+      "color": "#ffbf69",
+      "metalness": 0.05,
+      "roughness": 0.55,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_3": {
+      "id": "mt_3",
+      "name": "Key row 3",
+      "type": "standard",
+      "color": "#7fdb9a",
+      "metalness": 0.05,
+      "roughness": 0.55,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_4": {
+      "id": "mt_4",
+      "name": "Key row 4",
+      "type": "standard",
+      "color": "#6fd0e0",
+      "metalness": 0.05,
+      "roughness": 0.55,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_41": {
+      "id": "mt_41",
+      "name": "Case",
+      "type": "standard",
+      "color": "#f2e2cd",
+      "metalness": 0.05,
+      "roughness": 0.5,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_43": {
+      "id": "mt_43",
+      "name": "Foot",
+      "type": "standard",
+      "color": "#ffffff",
+      "metalness": 0.05,
+      "roughness": 0.3,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_48": {
+      "id": "mt_48",
+      "name": "Face",
+      "type": "standard",
+      "color": "#2b2d42",
+      "metalness": 0.1,
+      "roughness": 0.25,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_49": {
+      "id": "mt_49",
+      "name": "Cheek",
+      "type": "standard",
+      "color": "#ffb4c6",
+      "metalness": 0.1,
+      "roughness": 0.6,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 0.6,
+      "transparent": true,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_4f": {
+      "id": "mt_4f",
+      "name": "LED",
+      "type": "standard",
+      "color": "#7bf1a8",
+      "metalness": 0.1,
+      "roughness": 0.3,
+      "emissive": "#7bf1a8",
+      "emissiveIntensity": 1.8,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    },
+    "mt_4h": {
+      "id": "mt_4h",
+      "name": "Ground",
+      "type": "standard",
+      "color": "#1c1826",
+      "metalness": 0,
+      "roughness": 0.9,
+      "emissive": "#000000",
+      "emissiveIntensity": 0,
+      "opacity": 1,
+      "transparent": false,
+      "flatShading": false,
+      "maps": {
+        "map": null,
+        "normalMap": null,
+        "roughnessMap": null
+      }
+    }
+  },
+  "assets": {},
+  "animations": {
+    "an_4m": {
+      "id": "an_4m",
+      "name": "Blink",
+      "duration": 3,
+      "loop": true,
+      "tracks": [
+        {
+          "targetId": "nd_4a",
+          "property": "transform.scale",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "t": 2.6,
+              "v": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "t": 2.75,
+              "v": [
+                1,
+                0.15,
+                1
+              ],
+              "ease": "easeIn"
+            },
+            {
+              "t": 2.9,
+              "v": [
+                1,
+                1,
+                1
+              ],
+              "ease": "easeOut"
+            }
+          ]
+        },
+        {
+          "targetId": "nd_4b",
+          "property": "transform.scale",
+          "keyframes": [
+            {
+              "t": 0,
+              "v": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "t": 2.6,
+              "v": [
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "t": 2.75,
+              "v": [
+                1,
+                0.15,
+                1
+              ],
+              "ease": "easeIn"
+            },
+            {
+              "t": 2.9,
+              "v": [
+                1,
+                1,
+                1
+              ],
+              "ease": "easeOut"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "states": {
+    "st_6": {
+      "id": "st_6",
+      "nodeId": "nd_5",
+      "name": "Pressed",
+      "overrides": {
+        "nd_5": {
+          "transform.position": [
+            -4.2749999999999995,
+            0.7699999999999999,
+            -1.425
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_a": {
+      "id": "st_a",
+      "nodeId": "nd_9",
+      "name": "Pressed",
+      "overrides": {
+        "nd_9": {
+          "transform.position": [
+            -3.3249999999999997,
+            0.7699999999999999,
+            -1.425
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_e": {
+      "id": "st_e",
+      "nodeId": "nd_d",
+      "name": "Pressed",
+      "overrides": {
+        "nd_d": {
+          "transform.position": [
+            -2.3749999999999996,
+            0.7699999999999999,
+            -1.425
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_i": {
+      "id": "st_i",
+      "nodeId": "nd_h",
+      "name": "Pressed",
+      "overrides": {
+        "nd_h": {
+          "transform.position": [
+            -1.4249999999999994,
+            0.7699999999999999,
+            -1.425
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_m": {
+      "id": "st_m",
+      "nodeId": "nd_l",
+      "name": "Pressed",
+      "overrides": {
+        "nd_l": {
+          "transform.position": [
+            -0.4749999999999992,
+            0.7699999999999999,
+            -1.425
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_q": {
+      "id": "st_q",
+      "nodeId": "nd_p",
+      "name": "Pressed",
+      "overrides": {
+        "nd_p": {
+          "transform.position": [
+            0.47500000000000087,
+            0.7699999999999999,
+            -1.425
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_u": {
+      "id": "st_u",
+      "nodeId": "nd_t",
+      "name": "Pressed",
+      "overrides": {
+        "nd_t": {
+          "transform.position": [
+            1.4250000000000007,
+            0.7699999999999999,
+            -1.425
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_y": {
+      "id": "st_y",
+      "nodeId": "nd_x",
+      "name": "Pressed",
+      "overrides": {
+        "nd_x": {
+          "transform.position": [
+            2.375000000000001,
+            0.7699999999999999,
+            -1.425
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_12": {
+      "id": "st_12",
+      "nodeId": "nd_11",
+      "name": "Pressed",
+      "overrides": {
+        "nd_11": {
+          "transform.position": [
+            3.325000000000001,
+            0.7699999999999999,
+            -1.425
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_16": {
+      "id": "st_16",
+      "nodeId": "nd_15",
+      "name": "Pressed",
+      "overrides": {
+        "nd_15": {
+          "transform.position": [
+            4.275000000000001,
+            0.7699999999999999,
+            -1.425
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_1a": {
+      "id": "st_1a",
+      "nodeId": "nd_19",
+      "name": "Pressed",
+      "overrides": {
+        "nd_19": {
+          "transform.position": [
+            -4.2749999999999995,
+            0.7699999999999999,
+            -0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_1e": {
+      "id": "st_1e",
+      "nodeId": "nd_1d",
+      "name": "Pressed",
+      "overrides": {
+        "nd_1d": {
+          "transform.position": [
+            -3.3249999999999997,
+            0.7699999999999999,
+            -0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_1i": {
+      "id": "st_1i",
+      "nodeId": "nd_1h",
+      "name": "Pressed",
+      "overrides": {
+        "nd_1h": {
+          "transform.position": [
+            -2.3749999999999996,
+            0.7699999999999999,
+            -0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_1m": {
+      "id": "st_1m",
+      "nodeId": "nd_1l",
+      "name": "Pressed",
+      "overrides": {
+        "nd_1l": {
+          "transform.position": [
+            -1.4249999999999994,
+            0.7699999999999999,
+            -0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_1q": {
+      "id": "st_1q",
+      "nodeId": "nd_1p",
+      "name": "Pressed",
+      "overrides": {
+        "nd_1p": {
+          "transform.position": [
+            -0.4749999999999992,
+            0.7699999999999999,
+            -0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_1u": {
+      "id": "st_1u",
+      "nodeId": "nd_1t",
+      "name": "Pressed",
+      "overrides": {
+        "nd_1t": {
+          "transform.position": [
+            0.47500000000000087,
+            0.7699999999999999,
+            -0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_1y": {
+      "id": "st_1y",
+      "nodeId": "nd_1x",
+      "name": "Pressed",
+      "overrides": {
+        "nd_1x": {
+          "transform.position": [
+            1.4250000000000007,
+            0.7699999999999999,
+            -0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_22": {
+      "id": "st_22",
+      "nodeId": "nd_21",
+      "name": "Pressed",
+      "overrides": {
+        "nd_21": {
+          "transform.position": [
+            2.375000000000001,
+            0.7699999999999999,
+            -0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_26": {
+      "id": "st_26",
+      "nodeId": "nd_25",
+      "name": "Pressed",
+      "overrides": {
+        "nd_25": {
+          "transform.position": [
+            3.325000000000001,
+            0.7699999999999999,
+            -0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_2a": {
+      "id": "st_2a",
+      "nodeId": "nd_29",
+      "name": "Pressed",
+      "overrides": {
+        "nd_29": {
+          "transform.position": [
+            4.275000000000001,
+            0.7699999999999999,
+            -0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_2e": {
+      "id": "st_2e",
+      "nodeId": "nd_2d",
+      "name": "Pressed",
+      "overrides": {
+        "nd_2d": {
+          "transform.position": [
+            -4.2749999999999995,
+            0.7699999999999999,
+            0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_2i": {
+      "id": "st_2i",
+      "nodeId": "nd_2h",
+      "name": "Pressed",
+      "overrides": {
+        "nd_2h": {
+          "transform.position": [
+            -3.3249999999999997,
+            0.7699999999999999,
+            0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_2m": {
+      "id": "st_2m",
+      "nodeId": "nd_2l",
+      "name": "Pressed",
+      "overrides": {
+        "nd_2l": {
+          "transform.position": [
+            -2.3749999999999996,
+            0.7699999999999999,
+            0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_2q": {
+      "id": "st_2q",
+      "nodeId": "nd_2p",
+      "name": "Pressed",
+      "overrides": {
+        "nd_2p": {
+          "transform.position": [
+            -1.4249999999999994,
+            0.7699999999999999,
+            0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_2u": {
+      "id": "st_2u",
+      "nodeId": "nd_2t",
+      "name": "Pressed",
+      "overrides": {
+        "nd_2t": {
+          "transform.position": [
+            -0.4749999999999992,
+            0.7699999999999999,
+            0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_2y": {
+      "id": "st_2y",
+      "nodeId": "nd_2x",
+      "name": "Pressed",
+      "overrides": {
+        "nd_2x": {
+          "transform.position": [
+            0.47500000000000087,
+            0.7699999999999999,
+            0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_32": {
+      "id": "st_32",
+      "nodeId": "nd_31",
+      "name": "Pressed",
+      "overrides": {
+        "nd_31": {
+          "transform.position": [
+            1.4250000000000007,
+            0.7699999999999999,
+            0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_36": {
+      "id": "st_36",
+      "nodeId": "nd_35",
+      "name": "Pressed",
+      "overrides": {
+        "nd_35": {
+          "transform.position": [
+            2.375000000000001,
+            0.7699999999999999,
+            0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_3a": {
+      "id": "st_3a",
+      "nodeId": "nd_39",
+      "name": "Pressed",
+      "overrides": {
+        "nd_39": {
+          "transform.position": [
+            3.325000000000001,
+            0.7699999999999999,
+            0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_3e": {
+      "id": "st_3e",
+      "nodeId": "nd_3d",
+      "name": "Pressed",
+      "overrides": {
+        "nd_3d": {
+          "transform.position": [
+            4.275000000000001,
+            0.7699999999999999,
+            0.47500000000000003
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_3i": {
+      "id": "st_3i",
+      "nodeId": "nd_3h",
+      "name": "Pressed",
+      "overrides": {
+        "nd_3h": {
+          "transform.position": [
+            -4.2749999999999995,
+            0.7699999999999999,
+            1.425
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_3m": {
+      "id": "st_3m",
+      "nodeId": "nd_3l",
+      "name": "Pressed",
+      "overrides": {
+        "nd_3l": {
+          "transform.position": [
+            -3.3249999999999997,
+            0.7699999999999999,
+            1.425
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_3q": {
+      "id": "st_3q",
+      "nodeId": "nd_3p",
+      "name": "Pressed",
+      "overrides": {
+        "nd_3p": {
+          "transform.position": [
+            4.440892098500626e-16,
+            0.7699999999999999,
+            1.425
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_3u": {
+      "id": "st_3u",
+      "nodeId": "nd_3t",
+      "name": "Pressed",
+      "overrides": {
+        "nd_3t": {
+          "transform.position": [
+            3.3250000000000006,
+            0.7699999999999999,
+            1.425
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    },
+    "st_3y": {
+      "id": "st_3y",
+      "nodeId": "nd_3x",
+      "name": "Pressed",
+      "overrides": {
+        "nd_3x": {
+          "transform.position": [
+            4.275000000000001,
+            0.7699999999999999,
+            1.425
+          ],
+          "transform.scale": [
+            1,
+            0.7,
+            1
+          ]
+        }
+      }
+    }
+  },
+  "interactions": [
+    {
+      "id": "ix_7",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_5"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_5",
+        "to": "st_6",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_8",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_5"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_5",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_b",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_9"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_9",
+        "to": "st_a",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_c",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_9"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_9",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_f",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_d"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_d",
+        "to": "st_e",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_g",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_d"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_d",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_j",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_h"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_h",
+        "to": "st_i",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_k",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_h"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_h",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_n",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_l"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_l",
+        "to": "st_m",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_o",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_l"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_l",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_r",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_p"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_p",
+        "to": "st_q",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_s",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_p"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_p",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_v",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_t"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_t",
+        "to": "st_u",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_w",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_t"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_t",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_z",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_x"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_x",
+        "to": "st_y",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_10",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_x"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_x",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_13",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_11"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_11",
+        "to": "st_12",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_14",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_11"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_11",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_17",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_15"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_15",
+        "to": "st_16",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_18",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_15"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_15",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_1b",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_19"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_19",
+        "to": "st_1a",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_1c",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_19"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_19",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_1f",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_1d"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_1d",
+        "to": "st_1e",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_1g",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_1d"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_1d",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_1j",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_1h"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_1h",
+        "to": "st_1i",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_1k",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_1h"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_1h",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_1n",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_1l"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_1l",
+        "to": "st_1m",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_1o",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_1l"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_1l",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_1r",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_1p"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_1p",
+        "to": "st_1q",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_1s",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_1p"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_1p",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_1v",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_1t"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_1t",
+        "to": "st_1u",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_1w",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_1t"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_1t",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_1z",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_1x"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_1x",
+        "to": "st_1y",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_20",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_1x"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_1x",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_23",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_21"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_21",
+        "to": "st_22",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_24",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_21"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_21",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_27",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_25"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_25",
+        "to": "st_26",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_28",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_25"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_25",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_2b",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_29"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_29",
+        "to": "st_2a",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_2c",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_29"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_29",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_2f",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_2d"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_2d",
+        "to": "st_2e",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_2g",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_2d"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_2d",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_2j",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_2h"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_2h",
+        "to": "st_2i",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_2k",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_2h"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_2h",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_2n",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_2l"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_2l",
+        "to": "st_2m",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_2o",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_2l"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_2l",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_2r",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_2p"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_2p",
+        "to": "st_2q",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_2s",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_2p"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_2p",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_2v",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_2t"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_2t",
+        "to": "st_2u",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_2w",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_2t"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_2t",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_2z",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_2x"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_2x",
+        "to": "st_2y",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_30",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_2x"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_2x",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_33",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_31"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_31",
+        "to": "st_32",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_34",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_31"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_31",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_37",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_35"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_35",
+        "to": "st_36",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_38",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_35"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_35",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_3b",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_39"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_39",
+        "to": "st_3a",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_3c",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_39"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_39",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_3f",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_3d"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_3d",
+        "to": "st_3e",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_3g",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_3d"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_3d",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_3j",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_3h"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_3h",
+        "to": "st_3i",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_3k",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_3h"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_3h",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_3n",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_3l"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_3l",
+        "to": "st_3m",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_3o",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_3l"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_3l",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_3r",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_3p"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_3p",
+        "to": "st_3q",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_3s",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_3p"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_3p",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_3v",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_3t"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_3t",
+        "to": "st_3u",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_3w",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_3t"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_3t",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_3z",
+      "trigger": {
+        "type": "hoverEnter",
+        "nodeId": "nd_3x"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_3x",
+        "to": "st_3y",
+        "duration": 0.12,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_40",
+      "trigger": {
+        "type": "hoverExit",
+        "nodeId": "nd_3x"
+      },
+      "action": {
+        "type": "transition",
+        "nodeId": "nd_3x",
+        "to": "base",
+        "duration": 0.18,
+        "ease": "easeOut"
+      }
+    },
+    {
+      "id": "ix_4n",
+      "trigger": {
+        "type": "start"
+      },
+      "action": {
+        "type": "playAnimation",
+        "animationId": "an_4m"
+      }
+    }
+  ],
+  "environment": {
+    "background": "#100e18",
+    "preset": "city",
+    "fog": null,
+    "shadows": true
+  },
+  "camera": {
+    "position": [
+      0,
+      4.6,
+      7
+    ],
+    "target": [
+      0,
+      0.7,
+      0.6
+    ],
+    "fov": 40
+  },
+  "editor": {
+    "grid": true
+  }
+}
