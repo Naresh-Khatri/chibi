@@ -1,3 +1,4 @@
+import { buildGardenScene } from "@/scenes/garden";
 import {
   BASE_STATE_ID,
   createMaterial,
@@ -19,9 +20,8 @@ import {
 } from "@/runtime/schema";
 
 // Landing-page scene templates: hand-authored documents that open straight in
-// the editor — no AI call, no API key. All star Clawd, the Claude Code
-// mascot, built in the clay house style (rounded primitives, warm pastel
-// void, contact shadows). Static ids are fine: they only need to be unique
+// the editor — no AI call, no API key. The garden and Clawd scenes use
+// rounded primitives and soft lighting. Static ids only need to be unique
 // within one document, and each build() returns a fresh copy.
 
 export type SceneTemplate = {
@@ -742,6 +742,7 @@ function buildParallaxScene(): ChibiDocument {
 }
 
 export const SCENE_TEMPLATES: SceneTemplate[] = [
+  { title: "A little garden", build: buildGardenScene },
   { title: "Clawd at the terminal", build: buildTerminalScene },
   { title: "Clawd's rocket launch", build: buildRocketScene },
   { title: "Clawd's moods", build: buildMoodsScene },

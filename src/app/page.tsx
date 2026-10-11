@@ -2,12 +2,17 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
+  ArrowRight,
+  Sprout,
   Box,
   Clock,
   CookingPot,
   FolderOpen,
   Loader2,
+  MousePointer2,
   Palette,
   Plus,
   Rocket,
@@ -17,6 +22,7 @@ import {
   Terminal,
   TrafficCone,
   Trash2,
+  Wind,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,18 +46,26 @@ import { getApiKey, setApiKey } from "@/editor/ai/client";
 import { GenerationError, generateDocument } from "@/editor/ai/generate";
 import { EXAMPLE_PROMPTS } from "@/editor/ai/examplePrompts";
 import { SCENE_TEMPLATES } from "@/editor/templates";
+import { buildGardenScene } from "@/scenes/garden";
+import { GardenPoster } from "@/components/landing/GardenPoster";
+
+const GardenStage = dynamic(() => import("@/components/landing/GardenStage"), {
+  ssr: false,
+  loading: () => <GardenPoster />,
+});
 
 // paired by index with EXAMPLE_PROMPTS / SCENE_TEMPLATES (icons are a UI
 // concern, the data stays pure)
 const EXAMPLE_ICONS = [CookingPot, TrafficCone, Palette, Tent];
-const TEMPLATE_ICONS = [Terminal, Rocket, Smile];
+const TEMPLATE_ICONS = [Sprout, Terminal, Rocket, Smile, MousePointer2, Wind];
 
 // hand-built scene documents that open in the editor without any AI call
 function TemplateCards() {
   const router = useRouter();
   const [opening, setOpening] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   return (
-    <div className="grid grid-cols-2 gap-1.5">
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
       {SCENE_TEMPLATES.map((template, i) => {
         const Icon = TEMPLATE_ICONS[i % TEMPLATE_ICONS.length];
         return (
@@ -60,17 +74,18 @@ function TemplateCards() {
             type="button"
             disabled={opening !== null}
             onClick={async () => {
+              setError(null);
               setOpening(template.title);
               try {
                 const docId = await saveImportedDocument(template.build());
                 track("scene_created", { source: "template", template: template.title });
                 router.push(`/editor/${docId}`);
               } catch (err) {
-                console.error("chibi: template failed to open", err);
+                setError(err instanceof Error ? err.message : "Could not open this template.");
                 setOpening(null);
               }
             }}
-            className="flex items-center gap-1.5 rounded-lg border bg-card px-2.5 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:border-ring/50 hover:bg-muted/40 hover:text-foreground disabled:opacity-60"
+            className="flex min-h-10 items-center gap-1.5 rounded-lg border bg-card px-2.5 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:border-ring/50 hover:bg-muted/40 hover:text-foreground disabled:opacity-60"
           >
             {opening === template.title ? (
               <Loader2 className="size-3.5 shrink-0 animate-spin text-primary" />
@@ -81,6 +96,7 @@ function TemplateCards() {
           </button>
         );
       })}
+      {error && <p role="alert" className="col-span-full text-xs text-destructive">{error}</p>}
     </div>
   );
 }
@@ -151,6 +167,7 @@ function AiSetupDialog({
         <div className="flex items-center gap-1.5">
           <input
             type="password"
+            aria-label="Mistral API key"
             autoFocus
             placeholder="Mistral API key"
             value={draft}
@@ -217,6 +234,10 @@ function ScenePrompt() {
 
   return (
     <div className="flex flex-col gap-2">
+      <h3 className="text-sm font-medium text-foreground">Start from a template</h3>
+      <TemplateCards />
+      <h3 className="mt-4 text-sm font-medium text-foreground">Start with an idea</h3>
+      <p className="mb-1 text-xs text-muted-foreground">Describe a scene or choose a prompt below. Generation uses your own Mistral API key.</p>
       <div
         className={`flex items-start gap-1.5 rounded-lg border bg-card px-2.5 py-1.5 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/40 ${
           running ? "animate-pulse" : ""
@@ -229,7 +250,8 @@ function ScenePrompt() {
         )}
         <textarea
           ref={promptRef}
-          rows={1}
+          aria-label="Describe your scene"
+          rows={2}
           placeholder="Describe a scene…"
           value={prompt}
           disabled={running}
@@ -263,11 +285,6 @@ function ScenePrompt() {
       />
 
       <p className="px-0.5 pt-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        Templates
-      </p>
-      <TemplateCards />
-
-      <p className="px-0.5 pt-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
         Prompt ideas
       </p>
       <div className="grid grid-cols-2 gap-1.5">
@@ -277,7 +294,7 @@ function ScenePrompt() {
             <button
               key={example.title}
               type="button"
-              disabled={running || !hasKey}
+              disabled={running}
               onClick={() => {
                 setPrompt(example.prompt);
                 promptRef.current?.focus();
@@ -315,114 +332,126 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [recents, setRecents] = useState<RecentDoc[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [remixing, setRemixing] = useState(false);
 
   const refresh = useCallback(() => {
-    getRecents().then(setRecents);
+    getRecents().then(setRecents).catch(() => setError("Could not read recent projects. Check that browser storage is available."));
   }, []);
   useEffect(refresh, [refresh]);
 
+  const remix = async () => {
+    if (remixing) return;
+    setRemixing(true);
+    setError(null);
+    try {
+      const docId = await saveImportedDocument(buildGardenScene());
+      track("scene_created", { source: "template", template: "A little garden" });
+      router.push(`/editor/${docId}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not open the garden.");
+      setRemixing(false);
+    }
+  };
+
   return (
-    <main className="relative grid min-h-dvh place-items-center bg-background">
-      <div className="absolute right-4 top-4">
-        <AccountMenu />
-      </div>
-      <div className="flex w-full max-w-md flex-col gap-8 px-6">
-        <div className="text-center">
-          <div className="mb-3 inline-grid size-12 place-items-center rounded-xl bg-primary/15">
-            <Box className="size-6 text-primary" />
-          </div>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">
-            chibi
+    <main className="min-h-dvh overflow-x-clip bg-background text-foreground">
+      <header className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-6 sm:px-10">
+        <Link href="/" aria-label="Chibi home" className="flex items-center gap-2 text-xl font-semibold tracking-tight">
+          <Box aria-hidden="true" className="size-5 text-primary" />chibi
+        </Link>
+        <nav aria-label="Main navigation" className="flex items-center gap-5 text-sm sm:gap-7">
+          <Link href="/demo" className="text-muted-foreground transition-colors hover:text-foreground">Demos</Link>
+          <Link href="/docs" className="text-muted-foreground transition-colors hover:text-foreground">Docs</Link>
+          <AccountMenu />
+        </nav>
+      </header>
+
+      <section className="mx-auto grid max-w-7xl grid-cols-1 items-center px-6 pt-8 sm:px-10 lg:min-h-[720px] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.25fr)] lg:pt-0" aria-labelledby="hero-heading">
+        <div className="relative z-10 pb-3 lg:pb-16">
+          <p className="mb-6 flex items-center gap-2 text-xs font-medium tracking-wide text-muted-foreground"><Sprout className="size-4 text-primary" aria-hidden="true" />A small idea can become a whole world.</p>
+          <h1 id="hero-heading" className="text-[clamp(2.7rem,5.3vw,4.5rem)] font-medium leading-[1.06] tracking-[-0.055em]">
+            Make a world<br />of your own.
           </h1>
-          <p className="mt-2 text-sm text-balance text-muted-foreground">
-            A web-native 3D editor. Design interactive scenes in the browser,
-            ship them as React components.
+          <p className="mt-6 max-w-sm text-base leading-7 text-muted-foreground">
+            Shape it, give it life, put it on the web. Chibi is your browser studio for interactive 3D.
           </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button className="h-12 rounded-lg px-5 text-sm" onClick={() => setCreateOpen(true)}>
+              Create a project<ArrowRight aria-hidden="true" className="size-4" />
+            </Button>
+            <Button asChild variant="outline" className="h-12 rounded-lg px-5 text-sm">
+              <Link href="/demo">Explore demos</Link>
+            </Button>
+          </div>
+          <p className="mt-4 text-xs text-muted-foreground">Start free. No account needed.</p>
         </div>
-
-        <div className="flex justify-center gap-3">
-          <Button
-            onClick={() => {
-              track("scene_created", { source: "blank" });
-              router.push(`/editor/${newId("doc")}`);
-            }}
-          >
-            <Plus />
-            New scene
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <FolderOpen />
-            Open file…
-          </Button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json,.zip"
-            className="hidden"
-            onChange={async (e) => {
-              const file = e.currentTarget.files?.[0];
-              e.currentTarget.value = "";
-              if (!file) return;
-              setError(null);
-              try {
-                const doc = await importDocumentFromFile(file);
-                const docId = await saveImportedDocument(doc);
-                track("scene_created", { source: "import" });
-                router.push(`/editor/${docId}`);
-              } catch (err) {
-                setError(err instanceof Error ? err.message : "Import failed");
-              }
-            }}
-          />
+        <div className="-mx-6 min-w-0 sm:-mx-4 lg:-mr-10 lg:ml-0">
+          <GardenStage onRemix={() => void remix()} />
+          {remixing && <p className="text-center text-xs text-muted-foreground" role="status">Opening your garden…</p>}
         </div>
+      </section>
 
-        <ScenePrompt />
-
-        {error && (
-          <p className="text-center text-xs text-destructive">{error}</p>
-        )}
+      <section className="mx-auto max-w-7xl px-6 pb-12 sm:px-10">
+        <div className="flex flex-col justify-between gap-5 border-t border-border pt-7 sm:flex-row sm:items-center">
+          <div>
+            <p className="text-sm font-medium">A scene you can take apart and make your own.</p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">This garden is made with Chibi objects, states, and animation. Try a tap, then open it in the editor.</p>
+          </div>
+          <button type="button" className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-foreground" onClick={() => fileInputRef.current?.click()}>
+            <FolderOpen className="size-4" aria-hidden="true" />Open a scene file
+          </button>
+        </div>
+        <input ref={fileInputRef} type="file" accept=".json,.zip" className="hidden" aria-label="Import a Chibi scene" onChange={async (e) => {
+          const file = e.currentTarget.files?.[0];
+          e.currentTarget.value = "";
+          if (!file) return;
+          setError(null);
+          try {
+            const doc = await importDocumentFromFile(file);
+            const docId = await saveImportedDocument(doc);
+            track("scene_created", { source: "import" });
+            router.push(`/editor/${docId}`);
+          } catch (err) { setError(err instanceof Error ? err.message : "Import failed"); }
+        }} />
+        {error && <p className="mt-4 text-sm text-destructive" role="alert">{error}</p>}
 
         {recents && recents.length > 0 && (
-          <div className="rounded-xl border bg-card">
-            <div className="flex items-center gap-1.5 border-b px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              <Clock className="size-3" />
-              Recent scenes
-            </div>
-            {recents.map((recent) => (
-              <div
-                key={recent.docId}
-                className="group flex cursor-pointer items-center gap-2.5 border-b border-border/50 px-3 py-2 transition-colors last:border-b-0 hover:bg-muted/50"
-                onClick={() => router.push(`/editor/${recent.docId}`)}
-              >
-                <Box className="size-3.5 shrink-0 text-muted-foreground" />
-                <span className="truncate text-sm text-foreground">
-                  {recent.name}
-                </span>
-                <span className="flex-1" />
-                <span className="text-xs text-muted-foreground">
-                  {timeAgo(recent.updatedAt)}
-                </span>
-                <button
-                  type="button"
-                  title="Delete scene"
-                  className="hidden text-muted-foreground transition-colors hover:text-destructive group-hover:block"
-                  onClick={async (e) => {
-                    e.stopPropagation();
+          <div className="mt-12">
+            <h2 className="mb-4 flex items-center gap-2 text-sm font-medium"><Clock className="size-4 text-muted-foreground" aria-hidden="true" />Pick up where you left off</h2>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {recents.map((recent) => (
+                <div key={recent.docId} className="group flex items-center gap-2 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-muted/50">
+                  <Box className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <Link href={`/editor/${recent.docId}`} className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium">{recent.name}</span>
+                    <span className="mt-1 block text-xs text-muted-foreground">{timeAgo(recent.updatedAt)}</span>
+                  </Link>
+                  <button type="button" aria-label={`Delete ${recent.name}`} className="rounded p-2 text-muted-foreground transition-colors hover:text-destructive" onClick={async () => {
                     if (!window.confirm(`Delete "${recent.name}"?`)) return;
-                    await deleteDocument(recent.docId);
-                    refresh();
-                  }}
-                >
-                  <Trash2 className="size-3.5" />
-                </button>
-              </div>
-            ))}
+                    try { await deleteDocument(recent.docId); refresh(); }
+                    catch (err) { setError(err instanceof Error ? err.message : "Could not delete the scene"); }
+                  }}><Trash2 className="size-3.5" aria-hidden="true" /></button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
-      </div>
+      </section>
+
+      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+        <DialogContent className="max-h-[85dvh] overflow-y-auto p-6 sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl">What will you make?</DialogTitle>
+            <DialogDescription>Choose a starting point. Your projects save in this browser.</DialogDescription>
+          </DialogHeader>
+          <Button variant="outline" className="h-12 justify-between px-4" onClick={() => {
+            track("scene_created", { source: "blank" });
+            router.push(`/editor/${newId("doc")}`);
+          }}><span className="flex items-center gap-2"><Plus className="size-4" />Start blank</span><ArrowRight className="size-4" aria-hidden="true" /></Button>
+          <ScenePrompt />
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
