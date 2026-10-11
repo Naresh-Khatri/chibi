@@ -5,6 +5,7 @@
  */
 export { ChibiScene } from "./react/ChibiScene";
 export type { ChibiSceneApi, ChibiSceneProps } from "./react/ChibiScene";
+export type { PerformanceSnapshot } from "./react/performance";
 export { SceneHost } from "./react/SceneHost";
 export type {
   SceneCapture,

@@ -80,6 +80,8 @@ import { SceneNodes } from "./nodeOverrides";
 import { PointerPresses, type ScenePointerEvent } from "./pointerEvents";
 import { orthographicZoom } from "./cameraProjection";
 import { isOpaquePointerHit, pointerOccluderIds, pointerRemainsWithinNode } from "./pointerOcclusion";
+import { PerformanceMonitor } from "./PerformanceMonitor";
+import type { PerformanceSnapshot, PerformanceStore } from "./performance";
 
 export type { ResolveAssetUrl } from "../assets";
 export type { ScenePointerEvent } from "./pointerEvents";
@@ -117,6 +119,9 @@ function OrthographicFraming({ doc }: { doc: ChibiDocument }) {
 
 export type SceneHostProps = {
   doc: ChibiDocument;
+  /** Per-instance diagnostics; omitted by default to avoid sampling overhead. */
+  performanceStore?: PerformanceStore;
+  onPerformance?: (sample: PerformanceSnapshot) => void;
   /** Live rendering environment; defaults to the document's environment. */
   environment?: ChibiDocument["environment"];
   /** asset record -> URL. editor: IndexedDB; runtime: zip / host callback */
@@ -171,6 +176,8 @@ export type SceneHostProps = {
  */
 export function SceneHost({
   doc,
+  performanceStore,
+  onPerformance,
   environment = doc.environment,
   resolveAsset,
   interactive = true,
@@ -216,6 +223,7 @@ export function SceneHost({
         camera.lookAt(...doc.camera.target);
       }}
     >
+      {performanceStore && <PerformanceMonitor store={performanceStore} onPerformance={onPerformance} />}
       {orthographic && <OrthographicFraming doc={doc} />}
       {!transparent && <SceneBackground
         color={environment.background}

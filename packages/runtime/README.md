@@ -42,6 +42,8 @@ function Hero() {
 | `pauseWhenOffscreen` | `boolean` | `true` | Stop rendering while scrolled out of view; motion resumes where it left off. |
 | `reducedMotion` | `boolean` | OS setting | Drop cursor-driven motion (pointer bindings, camera parallax). Omit to follow `prefers-reduced-motion`. Click/hover transitions still play. |
 | `dpr` | `number \| [min, max]` | `[1, 2]` | Device pixel ratio, or a clamp range. |
+| `debug` | `boolean` | `false` | Compact FPS, frame-time graph, JS memory and resolution overlay. Includes a local resolution selector. |
+| `onPerformance` | `(sample: PerformanceSnapshot) => void` | — | Diagnostics every 500 ms while visible; also enables sampling without the overlay. |
 | `onEvent` | `(e: RuntimeEvent) => void` | — | `{type:"ready"}` · `{type:"interaction", trigger, action}` · `{type:"stateChange", nodeId, stateId}` · `{type:"contextLost"}` / `{type:"contextRestored"}` (WebGL). |
 | `onLoad` | `() => void` | — | Scene mounted and every asset (models, textures, env map, font) settled — loaded or failed. |
 | `onError` | `(error: Error) => void` | — | Scene file failed to fetch, parse or validate. |
@@ -58,6 +60,32 @@ damped pointer progress over the canvas, `{x, y}` in `[0, 1]` per axis
 material at runtime (below) · `screenshot({type?, quality?, transparent?})` →
 `Promise<Blob | null>` of the current frame at the canvas's pixel size
 (`transparent` drops the background; `null` = not mounted).
+
+### Performance overlay
+
+```tsx
+<ChibiScene src="/scene.chibi.zip" debug api={api} />
+// Or receive the same readings without displaying an overlay:
+<ChibiScene src="/scene.chibi.zip" onPerformance={handlePerformance} />
+// Read the latest snapshot without subscribing:
+api.current?.getPerformance();
+```
+
+The panel shows rendered FPS, frame time with a small graph, page-wide JS heap
+memory when available, and actual render resolution. Its resolution selector
+temporarily overrides `dpr`; choose **Host** to follow the prop again. The
+override only applies while `debug` is enabled and never changes the document.
+
+`PerformanceSnapshot` contains `fps`, `frameMs`, `memoryMB`, `width`, `height`,
+`dpr`, and the graph's `history`. Readings update every 500 ms. `getPerformance()`
+returns `null` before sampling or while diagnostics are disabled. Sampling is
+enabled by either `debug` or `onPerformance`, and does not keep the Canvas
+rendering. An idle scene correctly shows 0 FPS.
+
+Frame time is the average interval between continuous rendered frames, excluding
+idle gaps. It is not GPU time or input latency. Memory uses the optional browser
+`performance.memory` reading: it covers the entire page's JS heap, not one scene
+or GPU memory. Unsupported browsers show **N/A**. Hidden tabs reset sampling.
 
 ### Runtime material overrides
 

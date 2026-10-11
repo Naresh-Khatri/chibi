@@ -28,6 +28,8 @@ import {
 } from "./SceneHost";
 import type { SceneNodes, NodeTransformPatch } from "./nodeOverrides";
 import type { MaterialPatch } from "./materialOverrides";
+import { GraphicsDebug } from "./GraphicsDebug";
+import { createPerformanceStore, type PerformanceSnapshot } from "./performance";
 
 /** imperative bridge for the host app (`api` prop). methods are safe to call
  * before the scene mounts — they no-op until the engine is live. */
@@ -53,6 +55,8 @@ export type ChibiSceneApi = {
   setMaterial(target: string, patch: MaterialPatch): boolean;
   /** encode the current frame at the canvas's pixel size. null = not mounted */
   screenshot(opts?: ScreenshotOpts): Promise<Blob | null>;
+  /** Latest diagnostics; null until sampled. Enable `debug` or `onPerformance`. */
+  getPerformance(): PerformanceSnapshot | null;
 };
 
 export type ChibiSceneProps = {
@@ -84,6 +88,10 @@ export type ChibiSceneProps = {
   reducedMotion?: boolean;
   /** device pixel ratio, or a [min, max] clamp (default [1, 2]) */
   dpr?: number | [number, number];
+  /** Compact FPS, frame-time, JS memory and resolution overlay. Default false. */
+  debug?: boolean;
+  /** Receive diagnostics twice per second, also without the overlay. */
+  onPerformance?: (sample: PerformanceSnapshot) => void;
   className?: string;
   style?: CSSProperties;
   /** image URL covering the canvas until every asset has loaded */
@@ -145,6 +153,8 @@ export function ChibiScene({
   pauseWhenOffscreen = true,
   reducedMotion,
   dpr,
+  debug = false,
+  onPerformance,
   className,
   style,
   poster,
@@ -167,6 +177,8 @@ export function ChibiScene({
   const materialsRef = useRef<SceneMaterials | null>(null);
   const nodesRef = useRef<SceneNodes | null>(null);
   const captureRef = useRef<SceneCapture | null>(null);
+  const performanceStore = useMemo(() => createPerformanceStore(), []);
+  const [debugDpr, setDebugDpr] = useState<number>();
   const boxRef = useRef<HTMLDivElement>(null);
   const [near, setNear] = useState(!lazy);
   const [onScreen, setOnScreen] = useState(true);
@@ -200,8 +212,9 @@ export function ChibiScene({
         materialsRef.current?.set(target, patch) ?? false,
       screenshot: (opts) =>
         captureRef.current?.(opts) ?? Promise.resolve(null),
+      getPerformance: performanceStore.getSnapshot,
     }),
-    [],
+    [performanceStore],
   );
 
   const watchViewport = (lazy && !near) || pauseWhenOffscreen;
@@ -285,7 +298,9 @@ export function ChibiScene({
         scrollProgress={scrollProgress}
         pointerTracking={!(reducedMotion ?? prefersReducedMotion)}
         suspended={pauseWhenOffscreen && !onScreen}
-        dpr={dpr}
+        dpr={debug ? debugDpr ?? dpr : dpr}
+        performanceStore={debug || onPerformance ? performanceStore : undefined}
+        onPerformance={onPerformance}
         onEvent={onEvent}
         pointerTargets={pointerTargets}
         onPointerEvent={onPointerEvent}
@@ -332,6 +347,7 @@ export function ChibiScene({
           }}
         />
       )}
+      {debug && <GraphicsDebug store={performanceStore} dpr={debugDpr} onDprChange={setDebugDpr} />}
     </div>
   );
 }
