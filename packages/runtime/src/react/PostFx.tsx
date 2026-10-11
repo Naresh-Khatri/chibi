@@ -18,6 +18,7 @@ const TONE_MAPPING_MODES: Record<
   aces: ToneMappingMode.ACES_FILMIC,
   neutral: ToneMappingMode.NEUTRAL,
   agx: ToneMappingMode.AGX,
+  linear: ToneMappingMode.LINEAR,
 };
 
 /** true when the doc needs the effect composer mounted */

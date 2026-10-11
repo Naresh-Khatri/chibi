@@ -22,13 +22,21 @@ import type {
 import {
   SceneHost,
   type SceneCapture,
+  type SceneMaterials,
+  type ScenePointerEvent,
   type ScreenshotOpts,
 } from "./SceneHost";
+import type { SceneNodes, NodeTransformPatch } from "./nodeOverrides";
+import type { MaterialPatch } from "./materialOverrides";
 
 /** imperative bridge for the host app (`api` prop). methods are safe to call
  * before the scene mounts — they no-op until the engine is live. */
 export type ChibiSceneApi = {
   transitionTo(stateId: string, opts?: TransitionOpts): void;
+  transitionNodeTo(nodeId: string, stateId: string, opts?: TransitionOpts): void;
+  setNodeTransform(nodeId: string, patch: NodeTransformPatch): boolean;
+  setNodeVisible(nodeId: string, visible: boolean): boolean;
+  clearNodeOverrides(nodeId: string): boolean;
   play(animationId: string): void;
   pause(animationId: string): void;
   stop(animationId: string): void;
@@ -39,6 +47,10 @@ export type ChibiSceneApi = {
   getScrollProgress(): number;
   /** damped pointer progress over the canvas, [0,1] per axis ({0.5, 0.5} = rest/center) */
   getPointer(): { x: number; y: number };
+  /** live-tweak a material by id or name (a name hits every material carrying
+   * it): colors, pbr scalars, albedo `map` URL. false = no match / not mounted.
+   * not persisted; state/clip-driven color + opacity win while they animate */
+  setMaterial(target: string, patch: MaterialPatch): boolean;
   /** encode the current frame at the canvas's pixel size. null = not mounted */
   screenshot(opts?: ScreenshotOpts): Promise<Blob | null>;
 };
@@ -46,6 +58,8 @@ export type ChibiSceneApi = {
 export type ChibiSceneProps = {
   /** parsed scene document (validated on mount) … */
   document?: unknown;
+  /** Live rendering environment; changing it preserves engine and node state. */
+  environment?: ChibiDocument["environment"];
   /** … or a URL to a .chibi.json / .chibi.zip (fetched + validated) */
   src?: string;
   /** override asset resolution; defaults: zip-bundled assets, else error */
@@ -54,6 +68,8 @@ export type ChibiSceneProps = {
   interactive?: boolean;
   /** user orbit around the scene camera (default false) */
   orbit?: boolean;
+  /** Parallel projection, framed to match the document camera at its target. */
+  orthographic?: boolean;
   /** fire `start` triggers on mount (default true) */
   autoStart?: boolean;
   /** explicit scroll progress in [0, 1]; omit to auto-track this component's
@@ -75,9 +91,12 @@ export type ChibiSceneProps = {
   /** shown while the scene file loads */
   fallback?: ReactNode;
   onEvent?: (event: RuntimeEvent) => void;
+  pointerTargets?: readonly string[];
+  onPointerEvent?: (event: ScenePointerEvent) => void;
+  transparent?: boolean;
   /** scene mounted and every asset (models, textures, env) settled */
   onLoad?: () => void;
-  /** scene file failed to fetch, parse or validate */
+  /** scene file or asset failed to load, parse or validate */
   onError?: (error: Error) => void;
   api?: Ref<ChibiSceneApi>;
 };
@@ -114,10 +133,12 @@ function toError(err: unknown): Error {
  */
 export function ChibiScene({
   document: docProp,
+  environment,
   src,
   resolveAsset,
   interactive = true,
   orbit = false,
+  orthographic = false,
   autoStart = true,
   scrollProgress,
   lazy = false,
@@ -129,6 +150,9 @@ export function ChibiScene({
   poster,
   fallback = null,
   onEvent,
+  pointerTargets,
+  onPointerEvent,
+  transparent = false,
   onLoad,
   onError,
   api,
@@ -140,6 +164,8 @@ export function ChibiScene({
     error?: string;
   } | null>(null);
   const runtimeRef = useRef<InteractionRuntime | null>(null);
+  const materialsRef = useRef<SceneMaterials | null>(null);
+  const nodesRef = useRef<SceneNodes | null>(null);
   const captureRef = useRef<SceneCapture | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
   const [near, setNear] = useState(!lazy);
@@ -159,6 +185,10 @@ export function ChibiScene({
     () => ({
       transitionTo: (stateId, opts) =>
         runtimeRef.current?.transitionTo(stateId, opts),
+      transitionNodeTo: (nodeId, stateId, opts) => runtimeRef.current?.transitionNodeTo(nodeId, stateId, opts),
+      setNodeTransform: (id, patch) => nodesRef.current?.setTransform(id, patch) ?? false,
+      setNodeVisible: (id, visible) => nodesRef.current?.setVisible(id, visible) ?? false,
+      clearNodeOverrides: (id) => nodesRef.current?.clear(id) ?? false,
       play: (id) => runtimeRef.current?.play(id),
       pause: (id) => runtimeRef.current?.pause(id),
       stop: (id) => runtimeRef.current?.stop(id),
@@ -166,6 +196,8 @@ export function ChibiScene({
       setPaused: (paused) => runtimeRef.current?.setPaused(paused),
       getScrollProgress: () => runtimeRef.current?.getScrollProgress() ?? 0,
       getPointer: () => runtimeRef.current?.getPointer() ?? { x: 0.5, y: 0.5 },
+      setMaterial: (target, patch) =>
+        materialsRef.current?.set(target, patch) ?? false,
       screenshot: (opts) =>
         captureRef.current?.(opts) ?? Promise.resolve(null),
     }),
@@ -243,7 +275,9 @@ export function ChibiScene({
     const doc = loaded.doc;
     body = (
       <SceneHost
+        orthographic={orthographic}
         doc={doc}
+        environment={environment}
         resolveAsset={resolve}
         interactive={interactive}
         orbit={orbit}
@@ -253,6 +287,11 @@ export function ChibiScene({
         suspended={pauseWhenOffscreen && !onScreen}
         dpr={dpr}
         onEvent={onEvent}
+        pointerTargets={pointerTargets}
+        onPointerEvent={onPointerEvent}
+        transparent={transparent}
+        onNodes={(nodes) => { nodesRef.current = nodes; }}
+        onError={(error) => onErrorRef.current?.(error)}
         onLoad={() => {
           setSettledDoc(doc);
           onLoadRef.current?.();
@@ -262,6 +301,9 @@ export function ChibiScene({
         }}
         onRuntime={(runtime) => {
           runtimeRef.current = runtime;
+        }}
+        onMaterials={(materials) => {
+          materialsRef.current = materials;
         }}
       />
     );

@@ -284,9 +284,11 @@ export const pointerBindingSchema = z.object({
 });
 export type PointerBinding = z.infer<typeof pointerBindingSchema>;
 
-// "soft" is chibi's built-in studio rig (no CDN fetch); the rest are drei HDRIs
+// "soft" / "product" are chibi's built-in studio rigs (no CDN fetch); the rest
+// are drei HDRIs. additive: old docs stay valid, no migration
 export const ENVIRONMENT_PRESETS = [
   "soft",
+  "product",
   "city",
   "studio",
   "sunset",
@@ -294,8 +296,9 @@ export const ENVIRONMENT_PRESETS = [
   "forest",
 ] as const;
 // tone-mapping curves: aces = three's default filmic, neutral = Khronos
-// PBR-neutral (keeps pastel hex colors true), agx = softest highlight rolloff
-export const TONE_MAPPINGS = ["aces", "neutral", "agx"] as const;
+// PBR-neutral (keeps pastel hex colors true), agx = softest highlight rolloff,
+// linear = exposure + clamp (no toe: neutral/aces crush near-black hexes)
+export const TONE_MAPPINGS = ["aces", "neutral", "agx", "linear"] as const;
 export const environmentSchema = z.object({
   background: z.string(),
   preset: z.enum(ENVIRONMENT_PRESETS).nullable(),

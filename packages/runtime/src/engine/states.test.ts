@@ -449,3 +449,22 @@ describe("interactiveNodeIds", () => {
     expect(hover).toEqual(new Set(["nd_other"]));
   });
 });
+
+it("host node transitions release one held object without releasing the others", () => {
+  const { doc, cubeId } = docWithState();
+  const lightId = doc.root[1];
+  doc.states.st_second = {
+    id: "st_second", nodeId: lightId, name: "Raised",
+    overrides: { [lightId]: { "transform.position": [0, 10, 0] } },
+  };
+  const runtime = new InteractionRuntime(doc);
+  runtime.transitionNodeTo(cubeId, HOVER, { duration: 0 });
+  runtime.transitionNodeTo(lightId, "st_second", { duration: 0 });
+  runtime.transitionNodeTo(cubeId, BASE_STATE_ID, { duration: 0 });
+  expect(runtime.stateOf(cubeId)).toBe(BASE_STATE_ID);
+  expect(runtime.stateOf(lightId)).toBe("st_second");
+  runtime.transitionNodeTo(lightId, HOVER, { duration: 0 });
+  runtime.transitionNodeTo("missing", HOVER);
+  expect(runtime.stateOf(lightId)).toBe("st_second");
+  expect(runtime.advance(0).get(makeTargetKey(lightId, "transform.position"))).toEqual([0, 10, 0]);
+});

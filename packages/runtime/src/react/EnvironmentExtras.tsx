@@ -7,6 +7,7 @@ import {
   ACESFilmicToneMapping,
   AgXToneMapping,
   CanvasTexture,
+  LinearToneMapping,
   Color,
   NeutralToneMapping,
   PCFShadowMap,
@@ -37,6 +38,7 @@ const TONE_MAPPINGS: Record<EnvironmentDef["toneMapping"], ToneMapping> = {
   aces: ACESFilmicToneMapping,
   neutral: NeutralToneMapping,
   agx: AgXToneMapping,
+  linear: LinearToneMapping,
 };
 
 /**
@@ -173,9 +175,50 @@ function SoftStudioEnvironment() {
   );
 }
 
-/** doc environment preset: chibi's built-in soft studio or a drei HDRI */
+/**
+ * Product studio: broad -x key, weak +z fill, dark below. Offset panels
+ * catch rounded bevels without reflecting white across the flat tops.
+ */
+function ProductStudioEnvironment() {
+  return (
+    <Environment resolution={256}>
+      <Lightformer
+        form="rect"
+        intensity={2.6}
+        color="#ffffff"
+        position={[-5, 7, -3]}
+        scale={[7, 5, 1]}
+      />
+      <Lightformer
+        form="rect"
+        intensity={0.4}
+        color="#fff6ec"
+        position={[-7, 2, 0]}
+        scale={[10, 4, 1]}
+      />
+      <Lightformer
+        form="rect"
+        intensity={0.2}
+        color="#eef2ff"
+        position={[0, 2, 7]}
+        scale={[10, 4, 1]}
+      />
+      {/* back-left panel -> sheen along the -x top bevels */}
+      <Lightformer
+        form="rect"
+        intensity={0.6}
+        color="#e8eeff"
+        position={[-4, 4, -5]}
+        scale={[6, 2, 1]}
+      />
+    </Environment>
+  );
+}
+
+/** doc environment preset: chibi's built-in studio rigs or a drei HDRI */
 export function SceneEnvironment({ preset }: { preset: PresetName }) {
   if (preset === "soft") return <SoftStudioEnvironment />;
+  if (preset === "product") return <ProductStudioEnvironment />;
   return <Environment preset={preset} />;
 }
 
@@ -236,8 +279,7 @@ function ShadowFilter({ soft }: { soft: boolean }) {
  * anything else runs each frame (priority -1 sorts first).
  */
 function ContactShadowAutoClearFix() {
-  const gl = useThree((s) => s.gl);
-  useFrame(() => {
+  useFrame(({ gl }) => {
     gl.autoClear = true;
   }, -1);
   return null;

@@ -9,8 +9,11 @@ export { SceneHost } from "./react/SceneHost";
 export type {
   SceneCapture,
   SceneHostProps,
+  SceneMaterials,
+  ScenePointerEvent,
   ScreenshotOpts,
 } from "./react/SceneHost";
+export type { MaterialPatch } from "./react/materialOverrides";
 
 export { loadDocument } from "./load";
 export type { LoadedScene } from "./load";
@@ -21,3 +24,5 @@ export type { RuntimeEvent, TransitionOpts } from "./engine/interactions";
 
 // zod schema, validateDocument, migrations, all document types
 export * from "./schema";
+
+export type { NodeTransformPatch } from "./react/nodeOverrides";

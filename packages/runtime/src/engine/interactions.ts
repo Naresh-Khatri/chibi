@@ -127,6 +127,12 @@ export class InteractionRuntime {
     if (state) this.goTo(state.nodeId, stateId, duration, ease);
   }
 
+  /** Transition one node, including releasing only that node to its base state. */
+  transitionNodeTo(nodeId: string, stateId: string, opts?: TransitionOpts): void {
+    if (!this.doc.nodes[nodeId]) return;
+    this.goTo(nodeId, stateId, opts?.duration ?? DEFAULT_TRANSITION.duration, opts?.ease ?? DEFAULT_TRANSITION.ease);
+  }
+
   play(animationId: string): void {
     this.run({ type: "playAnimation", animationId });
   }
