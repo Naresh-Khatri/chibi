@@ -1,5 +1,10 @@
 # Runtime releases
 
+## 0.6.0 — Unreleased
+
+- Inspect rendered FPS, frame time, JavaScript memory, and resolution with the optional performance overlay or host callbacks
+- Use compatible percentage shadow filtering in the editor and runtime without deprecated soft-shadow warnings
+
 ## 0.5.0 — 2026-10-08
 
 - Render orthographic scenes with consistent framing across viewport sizes

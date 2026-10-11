@@ -181,7 +181,7 @@ required to cut an npm release:
 
 ```sh
 pnpm --filter @chibi3d/runtime build     # emits dist/ (esm + cjs + d.ts)
-cd packages/runtime && npm publish      # publishConfig.access is already "public"
+cd packages/runtime && pnpm publish --access public
 ```
 
 Public surface: `index.ts` (curated) plus the editor-facing subpaths
