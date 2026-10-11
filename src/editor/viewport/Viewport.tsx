@@ -136,7 +136,7 @@ export function Viewport() {
       }}
     >
       <Canvas
-        shadows
+        shadows="percentage"
         dpr={[1, 2]}
         camera={{
           position: initialCamera.position,

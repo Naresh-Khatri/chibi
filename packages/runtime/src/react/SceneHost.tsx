@@ -210,7 +210,7 @@ export function SceneHost({
     <Canvas
       key={orthographic ? "orthographic" : "perspective"}
       orthographic={orthographic}
-      shadows={environment.shadows}
+      shadows={environment.shadows ? "percentage" : false}
       dpr={dpr}
       frameloop={suspended ? "never" : "demand"}
       camera={{

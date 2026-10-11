@@ -10,11 +10,7 @@ import {
   LinearToneMapping,
   Color,
   NeutralToneMapping,
-  PCFShadowMap,
-  PCFSoftShadowMap,
   SRGBColorSpace,
-  type Material,
-  type Mesh,
   type Texture,
   type ToneMapping,
 } from "three";
@@ -241,32 +237,6 @@ export function BaseLights({ hasEnvironment }: { hasEnvironment: boolean }) {
 }
 
 /**
- * doc softShadows flag -> renderer shadow filtering. Built-in PCF filtering
- * only: drei's <SoftShadows> PCSS injection is incompatible with three r168+
- * (shadow maps are sampler2DShadow now, no RGBA-packed depth) and mutates the
- * global ShaderChunk, which breaks when two canvases mount it.
- */
-function ShadowFilter({ soft }: { soft: boolean }) {
-  const get = useThree((s) => s.get);
-  useEffect(() => {
-    const { gl, scene, invalidate } = get();
-    const type = soft ? PCFSoftShadowMap : PCFShadowMap;
-    if (gl.shadowMap.type === type) return;
-    gl.shadowMap.type = type;
-    // shadowmap type is compiled into programs — force a rebuild
-    scene.traverse((obj) => {
-      const material = (obj as Mesh).material as Material | Material[] | undefined;
-      if (!material) return;
-      for (const m of Array.isArray(material) ? material : [material]) {
-        m.needsUpdate = true;
-      }
-    });
-    invalidate();
-  }, [soft, get]);
-  return null;
-}
-
-/**
  * the postprocessing EffectComposer (mounted whenever AO/bloom/vignette is
  * on) permanently flips renderer.autoClear to false as a side effect of its
  * own multi-pass compositing (see the `postprocessing` package's internal
@@ -286,7 +256,7 @@ function ContactShadowAutoClearFix() {
 }
 
 /**
- * per-document look flags: shadow filtering, tone mapping, postprocessing
+ * per-document look flags: tone mapping, postprocessing
  * (AO/bloom/vignette) and a blurred contact-shadow plane under the scene.
  * Shared by editor viewport + runtime.
  */
@@ -299,7 +269,6 @@ export function EnvironmentFx({
   return (
     <>
       <Exposure value={environment.exposure} />
-      <ShadowFilter soft={environment.softShadows} />
       {post ? (
         <PostFx environment={environment} />
       ) : (

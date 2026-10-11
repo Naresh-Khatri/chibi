@@ -39,7 +39,7 @@ export const GENERATION_SYSTEM_PROMPT = `You generate complete scene documents f
   "nodes": { [id]: Node },                 // flat map; the tree comes from children arrays
   "materials": { [id]: Material },
   "assets": {}, "animations": {}, "states": {}, "interactions": [],   // leave empty
-  "environment": { "background": hex, "backgroundGradient": hex|null (radial gradient: background center -> this at edges), "preset": "soft"|"studio"|"city"|"sunset"|"dawn"|"forest"|null, "fog": { "color": hex, "near": number, "far": number }|null, "shadows": boolean, "exposure": 1, "softShadows": boolean, "contactShadows": boolean, "toneMapping": "aces"|"neutral"|"agx" (neutral keeps pastels true), "ao": boolean (soft ambient occlusion), "bloom": boolean, "vignette": boolean },
+  "environment": { "background": hex, "backgroundGradient": hex|null (radial gradient: background center -> this at edges), "preset": "soft"|"product"|"studio"|"city"|"sunset"|"dawn"|"forest"|null, "fog": { "color": hex, "near": number, "far": number }|null, "shadows": boolean, "exposure": 1, "softShadows": boolean, "contactShadows": boolean, "toneMapping": "aces"|"neutral"|"agx"|"linear" (neutral keeps pastels true; linear keeps near-black hexes from crushing), "ao": boolean (soft ambient occlusion), "bloom": boolean, "vignette": boolean },
   "camera": { "position": [x,y,z], "target": [x,y,z], "fov": number },
   "editor": { "grid": true }
 }
